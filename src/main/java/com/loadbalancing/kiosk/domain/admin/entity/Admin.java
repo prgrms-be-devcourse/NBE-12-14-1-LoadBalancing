@@ -1,5 +1,6 @@
 package com.loadbalancing.kiosk.domain.admin.entity;
 
+import com.loadbalancing.kiosk.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,8 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "admin")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EntityListeners(AuditingEntityListener.class)
-public class Admin {
+public class Admin extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,12 +29,4 @@ public class Admin {
 
     @Column(nullable = false)
     private String name;
-
-    @CreatedDate
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
 }

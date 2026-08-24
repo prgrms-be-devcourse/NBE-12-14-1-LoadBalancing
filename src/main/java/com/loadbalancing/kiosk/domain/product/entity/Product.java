@@ -1,5 +1,6 @@
 package com.loadbalancing.kiosk.domain.product.entity;
 
+import com.loadbalancing.kiosk.global.entity.BaseSoftDeleteTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,9 +14,8 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @Table(name = "product")
-@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Product {
+public class Product extends BaseSoftDeleteTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,19 +28,11 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
+    private int price;
+
+    @Column(nullable = false)
     private int stock;
 
     @Column(name = "thumbnail", nullable = false)
     private String thumbnail;
-
-    @CreatedDate
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @Column(name = "deleted_at", nullable = false)
-    private LocalDateTime deletedAt;
 }
