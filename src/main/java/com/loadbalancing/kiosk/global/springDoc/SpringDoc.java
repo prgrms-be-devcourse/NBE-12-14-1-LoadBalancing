@@ -1,4 +1,4 @@
-package com.loadbalancing.global.springDoc;
+package com.loadbalancing.kiosk.global.springDoc;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;

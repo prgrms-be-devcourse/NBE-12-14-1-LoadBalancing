@@ -1,4 +1,4 @@
-package com.loadbalancing.global;
+package com.loadbalancing.kiosk.global;
 
 import lombok.*;
 

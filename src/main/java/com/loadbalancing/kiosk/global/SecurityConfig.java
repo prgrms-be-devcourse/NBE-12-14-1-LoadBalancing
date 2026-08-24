@@ -1,4 +1,4 @@
-package com.loadbalancing.global;
+package com.loadbalancing.kiosk.global;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
