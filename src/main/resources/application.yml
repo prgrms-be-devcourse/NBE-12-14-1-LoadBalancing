@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: kiosk
+  config:
+    import: "optional:file:.env[.properties]"
+  profiles:
+    active: dev
