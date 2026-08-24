@@ -1,4 +1,4 @@
-package com.loadbalancing.admin.entity;
+package com.loadbalancing.kiosk.product.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,23 +12,26 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@Table(name = "admin")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "product")
 @EntityListeners(AuditingEntityListener.class)
-public class Admin {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "admin_id", nullable = false)
-    private String adminId;
+    @Column(nullable = false)
+    private String title;
 
     @Column(nullable = false)
-    private String password;
+    private String description;
 
     @Column(nullable = false)
-    private String name;
+    private int stock;
+
+    @Column(name = "thumbnail", nullable = false)
+    private String thumbnail;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false)
@@ -37,4 +40,7 @@ public class Admin {
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at", nullable = false)
+    private LocalDateTime deletedAt;
 }
