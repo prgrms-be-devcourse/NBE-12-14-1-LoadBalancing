@@ -1,4 +1,4 @@
-package com.loadbalancing.kiosk.product.entity;
+package com.loadbalancing.kiosk.domain.product.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
