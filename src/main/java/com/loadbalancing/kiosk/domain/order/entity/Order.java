@@ -10,8 +10,8 @@ import org.hibernate.annotations.SQLRestriction;
 @Getter
 @Entity
 @Builder
-@Table(name = "order")
-@SQLDelete(sql = "UPDATE `order` SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@Table(name = "orders")
+@SQLDelete(sql = "UPDATE `orders` SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -35,9 +35,9 @@ public class Order extends BaseSoftDeleteTimeEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private OrderStatus orderStatus;
 
-    public void updateStatus(Status status) {
-        this.status = status;
+    public void updateStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }
