@@ -24,8 +24,6 @@ public class ProductController {
     @GetMapping("/auth/product/list")
     public ResponseEntity<ApiResponse<?>> list(
             @PageableDefault(
-                    page = 0,
-                    size = 10,
                     sort = "id",
                     direction = Sort.Direction.DESC) Pageable pageable
     ){
