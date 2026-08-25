@@ -4,8 +4,5 @@ import lombok.Builder;
 
 public class AdminResponse {
 
-    @Builder
-    public record singUpResponse(){
-
-    }
+    public record LoginResponse(String token) {}
 }
