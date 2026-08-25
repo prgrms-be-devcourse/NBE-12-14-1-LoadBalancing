@@ -1,6 +1,8 @@
 package com.loadbalancing.kiosk.domain.product.entity;
 
 import com.loadbalancing.kiosk.global.entity.BaseSoftDeleteTimeEntity;
+import com.loadbalancing.kiosk.global.exception.custom.InsufficientStockException;
+import com.loadbalancing.kiosk.global.exception.custom.InvalidStockQuantityException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,12 +40,12 @@ public class Product extends BaseSoftDeleteTimeEntity {
 
     public void decreaseStock(int quantity){
         if(quantity <= 0){
-            throw new IllegalArgumentException("수량은 1개 이상이어야 합니다.");
-            //예외 만들어야하나?
+            throw new InvalidStockQuantityException(quantity);
         }
         if(this.stock < quantity){
-            throw new IllegalArgumentException("재고가 부족합니다.");
-            //예외?만들기?
+            throw new InsufficientStockException(this.id,
+                    this.stock,
+                    quantity);
         }
         this.stock -= quantity;
 
