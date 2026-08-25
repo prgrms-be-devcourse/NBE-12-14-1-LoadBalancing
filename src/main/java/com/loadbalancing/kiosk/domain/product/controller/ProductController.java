@@ -3,7 +3,6 @@ package com.loadbalancing.kiosk.domain.product.controller;
 
 import com.loadbalancing.kiosk.domain.product.dto.request.ProductRequest;
 import com.loadbalancing.kiosk.domain.product.dto.response.ProductResponse;
-import com.loadbalancing.kiosk.domain.product.entity.Product;
 import com.loadbalancing.kiosk.domain.product.service.ProductService;
 import com.loadbalancing.kiosk.global.ApiResponse;
 import jakarta.validation.Valid;
@@ -50,13 +49,7 @@ public class ProductController {
     @Transactional
     public ResponseEntity<ApiResponse<?>> create(
             @Valid @RequestBody ProductRequest productRequest){
-        Product product = productService.createProduct(
-                productRequest.title(),
-                productRequest.description(),
-                productRequest.price(),
-                productRequest.stock(),
-                productRequest.thumbnail(),
-                productRequest.imgs());
+        ProductResponse.ProductInfo product = productService.createProduct(productRequest);
 
         return ResponseEntity.status(201).body(ApiResponse.success(
                 201,

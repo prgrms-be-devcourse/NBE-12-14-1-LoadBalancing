@@ -1,6 +1,7 @@
 package com.loadbalancing.kiosk.domain.product.service;
 
 
+import com.loadbalancing.kiosk.domain.product.dto.request.ProductRequest;
 import com.loadbalancing.kiosk.domain.product.dto.response.ProductResponse;
 import com.loadbalancing.kiosk.domain.product.entity.Product;
 import com.loadbalancing.kiosk.domain.product.entity.ProductImg;
@@ -21,25 +22,18 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductImgRepository productImgRepository;
 
-    public Product createProduct(
-            String title,
-            String description,
-            int price,
-            int stock,
-            String thumbnail,
-            List<String> imgs
-    ) {
+    public ProductResponse.ProductInfo createProduct(ProductRequest productRequest) {
 
         Product product = Product.builder()//product 저장, 썸네일 컬럼까지만
-                .title(title)
-                .description(description)
-                .price(price)
-                .stock(stock)
-                .thumbnail(thumbnail)
+                .title(productRequest.title())
+                .description(productRequest.description())
+                .price(productRequest.price())
+                .stock(productRequest.stock())
+                .thumbnail(productRequest.thumbnail())
                 .build();
         Product savedProduct = productRepository.save(product);
 
-        List<ProductImg> newImgs = imgs.stream()//이미지들은 별도로 저장
+        List<ProductImg> newImgs = productRequest.imgs().stream()//이미지들은 별도로 저장
                 .map(url -> ProductImg.builder()
                         .product(product)
                         .url(url)
@@ -47,7 +41,7 @@ public class ProductService {
                 .toList();
         productImgRepository.saveAll(newImgs);
 
-        return savedProduct;
+        return ProductResponse.ProductInfo.from(savedProduct, newImgs);
     }
 
     public Page<ProductResponse.ProductInfo> list(Pageable pageable) {
@@ -59,6 +53,8 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
-        return ProductResponse.ProductInfo.from(product);
+        List<ProductImg> imgs = productImgRepository.findAllByProduct(product);
+
+        return ProductResponse.ProductInfo.from(product, imgs);
     }
 }
