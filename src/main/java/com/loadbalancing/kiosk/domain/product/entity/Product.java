@@ -2,19 +2,23 @@ package com.loadbalancing.kiosk.domain.product.entity;
 
 import com.loadbalancing.kiosk.global.entity.BaseSoftDeleteTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.*;
 
-import java.time.LocalDateTime;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
+@Builder
 @Table(name = "product")
+@SQLDelete(sql = """
+        UPDATE product
+        SET deleted_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """)
+@SQLRestriction("deleted_at IS NULL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Product extends BaseSoftDeleteTimeEntity {
 
     @Id

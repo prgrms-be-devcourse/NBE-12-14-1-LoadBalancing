@@ -2,15 +2,15 @@ package com.loadbalancing.kiosk.domain.product.entity;
 
 import com.loadbalancing.kiosk.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 
 @Getter
 @Entity
+@Builder
 @Table(name = "product_img")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductImg extends BaseTimeEntity {
 
     @Id
