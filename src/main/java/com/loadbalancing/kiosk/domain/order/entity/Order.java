@@ -34,5 +34,10 @@ public class Order extends BaseSoftDeleteTimeEntity {
     private String postalCode;
 
     @Column(nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    public void updateStatus(Status status) {
+        this.status = status;
+    }
 }
