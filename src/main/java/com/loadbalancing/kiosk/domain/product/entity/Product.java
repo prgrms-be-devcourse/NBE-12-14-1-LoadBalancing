@@ -35,4 +35,28 @@ public class Product extends BaseSoftDeleteTimeEntity {
 
     @Column(name = "thumbnail", nullable = false)
     private String thumbnail;
+
+    public void update(
+            String title,
+            String description,
+            Integer price,
+            String thumbnail
+    ) {
+        if (title != null) {
+            this.title = title;
+        }
+        if (description != null) {
+            this.description = description;
+        }
+        if (price != null) {
+            this.price = price;
+        }
+        if (thumbnail != null) {
+            this.thumbnail = thumbnail;
+        }
+    }
+
+    public void updateStock(int stock) {
+        this.stock = stock;
+    }
 }
