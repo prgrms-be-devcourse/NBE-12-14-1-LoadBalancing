@@ -35,9 +35,9 @@ public class Order extends BaseSoftDeleteTimeEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private OrderStatus status;
 
-    public void updateStatus(Status status) {
+    public void updateStatus(OrderStatus status) {
         this.status = status;
     }
 }
