@@ -1,4 +1,4 @@
-package com.loadbalancing.kiosk.domain.order.dto;
+package com.loadbalancing.kiosk.domain.order.order.dto;
 
 import com.loadbalancing.kiosk.domain.order.entity.Order;
 import lombok.Builder;
@@ -7,12 +7,11 @@ import lombok.Builder;
 public record OrderCreateResponse(
         Long orderId,
         String status
-) {
-    public static OrderCreateResponse from(Order order) {
+){
+    public static OrderCreateResponse from(Order order){
         return OrderCreateResponse.builder()
                 .orderId(order.getId())
-                .status(order.getStatus().getDescription())
+                .status(order.getOrderStatus().getDescription())
                 .build();
-
     }
 }
