@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public class ProductResponse {
 
     @Builder
-    public record ListDto(
+    public record ProductInfo(
             Long id,
             String title,
             String description,
@@ -20,34 +20,8 @@ public class ProductResponse {
             LocalDateTime updatedAt
     ) {
 
-        public static ListDto from(Product product){
-            return ListDto.builder()
-                    .id(product.getId())
-                    .title(product.getTitle())
-                    .description(product.getDescription())
-                    .price(product.getPrice())
-                    .stock(product.getStock())
-                    .thumbnail(product.getThumbnail())
-                    .createdAt(product.getCreatedAt())
-                    .updatedAt(product.getUpdatedAt())
-                    .build();
-        }
-    }
-
-    @Builder
-    public record DetailDto(
-            Long id,
-            String title,
-            String description,
-            int price,
-            int stock,
-            String thumbnail,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt
-    ) {
-
-        public static DetailDto from(Product product){
-            return DetailDto.builder()
+        public static ProductInfo from(Product product){
+            return ProductInfo.builder()
                     .id(product.getId())
                     .title(product.getTitle())
                     .description(product.getDescription())

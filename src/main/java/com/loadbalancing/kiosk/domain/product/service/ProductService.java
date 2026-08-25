@@ -16,15 +16,15 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public Page<ProductResponse.ListDto> list(Pageable pageable) {
+    public Page<ProductResponse.ProductInfo> list(Pageable pageable) {
         return productRepository.findAll(pageable)
-                .map(ProductResponse.ListDto::from);
+                .map(ProductResponse.ProductInfo::from);
     }
 
-    public ProductResponse.DetailDto findById(Long id) {
+    public ProductResponse.ProductInfo findById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
-        return ProductResponse.DetailDto.from(product);
+        return ProductResponse.ProductInfo.from(product);
     }
 }

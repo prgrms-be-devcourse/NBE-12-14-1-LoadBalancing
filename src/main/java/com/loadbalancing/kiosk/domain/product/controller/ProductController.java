@@ -28,7 +28,7 @@ public class ProductController {
                     sort = "id",
                     direction = Sort.Direction.DESC) Pageable pageable
     ){
-        Page<ProductResponse.ListDto> products = productService.list(pageable);
+        Page<ProductResponse.ProductInfo> products = productService.list(pageable);
         return ResponseEntity.ok(ApiResponse.success(
                 200,
                 products
@@ -37,7 +37,7 @@ public class ProductController {
 
     @GetMapping("/auth/product/detail/{id}")
     public ResponseEntity<ApiResponse<?>> detail(@PathVariable Long id) {
-        ProductResponse.DetailDto product = productService.findById(id);
+        ProductResponse.ProductInfo product = productService.findById(id);
 
         return ResponseEntity.ok(ApiResponse.success(
                 200,
