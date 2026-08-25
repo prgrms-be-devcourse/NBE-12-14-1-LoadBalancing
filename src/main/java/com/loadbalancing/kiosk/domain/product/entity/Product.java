@@ -38,16 +38,36 @@ public class Product extends BaseSoftDeleteTimeEntity {
     @Column(name = "thumbnail", nullable = false)
     private String thumbnail;
 
-    public void decreaseStock(int quantity){
-        if(quantity <= 0){
+    public void update(
+            String title,
+            String description,
+            int price,
+            String thumbnail
+    ) {
+        this.title = title;
+        this.description = description;
+        this.price = price;
+
+        if (thumbnail != null) {
+            this.thumbnail = thumbnail;
+        }
+    }
+
+    public void updateStock(int stock) {
+        this.stock = stock;
+    }
+
+    public void decreaseStock(int quantity) {
+        if (quantity <= 0) {
             throw new InvalidStockQuantityException(quantity);
         }
-        if(this.stock < quantity){
-            throw new InsufficientStockException(this.id,
+        if (this.stock < quantity) {
+            throw new InsufficientStockException(
+                    this.id,
                     this.stock,
-                    quantity);
+                    quantity
+            );
         }
         this.stock -= quantity;
-
     }
 }
