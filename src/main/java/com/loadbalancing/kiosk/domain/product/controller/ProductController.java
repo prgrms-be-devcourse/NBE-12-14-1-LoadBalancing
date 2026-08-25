@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,6 +32,16 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success(
                 200,
                 products
+        ));
+    }
+
+    @GetMapping("/auth/product/detail/{id}")
+    public ResponseEntity<ApiResponse<?>> detail(@PathVariable Long id) {
+        ProductResponse.DetailDto product = productService.findById(id);
+
+        return ResponseEntity.ok(ApiResponse.success(
+                200,
+                product
         ));
     }
 }
