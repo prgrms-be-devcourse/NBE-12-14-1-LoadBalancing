@@ -1,8 +1,7 @@
 package com.loadbalancing.kiosk.domain.admin.product.controller;
 
 import com.loadbalancing.kiosk.domain.admin.product.dto.AdminProductResponse;
-import com.loadbalancing.kiosk.domain.admin.product.dto.AdminProductStockUpdateRequest;
-import com.loadbalancing.kiosk.domain.admin.product.dto.AdminProductUpdateRequest;
+import com.loadbalancing.kiosk.domain.admin.product.dto.AdminProductRequest;
 import com.loadbalancing.kiosk.domain.admin.product.service.AdminProductService;
 import com.loadbalancing.kiosk.global.ApiResponse;
 import jakarta.validation.Valid;
@@ -21,7 +20,7 @@ public class AdminProductController {
     @PutMapping("/{productId}/stock")
     public ResponseEntity<ApiResponse<AdminProductResponse>> updateStock(
             @PathVariable Long productId,
-            @Valid @RequestBody AdminProductStockUpdateRequest request
+            @Valid @RequestBody AdminProductRequest.StockUpdateDto request
     ) {
         AdminProductResponse response =
                 adminProductService.updateStock(productId, request);
@@ -32,10 +31,9 @@ public class AdminProductController {
     @PutMapping("/{productId}")
     public ResponseEntity<ApiResponse<AdminProductResponse>> updateProduct(
             @PathVariable Long productId,
-            @Valid @RequestBody AdminProductUpdateRequest request
+            @Valid @RequestBody AdminProductRequest.UpdateDto request
     ) {
-        AdminProductResponse response =
-                adminProductService.updateProduct(productId, request);
+        AdminProductResponse response = adminProductService.updateProduct(productId, request);
 
         return ResponseEntity.ok(ApiResponse.success(200, response));
     }
