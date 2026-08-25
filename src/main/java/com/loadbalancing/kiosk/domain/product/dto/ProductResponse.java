@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public class ProductResponse {
 
     @Builder
-    public record ListDto(
+    public record ProductInfo(
             Long id,
             String title,
             String description,
@@ -20,8 +20,8 @@ public class ProductResponse {
             LocalDateTime updatedAt
     ) {
 
-        public static ListDto from(Product product){
-            return ListDto.builder()
+        public static ProductInfo from(Product product){
+            return ProductInfo.builder()
                     .id(product.getId())
                     .title(product.getTitle())
                     .description(product.getDescription())
