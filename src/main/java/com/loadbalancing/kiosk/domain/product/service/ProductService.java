@@ -14,8 +14,8 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public Page<ProductResponse> list(Pageable pageable) {
+    public Page<ProductResponse.ListDto> list(Pageable pageable) {
         return productRepository.findAll(pageable)
-                .map(ProductResponse::from);
+                .map(ProductResponse.ListDto::from);
     }
 }

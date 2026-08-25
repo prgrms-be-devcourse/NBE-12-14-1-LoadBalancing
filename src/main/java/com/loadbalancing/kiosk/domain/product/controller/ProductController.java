@@ -27,7 +27,7 @@ public class ProductController {
                     sort = "id",
                     direction = Sort.Direction.DESC) Pageable pageable
     ){
-        Page<ProductResponse> products = productService.list(pageable);
+        Page<ProductResponse.ListDto> products = productService.list(pageable);
         return ResponseEntity.ok(ApiResponse.success(
                 200,
                 products
