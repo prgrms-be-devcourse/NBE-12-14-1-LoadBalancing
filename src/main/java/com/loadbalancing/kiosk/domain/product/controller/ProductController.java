@@ -49,11 +49,11 @@ public class ProductController {
     @Transactional
     public ResponseEntity<ApiResponse<?>> create(
             @Valid @RequestBody ProductRequest productRequest){
-        ProductResponse.ProductInfo product = productService.createProduct(productRequest);
+        ProductResponse.ProductInfo products = productService.createProduct(productRequest);
 
         return ResponseEntity.status(201).body(ApiResponse.success(
                 201,
-                product
+                products
         ));
     }
 }

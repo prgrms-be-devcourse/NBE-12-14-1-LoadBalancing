@@ -26,7 +26,7 @@ public record ProductRequest(
         @NotBlank(message = "썸네일을 등록해주세요.")
         String thumbnail,
 
-        @NotEmpty(message = "첨부사진들을 등록해주세요.")
+        @NotEmpty(message = "첨부사진을 등록해주세요.")
         List<@NotBlank(message = "url을 입력해주세요.") String> imgs
 ) {
 

@@ -1,11 +1,8 @@
 package com.loadbalancing.kiosk.domain.admin.order.controller;
 
-import com.loadbalancing.kiosk.domain.order.entity.Order;
-import com.loadbalancing.kiosk.domain.order.service.OrderService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor

@@ -53,8 +53,8 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
-        List<ProductImg> imgs = productImgRepository.findAllByProduct(product);
+        List<ProductImg> imgList = productImgRepository.findAllByProduct(product);
 
-        return ProductResponse.ProductInfo.from(product, imgs);
+        return ProductResponse.ProductInfo.from(product, imgList);
     }
 }

@@ -42,7 +42,7 @@ public class ProductResponse {
 
         public static ProductInfo from(Product product, List<ProductImg> imgs){
 
-            List<ProductImgInfo> imgInfos = imgs.stream()
+            List<ProductImgInfo> imgInfo = imgs.stream()
                  .map(ProductImgInfo::from)
                  .toList();
 
@@ -53,7 +53,7 @@ public class ProductResponse {
                     .price(product.getPrice())
                     .stock(product.getStock())
                     .thumbnail(product.getThumbnail())
-                    .imgs(imgInfos)
+                    .imgs(imgInfo)
                     .createdAt(product.getCreatedAt())
                     .updatedAt(product.getUpdatedAt())
                     .build();
