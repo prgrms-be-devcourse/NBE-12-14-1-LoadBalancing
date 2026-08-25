@@ -11,11 +11,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @Builder
 @Table(name = "product")
-@SQLDelete(sql = """
-        UPDATE product
-        SET deleted_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-        """)
+@SQLDelete(sql = "UPDATE product SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
