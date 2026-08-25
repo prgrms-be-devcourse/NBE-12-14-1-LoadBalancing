@@ -35,4 +35,17 @@ public class Product extends BaseSoftDeleteTimeEntity {
 
     @Column(name = "thumbnail", nullable = false)
     private String thumbnail;
+
+    public void decreaseStock(int quantity){
+        if(quantity <= 0){
+            throw new IllegalArgumentException("수량은 1개 이상이어야 합니다.");
+            //예외 만들어야하나?
+        }
+        if(this.stock < quantity){
+            throw new IllegalArgumentException("재고가 부족합니다.");
+            //예외?만들기?
+        }
+        this.stock -= quantity;
+
+    }
 }

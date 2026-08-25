@@ -36,7 +36,7 @@ public class OrderService {
         LocalDateTime cycleEnd = cycleStart.plusDays(1);
 
         // 3.같은 이메일 + 같은 처리주기의 Order 조회
-        // 기존 주문이 있으면 그걸 쓰고, 없으면 order생성.
+        // 위에서 계산한 주기에 기존 주문이 있으면 그걸 쓰고, 없으면 order생성.
         Order order = orderRepository
                 .findByEmailAndCreatedAtGreaterThanEqualAndCreatedAtLessThan(
                         request.email(),
@@ -52,6 +52,7 @@ public class OrderService {
                     .orElseThrow(() ->
                             new ProductNotFoundException(itemRequest.productId())
                     );
+            product.decreaseStock(itemRequest.quantity().intValue());
 
             OrderItem orderItem = OrderItem.builder()
                     .order(order)
