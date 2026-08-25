@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum Status {
+public enum OrderStatus {
     ORDER_RECEIVED("주문접수"),
     PAYMENT_COMPLETED("결제완료"),
     IN_DELIVERY("배송중"),
