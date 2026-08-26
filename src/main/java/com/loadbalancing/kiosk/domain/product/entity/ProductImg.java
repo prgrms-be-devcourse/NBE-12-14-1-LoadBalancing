@@ -23,10 +23,4 @@ public class ProductImg extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String url;
-
-    // 상품 이미지 URL을 변경한다.
-
-    public void updateUrl(String url) {
-        this.url = url;
-    }
 }
