@@ -1,41 +1,43 @@
 package com.loadbalancing.kiosk.domain.admin.order.controller;
 
+import com.loadbalancing.kiosk.domain.admin.order.dto.AdminOrderRequest;
+import com.loadbalancing.kiosk.domain.admin.order.dto.AdminOrderResponse;
+import com.loadbalancing.kiosk.domain.admin.order.service.AdminOrderService;
+import com.loadbalancing.kiosk.domain.order.entity.Order;
+import com.loadbalancing.kiosk.global.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
 @RestController
 public class AdminOrderController {
-/*
+
     private final AdminOrderService adminOrderService;
-    private final OrderService orderService;
 
-    *//* 주문 상태변경*//*
     @PatchMapping("/order/status/{id}")
-    @Transactional
-    public String updateStatusOrder(@PathVariable Long id,
-                                    @Valid @RequestBody PostModifyReqBody reqBody) {
-
-        Order order = orderService.findById(id).get();
-        orderService.modify(post, reqBody.title, reqBody.content);
-
-        return new RsData<>(
-                "200-1",
-                "%d번 게시물이 수정되었습니다.".formatted(id)
-        );
-    }
-    *//* 주문 삭제*//*
-    @DeleteMapping("/order/{id}")
-    public RsData<Void> delete(
-            @PathVariable int id
+    public ResponseEntity<ApiResponse<AdminOrderResponse>> updateStatusOrder(
+            @PathVariable Long id,
+            @Valid @RequestBody AdminOrderRequest adminOrderRequest
     ) {
-        postService.delete(id);
 
-        return new RsData<>(
-                "200-1",
-                "%d번 게시물이 삭제되었습니다.".formatted(id)
-        );
-    }*/
+        AdminOrderResponse response = adminOrderService.updateStatus(id, adminOrderRequest.status());
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResponse.success(200, response));
+    }
+
+    @DeleteMapping("/order/{id}")
+    public ResponseEntity<ApiResponse<?>> deleteOrder(@PathVariable Long id) {
+
+        adminOrderService.delete(id);
+
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(ApiResponse.noContentSuccess());
+    }
 }
