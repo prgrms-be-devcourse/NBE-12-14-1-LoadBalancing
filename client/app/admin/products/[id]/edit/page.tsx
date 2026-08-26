@@ -1,79 +1,102 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { productApi } from "@/api/productApi";
 import { imageApi } from "@/api/imageApi";
 
-export default function AdminProductCreatePage() {
+export default function AdminProductEditPage() {
+  const params = useParams<{ id: string }>();
   const router = useRouter();
+  const productId = Number(params.id);
+
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [imgFiles, setImgFiles] = useState<File[]>([]);
 
-  // 고른 파일 미리보기용 blob URL
+  // 기존 이미지 URL (그대로 유지할 경우 이걸 씀)
+  const [currentThumbnail, setCurrentThumbnail] = useState("");
+  const [currentImgUrls, setCurrentImgUrls] = useState<string[]>([]);
+
+  // 새로 고를 파일 (선택 안 하면 기존 걸 그대로 씀)
+  const [newThumbnailFile, setNewThumbnailFile] = useState<File | null>(null);
+  const [newImgFiles, setNewImgFiles] = useState<File[]>([]);
+
+  // 새로 고른 파일의 미리보기용 blob URL (실제 업로드 전, 로컬에서만 보여주는 용도)
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [imgPreviews, setImgPreviews] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!thumbnailFile) {
+    if (!newThumbnailFile) {
       setThumbnailPreview(null);
       return;
     }
-    const url = URL.createObjectURL(thumbnailFile);
+    const url = URL.createObjectURL(newThumbnailFile);
     setThumbnailPreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [thumbnailFile]);
+    return () => URL.revokeObjectURL(url); // 메모리 누수 방지, 파일 바뀌거나 언마운트되면 정리
+  }, [newThumbnailFile]);
 
   useEffect(() => {
-    if (imgFiles.length === 0) {
+    if (newImgFiles.length === 0) {
       setImgPreviews([]);
       return;
     }
-    const urls = imgFiles.map((file) => URL.createObjectURL(file));
+    const urls = newImgFiles.map((file) => URL.createObjectURL(file));
     setImgPreviews(urls);
     return () => urls.forEach((url) => URL.revokeObjectURL(url));
-  }, [imgFiles]);
+  }, [newImgFiles]);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<{ code: number; message: string } | null>(
     null
   );
 
+  // 진입 시 기존 상품 정보 불러와서 폼에 채워넣기
+  useEffect(() => {
+    setLoading(true);
+    setNotFound(false);
+
+    productApi
+      .getDetail(productId)
+      .then((data) => {
+        setTitle(data.title);
+        setDescription(data.description);
+        setPrice(String(data.price));
+        setStock(String(data.stock));
+        setCurrentThumbnail(data.thumbnail);
+        setCurrentImgUrls(data.imgs.map((img) => img.url));
+      })
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
+  }, [productId]);
+
   const handleSubmit = async () => {
     if (submitting) return;
-
-    if (!thumbnailFile) {
-      setError({ code: 400, message: "썸네일을 등록해주세요." });
-      return;
-    }
-    if (imgFiles.length === 0) {
-      setError({ code: 400, message: "첨부사진을 등록해주세요." });
-      return;
-    }
-
     setSubmitting(true);
     setError(null);
 
     try {
-      // 1. 썸네일/첨부사진 파일들을 먼저 각각 업로드해서 URL로 변환
-      const thumbnailUrl = await imageApi.upload(thumbnailFile);
-      const imgUrls = await Promise.all(
-        imgFiles.map((file) => imageApi.upload(file))
-      );
+      // 새 파일을 골랐으면 업로드해서 URL로 바꾸고, 안 골랐으면 기존 URL 그대로 사용
+      const thumbnailUrl = newThumbnailFile
+        ? await imageApi.upload(newThumbnailFile)
+        : currentThumbnail;
 
-      // 2. URL만 넣어서 상품 생성 요청
-      await productApi.create({
+      const imageUrls =
+        newImgFiles.length > 0
+          ? await Promise.all(newImgFiles.map((file) => imageApi.upload(file)))
+          : currentImgUrls;
+
+      await productApi.update(productId, {
         title,
         description,
         price: Number(price),
         stock: Number(stock),
         thumbnail: thumbnailUrl,
-        imgs: imgUrls,
+        imageUrls,
       });
 
       router.push("/admin/products");
@@ -92,9 +115,25 @@ export default function AdminProductCreatePage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-800" />
+      </div>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-gray-500">해당 상품을 찾을 수 없습니다.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-8 py-10">
-      <h1 className="mb-8 text-2xl font-bold text-black">상품 생성</h1>
+      <h1 className="mb-8 text-2xl font-bold text-black">상품 수정</h1>
 
       <div className="flex flex-col gap-4">
         <input
@@ -128,44 +167,65 @@ export default function AdminProductCreatePage() {
 
         <div>
           <label className="mb-1 block text-sm text-gray-500">
-            썸네일 (1장)
+            썸네일 (안 고르면 기존 이미지 유지)
           </label>
-          {thumbnailPreview && (
+          {thumbnailPreview ? (
             <img
               src={thumbnailPreview}
-              alt="썸네일 미리보기"
+              alt="새로 고른 썸네일 미리보기"
               className="mb-2 h-20 w-20 rounded-lg object-cover"
             />
+          ) : (
+            currentThumbnail && (
+              <img
+                src={currentThumbnail}
+                alt="현재 썸네일"
+                className="mb-2 h-20 w-20 rounded-lg object-cover"
+              />
+            )
           )}
           <input
             type="file"
             accept="image/*"
-            onChange={(e) => setThumbnailFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => setNewThumbnailFile(e.target.files?.[0] ?? null)}
           />
         </div>
 
         <div>
           <label className="mb-1 block text-sm text-gray-500">
-            첨부사진 (여러 장 선택 가능)
+            첨부사진 (새로 고르면 기존 사진 전체를 대체함)
           </label>
-          {imgPreviews.length > 0 && (
+          {imgPreviews.length > 0 ? (
             <div className="mb-2 flex gap-2">
               {imgPreviews.map((url) => (
                 <img
                   key={url}
                   src={url}
-                  alt="첨부사진 미리보기"
+                  alt="새로 고른 사진 미리보기"
                   className="h-16 w-16 rounded-lg object-cover"
                 />
               ))}
             </div>
+          ) : (
+            currentImgUrls.length > 0 && (
+              <div className="mb-2 flex gap-2">
+                {currentImgUrls.map((url) => (
+                  <img
+                    key={url}
+                    src={url}
+                    alt=""
+                    className="h-16 w-16 rounded-lg object-cover"
+                  />
+                ))}
+              </div>
+            )
           )}
           <input
             type="file"
             accept="image/*"
             multiple
             onChange={(e) =>
-              setImgFiles(e.target.files ? Array.from(e.target.files) : [])
+              setNewImgFiles(e.target.files ? Array.from(e.target.files) : [])
             }
           />
         </div>
@@ -185,7 +245,7 @@ export default function AdminProductCreatePage() {
         {submitting && (
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
         )}
-        {submitting ? "등록 중..." : "상품 등록"}
+        {submitting ? "수정 중..." : "수정 완료"}
       </button>
     </div>
   );
