@@ -14,16 +14,17 @@ public record AdminProductResponse(
         int price,
         int stock,
         String thumbnail,
-        List<ProductImageInfo> images
+        List<ProductImageResponse> images
 ) {
 
     public static AdminProductResponse from(
             Product product,
             List<ProductImg> productImages
     ) {
-        List<ProductImageInfo> images = productImages.stream()
-                .map(ProductImageInfo::from)
-                .toList();
+        List<ProductImageResponse> images =
+                productImages.stream()
+                        .map(ProductImageResponse::from)
+                        .toList();
 
         return AdminProductResponse.builder()
                 .id(product.getId())
@@ -37,12 +38,14 @@ public record AdminProductResponse(
     }
 
     @Builder
-    public record ProductImageInfo(
+    public record ProductImageResponse(
             Long id,
             String url
     ) {
-        public static ProductImageInfo from(ProductImg productImg) {
-            return ProductImageInfo.builder()
+        public static ProductImageResponse from(
+                ProductImg productImg
+        ) {
+            return ProductImageResponse.builder()
                     .id(productImg.getId())
                     .url(productImg.getUrl())
                     .build();

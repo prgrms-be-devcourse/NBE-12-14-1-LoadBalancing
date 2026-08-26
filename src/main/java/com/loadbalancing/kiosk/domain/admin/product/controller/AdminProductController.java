@@ -1,14 +1,19 @@
 package com.loadbalancing.kiosk.domain.admin.product.controller;
 
-import com.loadbalancing.kiosk.domain.admin.product.dto.AdminProductResponse;
 import com.loadbalancing.kiosk.domain.admin.product.dto.AdminProductRequest;
+import com.loadbalancing.kiosk.domain.admin.product.dto.AdminProductResponse;
 import com.loadbalancing.kiosk.domain.admin.product.service.AdminProductService;
 import com.loadbalancing.kiosk.global.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,22 +25,35 @@ public class AdminProductController {
     @PutMapping("/{productId}/stock")
     public ResponseEntity<ApiResponse<AdminProductResponse>> updateStock(
             @PathVariable Long productId,
-            @Valid @RequestBody AdminProductRequest.StockUpdateDto request
+            @Valid @RequestBody
+            AdminProductRequest.StockUpdateRequest request
     ) {
         AdminProductResponse response =
-                adminProductService.updateStock(productId, request);
+                adminProductService.updateStock(
+                        productId,
+                        request
+                );
 
-        return ResponseEntity.ok(ApiResponse.success(200, response));
+        return ResponseEntity.ok(
+                ApiResponse.success(200, response)
+        );
     }
 
     @PutMapping("/{productId}")
     public ResponseEntity<ApiResponse<AdminProductResponse>> updateProduct(
             @PathVariable Long productId,
-            @Valid @RequestBody AdminProductRequest.UpdateDto request
+            @Valid @RequestBody
+            AdminProductRequest.UpdateRequest request
     ) {
-        AdminProductResponse response = adminProductService.updateProduct(productId, request);
+        AdminProductResponse response =
+                adminProductService.updateProduct(
+                        productId,
+                        request
+                );
 
-        return ResponseEntity.ok(ApiResponse.success(200, response));
+        return ResponseEntity.ok(
+                ApiResponse.success(200, response)
+        );
     }
 
     @DeleteMapping("/{productId}")
