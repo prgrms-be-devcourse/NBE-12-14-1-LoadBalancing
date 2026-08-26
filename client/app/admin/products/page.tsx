@@ -94,7 +94,13 @@ export default function AdminProductListPage() {
             </thead>
             <tbody>
               {products.map((product) => (
-                <tr key={product.id} className="border-b border-gray-100">
+                <tr
+                  key={product.id}
+                  onClick={() =>
+                    router.push(`/admin/products/${product.id}/edit`)
+                  }
+                  className="cursor-pointer border-b border-gray-100 hover:bg-gray-50"
+                >
                   <td className="py-3">
                     <div className="h-10 w-10 overflow-hidden rounded bg-gray-100">
                       {product.thumbnail && (

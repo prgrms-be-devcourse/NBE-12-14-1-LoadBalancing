@@ -1,6 +1,11 @@
 import { apiClient } from "./client";
 import { ApiResponse, PageResponse } from "@/types/common";
-import { ProductInfo, ProductCreateRequest } from "@/types/product";
+import {
+  ProductInfo,
+  ProductCreateRequest,
+  ProductUpdateRequest,
+  AdminProductInfo,
+} from "@/types/product";
 
 export const productApi = {
   // GET /api/v1/auth/product/list
@@ -24,6 +29,18 @@ export const productApi = {
   create: async (request: ProductCreateRequest): Promise<ProductInfo> => {
     const res = await apiClient.post<ApiResponse<ProductInfo>>(
       "/api/v1/product",
+      request
+    );
+    return res.data.data;
+  },
+
+  // PUT /api/v1/admin/product/{productId}
+  update: async (
+    productId: number,
+    request: ProductUpdateRequest
+  ): Promise<AdminProductInfo> => {
+    const res = await apiClient.put<ApiResponse<AdminProductInfo>>(
+      `/api/v1/admin/product/${productId}`,
       request
     );
     return res.data.data;
