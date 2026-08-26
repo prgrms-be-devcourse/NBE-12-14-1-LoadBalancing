@@ -45,7 +45,7 @@ public class ProductController {
         ));
     }
 
-    @PostMapping
+    @PostMapping("/product")
     @Transactional
     public ResponseEntity<ApiResponse<?>> create(
             @Valid @RequestBody ProductRequest productRequest){
