@@ -45,4 +45,9 @@ export const productApi = {
     );
     return res.data.data;
   },
+
+  // DELETE /api/v1/admin/product/{productId}
+  delete: async (productId: number): Promise<void> => {
+    await apiClient.delete(`/api/v1/admin/product/${productId}`);
+  },
 };
