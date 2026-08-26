@@ -56,19 +56,39 @@ export default function ProductDetailPage() {
             <button
               key={img.id}
               onMouseEnter={() => setSelectedIndex(index)}
-              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-xl ${
+              className={`h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-100 ${
                 index === selectedIndex
                   ? "ring-2 ring-blue-500"
                   : "ring-1 ring-gray-200"
               }`}
             >
-              {img.url ? "☕" : "🚫"}
+              {img.url ? (
+                <img
+                  src={img.url}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-xl">
+                  🚫
+                </div>
+              )}
             </button>
           ))}
         </div>
 
-        <div className="flex aspect-square w-96 items-center justify-center rounded-xl bg-gray-100 text-8xl">
-          {gallery[selectedIndex]?.url ? "☕" : "🚫"}
+        <div className="aspect-square w-96 overflow-hidden rounded-xl bg-gray-100">
+          {gallery[selectedIndex]?.url ? (
+            <img
+              src={gallery[selectedIndex].url}
+              alt={product.title}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-8xl">
+              🚫
+            </div>
+          )}
         </div>
       </div>
 
