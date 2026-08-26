@@ -8,12 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,20 +18,15 @@ public class AdminProductController {
     private final AdminProductService adminProductService;
 
     @PutMapping("/{productId}/stock")
-    public ResponseEntity<ApiResponse<AdminProductResponse>> updateStock(
+    public ResponseEntity<ApiResponse<Void>> updateStock(
             @PathVariable Long productId,
             @Valid @RequestBody
             AdminProductRequest.StockUpdateRequest request
     ) {
-        AdminProductResponse response =
-                adminProductService.updateStock(
-                        productId,
-                        request
-                );
+        adminProductService.updateStock(productId, request);
 
-        return ResponseEntity.ok(
-                ApiResponse.success(200, response)
-        );
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body(ApiResponse.noContentSuccess());
     }
 
     @PutMapping("/{productId}")
@@ -46,10 +36,7 @@ public class AdminProductController {
             AdminProductRequest.UpdateRequest request
     ) {
         AdminProductResponse response =
-                adminProductService.updateProduct(
-                        productId,
-                        request
-                );
+                adminProductService.updateProduct(productId, request);
 
         return ResponseEntity.ok(
                 ApiResponse.success(200, response)

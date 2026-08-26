@@ -53,11 +53,13 @@ public class Product extends BaseSoftDeleteTimeEntity {
             String title,
             String description,
             int price,
+            int stock,
             String thumbnail
     ) {
         this.title = title;
         this.description = description;
         this.price = price;
+        this.thumbnail = thumbnail;
     }
 
 

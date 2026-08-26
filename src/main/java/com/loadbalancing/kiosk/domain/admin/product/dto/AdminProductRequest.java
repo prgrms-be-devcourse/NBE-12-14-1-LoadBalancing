@@ -1,6 +1,5 @@
 package com.loadbalancing.kiosk.domain.admin.product.dto;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -24,22 +23,15 @@ public class AdminProductRequest {
             @PositiveOrZero(message = "가격은 0 이상이어야 합니다.")
             Integer price,
 
+            @NotNull(message = "재고는 필수입니다.")
+            @PositiveOrZero(message = "재고는 0 이상이어야 합니다.")
+            Integer stock,
+
             @NotBlank(message = "썸네일은 필수입니다.")
             String thumbnail,
 
             @NotNull(message = "상품 이미지 목록은 필수입니다.")
-            @Valid
-            List<ImageUpdateRequest> images
-    ) {
-    }
-
-    public record ImageUpdateRequest(
-
-            @NotNull(message = "상품 이미지 ID는 필수입니다.")
-            Long id,
-
-            @NotBlank(message = "상품 이미지 주소는 필수입니다.")
-            String url
+            List<@NotBlank(message = "상품 이미지 주소는 비어 있을 수 없습니다.") String> imageUrls
     ) {
     }
 
