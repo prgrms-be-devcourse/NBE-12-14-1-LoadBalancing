@@ -99,9 +99,18 @@ export default function MenuPage() {
             onClick={() => router.push(`/menu/${product.id}`)}
             className="flex cursor-pointer flex-col gap-2"
           >
-            {/* 임시 이미지 자리, 나중에 실제 사진으로 교체 */}
-            <div className="flex aspect-square items-center justify-center rounded-xl bg-gray-100 text-5xl">
-              ☕
+            <div className="aspect-square overflow-hidden rounded-xl bg-gray-100">
+              {product.thumbnail ? (
+                <img
+                  src={product.thumbnail}
+                  alt={product.title}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-5xl">
+                  🚫
+                </div>
+              )}
             </div>
             <p className="font-medium text-black">{product.title}</p>
             <p className="text-sm text-gray-500">
