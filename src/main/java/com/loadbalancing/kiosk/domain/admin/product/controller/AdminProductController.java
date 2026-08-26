@@ -26,7 +26,7 @@ public class AdminProductController {
         adminProductService.updateStock(productId, request);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse.noContentSuccess());
+                .body(ApiResponse.noContentSuccess());  // 추후 응답에 관해 확인 필요
     }
 
     @PutMapping("/{productId}")
@@ -50,6 +50,6 @@ public class AdminProductController {
         adminProductService.deleteProduct(productId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse.noContentSuccess());
+                .body(ApiResponse.noContentSuccess()); // 추후 응답에 관해 확인 필요
     }
 }
