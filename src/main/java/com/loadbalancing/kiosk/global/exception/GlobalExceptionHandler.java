@@ -1,6 +1,7 @@
 package com.loadbalancing.kiosk.global.exception;
 
 import com.loadbalancing.kiosk.global.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * 컨트롤러마다 try-catch를 반복하지 않기 위한 공통 처리 지점.
  *
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -38,6 +40,7 @@ public class GlobalExceptionHandler {
     // 내부 예외 메시지를 그대로 노출하면 보안상 안 좋으므로 고정된 메시지만 내려준다.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
+        log.error("예상하지 못한 예외 발생", e); // 응답엔 안 담고 서버 콘솔에만 스택트레이스 남김
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(500, "서버 오류가 발생했습니다."));
     }
