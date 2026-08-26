@@ -1,4 +1,4 @@
 package com.loadbalancing.kiosk.domain.admin.order.response;
 
-public class AdminOrderResepone {
+public class AdminOrderReseponse {
 }
