@@ -13,6 +13,10 @@ import com.loadbalancing.kiosk.domain.product.entity.Product;
 import com.loadbalancing.kiosk.domain.product.repository.ProductRepository;
 import com.loadbalancing.kiosk.global.exception.custom.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,12 +73,26 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderListResponse> getOrderList(String email){
-        return orderRepository
-                .findAllByEmailOrderByCreatedAtDesc(email)
-                .stream()
-                .map(OrderListResponse::from)
-                .toList();
+    public Page<OrderListResponse> list(
+            String email,
+            Pageable pageable
+    ) {
+
+        Page<Order> orders =
+                orderRepository.findAllByEmail(email, pageable);
+
+        return orders.map(order -> {
+
+            List<OrderItem> orderItems =
+                    orderItemRepository.findAllByOrder_Id(
+                            order.getId()
+                    );
+
+            return OrderListResponse.from(
+                    order,
+                    orderItems
+            );
+        });
     }
 
     private Order createNewOrder(OrderCreateRequest request) {
