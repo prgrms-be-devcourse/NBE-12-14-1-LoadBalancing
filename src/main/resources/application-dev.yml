@@ -12,6 +12,18 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
+  servlet:
+    multipart:
+      max-file-size: 30MB      # 파일 1개당 최대 허용 크기 (기본값 1MB -> 10MB로)
+      max-request-size: 30MB   # 전체 요청 본문의 최대 허용 크기 (기본값 10MB -> 30MB로)
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}
+
+cloudflare:
+  r2:
+    account-id: ${R2_ACCOUNT_ID}
+    access-key: ${R2_ACCESS_KEY}
+    secret-key: ${R2_SECRET_KEY}
+    bucket: ${R2_BUCKET_NAME}
+    url: ${R2_PUBLIC_URL}
