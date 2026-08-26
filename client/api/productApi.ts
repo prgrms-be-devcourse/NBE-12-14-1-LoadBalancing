@@ -1,6 +1,6 @@
 import { apiClient } from "./client";
 import { ApiResponse, PageResponse } from "@/types/common";
-import { ProductInfo } from "@/types/product";
+import { ProductInfo, ProductCreateRequest } from "@/types/product";
 
 export const productApi = {
   // GET /api/v1/auth/product/list
@@ -16,6 +16,15 @@ export const productApi = {
   getDetail: async (id: number): Promise<ProductInfo> => {
     const res = await apiClient.get<ApiResponse<ProductInfo>>(
       `/api/v1/auth/product/detail/${id}`
+    );
+    return res.data.data;
+  },
+
+  // POST /api/v1/product
+  create: async (request: ProductCreateRequest): Promise<ProductInfo> => {
+    const res = await apiClient.post<ApiResponse<ProductInfo>>(
+      "/api/v1/product",
+      request
     );
     return res.data.data;
   },
