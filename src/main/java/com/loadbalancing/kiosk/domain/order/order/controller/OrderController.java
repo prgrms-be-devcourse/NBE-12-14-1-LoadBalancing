@@ -2,6 +2,7 @@ package com.loadbalancing.kiosk.domain.order.order.controller;
 
 import com.loadbalancing.kiosk.domain.order.order.dto.request.OrderCreateRequest;
 import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderCreateResponse;
+import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderDetailResponse;
 import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderListResponse;
 import com.loadbalancing.kiosk.domain.order.order.service.OrderService;
 import com.loadbalancing.kiosk.domain.product.dto.response.ProductResponse;
@@ -52,6 +53,22 @@ public class OrderController {
 
         return ResponseEntity.ok(
                 ApiResponse.success(200, orders)
+        );
+    }
+
+    @GetMapping("/detail/{orderId}")
+    public ResponseEntity<ApiResponse<OrderDetailResponse>> detail(
+            @PathVariable Long orderId
+    ) {
+
+        OrderDetailResponse order =
+                orderService.detail(orderId);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        200,
+                        order
+                )
         );
     }
 }
