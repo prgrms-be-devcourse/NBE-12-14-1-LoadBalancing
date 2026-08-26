@@ -1,10 +1,11 @@
 package com.loadbalancing.kiosk.domain.order.order.service;
 
 import com.loadbalancing.kiosk.domain.order.entity.OrderItem;
-import com.loadbalancing.kiosk.domain.order.order.dto.OrderCreateRequest;
-import com.loadbalancing.kiosk.domain.order.order.dto.OrderCreateResponse;
+import com.loadbalancing.kiosk.domain.order.order.dto.request.OrderCreateRequest;
+import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderCreateResponse;
 import com.loadbalancing.kiosk.domain.order.entity.Order;
 import com.loadbalancing.kiosk.domain.order.entity.OrderStatus;
+import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderListResponse;
 import com.loadbalancing.kiosk.domain.order.order.repository.OrderRepository;
 import com.loadbalancing.kiosk.domain.order.orderItem.dto.OrderItemRequest;
 import com.loadbalancing.kiosk.domain.order.orderItem.repository.OrderItemRepository;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -64,6 +66,15 @@ public class OrderService {
         }
 
         return OrderCreateResponse.from(order);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderListResponse> getOrderList(String email){
+        return orderRepository
+                .findAllByEmailOrderByCreatedAtDesc(email)
+                .stream()
+                .map(OrderListResponse::from)
+                .toList();
     }
 
     private Order createNewOrder(OrderCreateRequest request) {

@@ -1,4 +1,4 @@
-package com.loadbalancing.kiosk.domain.order.order.dto;
+package com.loadbalancing.kiosk.domain.order.order.dto.response;
 
 import com.loadbalancing.kiosk.domain.order.entity.Order;
 import lombok.Builder;
