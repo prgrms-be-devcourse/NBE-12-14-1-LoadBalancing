@@ -23,6 +23,7 @@ public record OrderListResponse(
             Order order,
             List<OrderItem> orderItems
     ) {
+
         List<OrderItemResponse> items = orderItems.stream()
                 .map(OrderItemResponse::from)
                 .toList();
