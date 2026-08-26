@@ -49,7 +49,25 @@ public class OrderController {
             ) Pageable pageable
     ) {
         Page<OrderListResponse> orders =
-                orderService.list(email, pageable);
+                orderService.list(
+                    email,
+                    pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(200, orders)
+        );
+    }
+
+    @GetMapping("admin/list")
+    public ResponseEntity<ApiResponse<Page<OrderListResponse>>> getAllOrderList(
+        @PageableDefault(
+            sort = "createdAt",
+            direction = Sort.Direction.DESC
+        ) Pageable pageable
+    ) {
+        Page<OrderListResponse> orders =
+                orderService.getAllList(
+                    pageable);
 
         return ResponseEntity.ok(
                 ApiResponse.success(200, orders)
