@@ -37,12 +37,13 @@ public class OrderController {
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<List<OrderListResponse>>> getOrderList(
             @RequestParam String email
-    ){
+    ) {
+
         List<OrderListResponse> response =
                 orderService.getOrderList(email);
 
         return ResponseEntity.ok(
-                ApiResponse.success(200,response)
+                ApiResponse.success(200, response)
         );
     }
 }

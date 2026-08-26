@@ -69,11 +69,22 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderListResponse> getOrderList(String email){
-        return orderRepository
-                .findAllByEmailOrderByCreatedAtDesc(email)
-                .stream()
-                .map(OrderListResponse::from)
+    public List<OrderListResponse> getOrderList(String email) {
+
+        List<Order> orders =
+                orderRepository.findAllByEmailOrderByCreatedAtDesc(email);
+        // 한 주문에서 어떤 orderItem이 있는 지 조회(n + 1) 발생?
+        return orders.stream()
+                .map(order -> {
+
+                    List<OrderItem> orderItems =
+                            orderItemRepository.findAllByOrderId(order.getId());
+
+                    return OrderListResponse.from(
+                            order,
+                            orderItems
+                    );
+                })
                 .toList();
     }
 
