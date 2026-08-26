@@ -10,25 +10,26 @@ import java.util.List;
 @Builder
 public record OrderListResponse(
         Long orderId,
-        Long productId,
-        String title,
-        int price,
-        Long quantity,
         String status,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        List<OrderItemResponse> items
 ) {
 
-    public static OrderListResponse from(OrderItem orderItem) {
+    public static OrderListResponse from(
+            Order order,
+            List<OrderItem> orderItems
+    ) {
+
+        List<OrderItemResponse> items =
+                orderItems.stream()
+                        .map(OrderItemResponse::from)
+                        .toList();
+
         return OrderListResponse.builder()
-                .orderId(orderItem.getOrder().getId())
-                .productId(orderItem.getProduct().getId())
-                .title(orderItem.getProduct().getTitle())
-                .price(orderItem.getProduct().getPrice())
-                .quantity(orderItem.getQuantity())
-                .status(orderItem.getOrder()
-                        .getOrderStatus()
-                        .getDescription())
-                .createdAt(orderItem.getCreatedAt())
+                .orderId(order.getId())
+                .status(order.getOrderStatus().getDescription())
+                .createdAt(order.getCreatedAt())
+                .items(items)
                 .build();
     }
 }

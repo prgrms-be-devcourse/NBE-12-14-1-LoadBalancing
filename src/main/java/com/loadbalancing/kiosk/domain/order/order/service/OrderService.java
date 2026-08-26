@@ -73,20 +73,26 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderListResponse> getOrderList(
+    public Page<OrderListResponse> list(
             String email,
-            int page
+            Pageable pageable
     ) {
-        Pageable pageable = PageRequest.of(
-                page,
-                10,
-                Sort.by(Sort.Direction.DESC, "createdAt")
-        );
 
-        Page<OrderItem> orderItems =
-                orderItemRepository.findAllByOrder_Email(email, pageable);
+        Page<Order> orders =
+                orderRepository.findAllByEmail(email, pageable);
 
-        return orderItems.map(OrderListResponse::from);
+        return orders.map(order -> {
+
+            List<OrderItem> orderItems =
+                    orderItemRepository.findAllByOrder_Id(
+                            order.getId()
+                    );
+
+            return OrderListResponse.from(
+                    order,
+                    orderItems
+            );
+        });
     }
 
     private Order createNewOrder(OrderCreateRequest request) {

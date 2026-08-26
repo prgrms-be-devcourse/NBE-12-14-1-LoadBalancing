@@ -9,8 +9,9 @@ public record OrderItemResponse(
         String title,
         int price,
         Long quantity
-){
-    public static OrderItemResponse from(OrderItem orderItem){
+) {
+
+    public static OrderItemResponse from(OrderItem orderItem) {
         return OrderItemResponse.builder()
                 .productId(orderItem.getProduct().getId())
                 .title(orderItem.getProduct().getTitle())

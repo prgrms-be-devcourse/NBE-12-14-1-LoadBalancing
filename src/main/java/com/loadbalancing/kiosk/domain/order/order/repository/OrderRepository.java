@@ -2,6 +2,8 @@ package com.loadbalancing.kiosk.domain.order.order.repository;
 
 
 import com.loadbalancing.kiosk.domain.order.entity.Order;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
@@ -15,5 +17,8 @@ public interface OrderRepository extends JpaRepository<Order, Long>{
             LocalDateTime end
     );
 
-    List<Order> findAllByEmailOrderByCreatedAtDesc(String email);
+    Page<Order> findAllByEmail(
+            String email,
+            Pageable pageable
+    );
 }
