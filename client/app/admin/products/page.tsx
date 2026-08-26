@@ -16,6 +16,7 @@ export default function AdminProductListPage() {
   const [error, setError] = useState<{ code: number; message: string } | null>(
     null
   );
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const fetchPage = useCallback(async (targetPage: number) => {
     setLoading(true);
@@ -44,6 +45,30 @@ export default function AdminProductListPage() {
   useEffect(() => {
     fetchPage(0);
   }, [fetchPage]);
+
+  const handleDelete = async (productId: number, title: string) => {
+    if (!window.confirm(`"${title}" 상품을 삭제하시겠습니까?`)) return;
+
+    setDeletingId(productId);
+    setError(null);
+
+    try {
+      await productApi.delete(productId);
+      await fetchPage(page); // 삭제 후 같은 페이지 다시 불러오기
+    } catch (e) {
+      const axiosError = e as {
+        response?: { data?: { code?: number; message?: string } };
+      };
+      setError({
+        code: axiosError.response?.data?.code ?? 500,
+        message:
+          axiosError.response?.data?.message ??
+          "알 수 없는 오류가 발생했습니다.",
+      });
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-8 py-10">
@@ -90,6 +115,7 @@ export default function AdminProductListPage() {
                 <th className="py-3 font-medium">상품명</th>
                 <th className="py-3 font-medium">가격</th>
                 <th className="py-3 font-medium">재고</th>
+                <th className="py-3 font-medium"></th>
               </tr>
             </thead>
             <tbody>
@@ -122,6 +148,18 @@ export default function AdminProductListPage() {
                     ) : (
                       product.stock
                     )}
+                  </td>
+                  <td className="py-3 text-right">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // 행 클릭(수정페이지 이동)이랑 겹치지 않게
+                        handleDelete(product.id, product.title);
+                      }}
+                      disabled={deletingId === product.id}
+                      className="rounded bg-red-50 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
+                    >
+                      {deletingId === product.id ? "삭제 중..." : "삭제"}
+                    </button>
                   </td>
                 </tr>
               ))}
