@@ -23,12 +23,11 @@ public class AdminProductRequest {
             @PositiveOrZero(message = "가격은 0 이상이어야 합니다.")
             Integer price,
 
+            @NotBlank(message = "썸네일은 필수입니다.")
             String thumbnail,
 
-            List<
-                    @NotBlank(message = "상품 이미지 주소는 비어 있을 수 없습니다.")
-                            String
-                    > imageUrls
+            @NotNull(message = "상품 이미지 목록은 필수입니다.")
+            List<@NotBlank(message = "상품 이미지 주소는 비어 있을 수 없습니다.") String> imageUrls
     ) {
     }
 

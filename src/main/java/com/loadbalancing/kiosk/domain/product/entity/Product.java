@@ -48,10 +48,9 @@ public class Product extends BaseSoftDeleteTimeEntity {
     @Column(name = "thumbnail", nullable = false)
     private String thumbnail;
 
-    /**
-     * 관리자가 상품명, 설명, 가격, 썸네일을 수정한다.
-     * 썸네일이 전달되지 않으면 기존 값을 유지한다.
-     */
+
+    //관리자가 상품명, 설명, 가격, 썸네일을 수정한다.
+
     public void update(
             String title,
             String description,
@@ -61,22 +60,18 @@ public class Product extends BaseSoftDeleteTimeEntity {
         this.title = title;
         this.description = description;
         this.price = price;
-
-        if (thumbnail != null) {
-            this.thumbnail = thumbnail;
-        }
     }
 
-    /**
-     * 관리자가 상품 재고를 특정 값으로 변경한다.
-     */
+
+     // 관리자가 상품 재고를 특정 값으로 변경한다.
+
     public void updateStock(int stock) {
         this.stock = stock;
     }
 
-    /**
-     * 주문 수량만큼 상품 재고를 차감한다.
-     */
+
+     // 주문 수량만큼 상품 재고를 차감한다.
+
     public void decreaseStock(int quantity) {
         if (quantity <= 0) {
             throw new InvalidStockQuantityException(quantity);
