@@ -13,6 +13,10 @@ import com.loadbalancing.kiosk.domain.product.entity.Product;
 import com.loadbalancing.kiosk.domain.product.repository.ProductRepository;
 import com.loadbalancing.kiosk.global.exception.custom.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,23 +73,20 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderListResponse> getOrderList(String email) {
+    public Page<OrderListResponse> getOrderList(
+            String email,
+            int page
+    ) {
+        Pageable pageable = PageRequest.of(
+                page,
+                10,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
 
-        List<Order> orders =
-                orderRepository.findAllByEmailOrderByCreatedAtDesc(email);
-        // 한 주문에서 어떤 orderItem이 있는 지 조회(n + 1) 발생?
-        return orders.stream()
-                .map(order -> {
+        Page<OrderItem> orderItems =
+                orderItemRepository.findAllByOrder_Email(email, pageable);
 
-                    List<OrderItem> orderItems =
-                            orderItemRepository.findAllByOrderId(order.getId());
-
-                    return OrderListResponse.from(
-                            order,
-                            orderItems
-                    );
-                })
-                .toList();
+        return orderItems.map(OrderListResponse::from);
     }
 
     private Order createNewOrder(OrderCreateRequest request) {

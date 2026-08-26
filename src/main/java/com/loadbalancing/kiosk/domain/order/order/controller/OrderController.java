@@ -6,6 +6,7 @@ import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderListResponse
 import com.loadbalancing.kiosk.domain.order.order.service.OrderService;
 import com.loadbalancing.kiosk.global.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,15 +33,15 @@ public class OrderController {
                 .status(HttpStatus.CREATED)
                 .body(ApiResponse.success(201, response));
     }
-    //해당 email로 db를 조회하여, 최신 주문 순으로 반환
+    //해당 email로 db를 조회하여, 최신 주문Item 순으로 반환
     //todo OrderStatus별로 주문 나눠서 보여주기.
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<List<OrderListResponse>>> getOrderList(
-            @RequestParam String email
+    public ResponseEntity<ApiResponse<Page<OrderListResponse>>> getOrderList(
+            @RequestParam String email,
+            @RequestParam(defaultValue = "0") int page
     ) {
-
-        List<OrderListResponse> response =
-                orderService.getOrderList(email);
+        Page<OrderListResponse> response =
+                orderService.getOrderList(email, page);
 
         return ResponseEntity.ok(
                 ApiResponse.success(200, response)
