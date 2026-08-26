@@ -4,13 +4,17 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { productApi } from "@/api/productApi";
 import { ProductInfo } from "@/types/product";
+import { useCart } from "@/context/CartContext";
 
 export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
+  const { addItem } = useCart();
   const [product, setProduct] = useState<ProductInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0); // 지금 큰 이미지로 보여줄 인덱스
+  const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
 
   useEffect(() => {
     const id = Number(params.id);
@@ -109,6 +113,45 @@ export default function ProductDetailPage() {
         <p className="mt-6 whitespace-pre-line text-gray-600">
           {product.description || ""}
         </p>
+
+        {product.stock !== 0 && (
+          <div className="mt-8 flex items-center gap-4">
+            <div className="flex items-center gap-3 rounded-lg border border-gray-200 px-3 py-2">
+              <button
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="h-6 w-6 text-black"
+              >
+                -
+              </button>
+              <span className="w-6 text-center text-black">{quantity}</span>
+              <button
+                onClick={() => setQuantity((q) => q + 1)}
+                className="h-6 w-6 text-black"
+              >
+                +
+              </button>
+            </div>
+
+            <button
+              onClick={() => {
+                addItem(
+                  {
+                    productId: product.id,
+                    title: product.title,
+                    price: product.price,
+                    thumbnail: product.thumbnail,
+                  },
+                  quantity
+                );
+                setAdded(true);
+                setTimeout(() => setAdded(false), 1500);
+              }}
+              className="rounded-lg bg-black px-6 py-3 font-medium text-white"
+            >
+              {added ? "담았습니다 ✓" : "장바구니 담기"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
