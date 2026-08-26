@@ -50,4 +50,9 @@ export const productApi = {
   delete: async (productId: number): Promise<void> => {
     await apiClient.delete(`/api/v1/admin/product/${productId}`);
   },
+
+  // PUT /api/v1/admin/product/{productId}/stock
+  updateStock: async (productId: number, stock: number): Promise<void> => {
+    await apiClient.put(`/api/v1/admin/product/${productId}/stock`, { stock });
+  },
 };

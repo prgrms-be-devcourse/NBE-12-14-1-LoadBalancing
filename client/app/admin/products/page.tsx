@@ -18,6 +18,10 @@ export default function AdminProductListPage() {
   );
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  const [editingStockId, setEditingStockId] = useState<number | null>(null);
+  const [stockInput, setStockInput] = useState("");
+  const [savingStock, setSavingStock] = useState(false);
+
   const fetchPage = useCallback(async (targetPage: number) => {
     setLoading(true);
     setError(null);
@@ -67,6 +71,44 @@ export default function AdminProductListPage() {
       });
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const startEditStock = (productId: number, currentStock: number) => {
+    setEditingStockId(productId);
+    setStockInput(String(currentStock));
+  };
+
+  const cancelEditStock = () => {
+    setEditingStockId(null);
+    setStockInput("");
+  };
+
+  const saveStock = async (productId: number) => {
+    if (savingStock) return;
+    setSavingStock(true);
+    setError(null);
+
+    try {
+      const newStock = Number(stockInput);
+      await productApi.updateStock(productId, newStock);
+      // API는 204라 응답에 값이 없어서, 화면에서만 직접 값 갱신
+      setProducts((prev) =>
+        prev.map((p) => (p.id === productId ? { ...p, stock: newStock } : p))
+      );
+      setEditingStockId(null);
+    } catch (e) {
+      const axiosError = e as {
+        response?: { data?: { code?: number; message?: string } };
+      };
+      setError({
+        code: axiosError.response?.data?.code ?? 500,
+        message:
+          axiosError.response?.data?.message ??
+          "알 수 없는 오류가 발생했습니다.",
+      });
+    } finally {
+      setSavingStock(false);
     }
   };
 
@@ -143,13 +185,49 @@ export default function AdminProductListPage() {
                     {product.price.toLocaleString()}원
                   </td>
                   <td className="py-3 text-black">
-                    {product.stock === 0 ? (
+                    {editingStockId === product.id ? (
+                      <div
+                        className="flex items-center gap-1"
+                        onClick={(e) => e.stopPropagation()} // 이 안에서 클릭해도 행 이동 안 되게
+                      >
+                        {/* type=number라 브라우저 기본 위/아래 화살표로 증감 가능 + 직접 숫자 입력도 가능 */}
+                        <input
+                          type="number"
+                          value={stockInput}
+                          onChange={(e) => setStockInput(e.target.value)}
+                          className="w-16 rounded border border-gray-300 px-1 py-0.5 text-black"
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => saveStock(product.id)}
+                          disabled={savingStock}
+                          className="rounded bg-black px-2 py-0.5 text-xs text-white disabled:opacity-50"
+                        >
+                          저장
+                        </button>
+                        <button
+                          onClick={cancelEditStock}
+                          className="rounded bg-gray-100 px-2 py-0.5 text-xs text-black"
+                        >
+                          취소
+                        </button>
+                      </div>
+                    ) : product.stock === 0 ? (
                       <span className="text-red-500">품절</span>
                     ) : (
                       product.stock
                     )}
                   </td>
                   <td className="py-3 text-right">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startEditStock(product.id, product.stock);
+                      }}
+                      className="mr-2 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-black hover:bg-gray-200"
+                    >
+                      재고수정
+                    </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation(); // 행 클릭(수정페이지 이동)이랑 겹치지 않게
