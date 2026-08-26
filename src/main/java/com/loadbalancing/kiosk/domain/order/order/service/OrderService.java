@@ -1,8 +1,8 @@
 package com.loadbalancing.kiosk.domain.order.order.service;
 
 import com.loadbalancing.kiosk.domain.order.entity.OrderItem;
-import com.loadbalancing.kiosk.domain.order.order.dto.OrderCreateRequest;
-import com.loadbalancing.kiosk.domain.order.order.dto.OrderCreateResponse;
+import com.loadbalancing.kiosk.domain.order.order.dto.request.OrderCreateRequest;
+import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderCreateResponse;
 import com.loadbalancing.kiosk.domain.order.entity.Order;
 import com.loadbalancing.kiosk.domain.order.entity.OrderStatus;
 import com.loadbalancing.kiosk.domain.order.order.repository.OrderRepository;

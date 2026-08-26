@@ -10,7 +10,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Getter
 @Entity
 @Builder
-@Table(name = "order")
+@Table(name = "`order`")
 @SQLDelete(sql = "UPDATE `order` SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

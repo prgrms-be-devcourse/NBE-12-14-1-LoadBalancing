@@ -1,4 +1,4 @@
-package com.loadbalancing.kiosk.domain.order.order.dto;
+package com.loadbalancing.kiosk.domain.order.order.dto.request;
 
 import com.loadbalancing.kiosk.domain.order.orderItem.dto.OrderItemRequest;
 

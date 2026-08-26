@@ -1,7 +1,7 @@
 package com.loadbalancing.kiosk.domain.order.order.controller;
 
-import com.loadbalancing.kiosk.domain.order.order.dto.OrderCreateRequest;
-import com.loadbalancing.kiosk.domain.order.order.dto.OrderCreateResponse;
+import com.loadbalancing.kiosk.domain.order.order.dto.request.OrderCreateRequest;
+import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderCreateResponse;
 import com.loadbalancing.kiosk.domain.order.order.service.OrderService;
 import com.loadbalancing.kiosk.global.ApiResponse;
 import lombok.RequiredArgsConstructor;
