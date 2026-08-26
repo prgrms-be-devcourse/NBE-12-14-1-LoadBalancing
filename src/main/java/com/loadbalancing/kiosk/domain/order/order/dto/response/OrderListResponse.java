@@ -10,6 +10,10 @@ import java.util.List;
 @Builder
 public record OrderListResponse(
         Long orderId,
+        String email,
+        String addressLine1,
+        String addressLine2,
+        String postalCode,
         String status,
         LocalDateTime createdAt,
         List<OrderItemResponse> items
@@ -19,14 +23,16 @@ public record OrderListResponse(
             Order order,
             List<OrderItem> orderItems
     ) {
-
-        List<OrderItemResponse> items =
-                orderItems.stream()
-                        .map(OrderItemResponse::from)
-                        .toList();
+        List<OrderItemResponse> items = orderItems.stream()
+                .map(OrderItemResponse::from)
+                .toList();
 
         return OrderListResponse.builder()
                 .orderId(order.getId())
+                .email(order.getEmail())
+                .addressLine1(order.getAddressLine1())
+                .addressLine2(order.getAddressLine2())
+                .postalCode(order.getPostalCode())
                 .status(order.getOrderStatus().getDescription())
                 .createdAt(order.getCreatedAt())
                 .items(items)
