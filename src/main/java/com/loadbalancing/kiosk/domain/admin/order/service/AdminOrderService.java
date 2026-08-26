@@ -27,9 +27,8 @@ public class AdminOrderService {
 
     @Transactional
     public void delete(Long id) {
-        if (!adminOrderRepository.existsById(id)) {
-            throw new OrderNotFoundException(id);
-        }
-        adminOrderRepository.deleteById(id);
+        Order order = adminOrderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException(id));
+        adminOrderRepository.delete(order);
     }
 }

@@ -37,7 +37,7 @@ public class AdminOrderController {
         adminOrderService.delete(id);
 
         return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiResponse.success(200, ""));
+                .status(HttpStatus.NO_CONTENT)
+                .body(ApiResponse.noContentSuccess());
     }
 }
