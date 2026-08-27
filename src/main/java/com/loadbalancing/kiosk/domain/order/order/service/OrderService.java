@@ -175,16 +175,16 @@ public class OrderService {
                 );
         orderItemRepository.delete(orderItem);
 
-        //order에 item들이 하나도 없는지 확인하기 위해
-        List<OrderItem> orderItems = orderItemRepository.findAllByOrder_Id(orderId);
+        //order에 item들이 하나도 없는지 확인
+        boolean existItems = orderItemRepository.existsByOrder_Id(orderId);
 
-        //지우기 위한 주문도 호출
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(
-                        () -> new OrderItemNotFoundException(itemId)
-                );
         //주문의 item들이 하나도 없다면
-        if(orderItems.size() == 0) {
+        if(!existItems) {
+            //지우기 위한 주문도 호출
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(
+                            () -> new OrderNotFoundException(orderId)
+                    );
             orderRepository.delete(order); //주문도 지우기
         }
     }
