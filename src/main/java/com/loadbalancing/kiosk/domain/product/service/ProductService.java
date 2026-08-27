@@ -46,13 +46,9 @@ public class ProductService {
 
     public Page<ProductResponse.ProductInfo> list(String keyword, Pageable pageable) {
 
-        Page<Product> products;//if문 안에서 선언하면 안되기 때문에 밖에서 선언
+        String safeKeyword = (keyword == null) ? "" : keyword.trim();
+        Page<Product> products = productRepository.findByTitleContainingIgnoreCase(safeKeyword, pageable);
 
-        if(keyword == null || keyword.isEmpty()){
-            products = productRepository.findAll(pageable);
-        } else {
-            products = productRepository.findByTitleContainingIgnoreCase(keyword.trim(), pageable);
-        }
         return products.map(ProductResponse.ProductInfo::from);
     }
 
