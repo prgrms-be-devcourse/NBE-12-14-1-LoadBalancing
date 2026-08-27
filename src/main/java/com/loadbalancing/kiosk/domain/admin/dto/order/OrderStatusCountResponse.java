@@ -1,6 +1,6 @@
 package com.loadbalancing.kiosk.domain.admin.dto.order;
 
-import com.loadbalancing.kiosk.domain.order.entity.OrderStatus;
+import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
 import lombok.Builder;
 
 @Builder

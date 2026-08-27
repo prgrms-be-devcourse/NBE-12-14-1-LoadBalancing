@@ -54,7 +54,7 @@ class OrderApiTest {
         // 예가체프(id=1) 초기 재고 50
         var request = orderRequest("stock-test@example.com", List.of(item(1, 3)));
 
-        mockMvc.perform(post("/api/v1/order")
+        mockMvc.perform(post("/api/v1/auth/order")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -68,14 +68,14 @@ class OrderApiTest {
     void 같은_이메일로_연달아_주문하면_하나의_주문으로_합쳐진다() throws Exception {
         String email = "merge-test@example.com";
 
-        String firstBody = mockMvc.perform(post("/api/v1/order")
+        String firstBody = mockMvc.perform(post("/api/v1/auth/order")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 orderRequest(email, List.of(item(1, 1), item(2, 1))))))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
 
-        String secondBody = mockMvc.perform(post("/api/v1/order")
+        String secondBody = mockMvc.perform(post("/api/v1/auth/order")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 orderRequest(email, List.of(item(3, 1))))))
@@ -88,28 +88,28 @@ class OrderApiTest {
         assertEquals(firstOrderId, secondOrderId);
 
         // 주문은 1건인데, 그 안의 아이템은 3종류(1+1+1) 다 들어있어야 함
-        mockMvc.perform(get("/api/v1/order/list").param("email", email))
+        mockMvc.perform(get("/api/v1/auth/order/list").param("email", email))
                 .andExpect(jsonPath("$.data.content.length()").value(1))
                 .andExpect(jsonPath("$.data.content[0].items.length()").value(3));
     }
 
     @Test
     void 다른_이메일로_주문하면_각각_별도_주문으로_생성된다() throws Exception {
-        mockMvc.perform(post("/api/v1/order")
+        mockMvc.perform(post("/api/v1/auth/order")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 orderRequest("a@example.com", List.of(item(1, 1))))))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/api/v1/order")
+        mockMvc.perform(post("/api/v1/auth/order")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 orderRequest("b@example.com", List.of(item(1, 1))))))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/api/v1/order/list").param("email", "a@example.com"))
+        mockMvc.perform(get("/api/v1/auth/order/list").param("email", "a@example.com"))
                 .andExpect(jsonPath("$.data.content.length()").value(1));
-        mockMvc.perform(get("/api/v1/order/list").param("email", "b@example.com"))
+        mockMvc.perform(get("/api/v1/auth/order/list").param("email", "b@example.com"))
                 .andExpect(jsonPath("$.data.content.length()").value(1));
     }
 
@@ -118,7 +118,7 @@ class OrderApiTest {
         // 케냐 AA(id=3) 초기 재고 30
         var request = orderRequest("insufficient@example.com", List.of(item(3, 999)));
 
-        mockMvc.perform(post("/api/v1/order")
+        mockMvc.perform(post("/api/v1/auth/order")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict());
@@ -128,7 +128,7 @@ class OrderApiTest {
     void 존재하지_않는_상품으로_주문하면_404가_난다() throws Exception {
         var request = orderRequest("noproduct@example.com", List.of(item(9999, 1)));
 
-        mockMvc.perform(post("/api/v1/order")
+        mockMvc.perform(post("/api/v1/auth/order")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -136,39 +136,25 @@ class OrderApiTest {
 
     @Test
     void 주문한적_없는_이메일로_조회하면_빈_목록이_나온다() throws Exception {
-        mockMvc.perform(get("/api/v1/order/list").param("email", "nobody@example.com"))
+        mockMvc.perform(get("/api/v1/auth/order/list").param("email", "nobody@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content.length()").value(0));
     }
 
-    @Test
-    void 관리자용_전체_주문목록은_이메일_필터없이_다_나온다() throws Exception {
-        mockMvc.perform(post("/api/v1/order")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(
-                                orderRequest("admin-list-1@example.com", List.of(item(1, 1))))))
-                .andExpect(status().isCreated());
-        mockMvc.perform(post("/api/v1/order")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(
-                                orderRequest("admin-list-2@example.com", List.of(item(2, 1))))))
-                .andExpect(status().isCreated());
-
-        mockMvc.perform(get("/api/v1/order/admin/list"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content.length()").value(2));
-    }
+    // 예전엔 여기서 관리자용 전체 목록(/order/admin/list)도 테스트했는데, 그 엔드포인트 자체가
+    // AdminOrderController.searchOrder()(파라미터 없이 호출하면 전체 목록과 동일)로 흡수되면서 삭제됨.
+    // 동일한 케이스는 AdminOrderApiTest.검색조건_없이_호출하면_전체_주문이_나온다()가 커버함.
 
     @Test
     void 주문_상세조회하면_주문항목이_상세정보와_함께_나온다() throws Exception {
-        String body = mockMvc.perform(post("/api/v1/order")
+        String body = mockMvc.perform(post("/api/v1/auth/order")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 orderRequest("detail-test@example.com", List.of(item(1, 2))))))
                 .andReturn().getResponse().getContentAsString();
         Long orderId = objectMapper.readTree(body).path("data").path("orderId").asLong();
 
-        mockMvc.perform(get("/api/v1/order/detail/" + orderId))
+        mockMvc.perform(get("/api/v1/auth/order/detail/" + orderId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.email").value("detail-test@example.com"))
                 .andExpect(jsonPath("$.data.items.length()").value(1))

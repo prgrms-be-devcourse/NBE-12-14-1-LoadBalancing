@@ -1,10 +1,9 @@
-package com.loadbalancing.kiosk.domain.admin.order.controller;
+package com.loadbalancing.kiosk.domain.order.controller;
 
-import com.loadbalancing.kiosk.domain.admin.order.dto.request.AdminOrderRequest;
-import com.loadbalancing.kiosk.domain.admin.order.dto.response.AdminOrderResponse;
-import com.loadbalancing.kiosk.domain.admin.order.service.AdminOrderService;
-import com.loadbalancing.kiosk.domain.order.entity.OrderStatus;
-import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderListResponse;
+import com.loadbalancing.kiosk.domain.order.dto.OrderRequest;
+import com.loadbalancing.kiosk.domain.order.dto.OrderResponse;
+import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
+import com.loadbalancing.kiosk.domain.order.service.OrderService;
 import com.loadbalancing.kiosk.global.ApiResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -21,38 +20,38 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1/admin/order")
 @RequiredArgsConstructor
 @RestController
 public class AdminOrderController {
 
-    private final AdminOrderService adminOrderService;
+    private final OrderService orderService;
 
-    @PatchMapping("/order/status/{id}")
-    public ResponseEntity<ApiResponse<AdminOrderResponse>> updateStatusOrder(
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<OrderResponse.OrderStatus>> updateStatusOrder(
             @PathVariable Long id,
-            @Valid @RequestBody AdminOrderRequest adminOrderRequest
+            @Valid @RequestBody OrderRequest.AdminOrderRequest adminOrderRequest
     ) {
 
-        AdminOrderResponse response = adminOrderService.updateStatus(id, adminOrderRequest.status());
+        OrderResponse.OrderStatus response = orderService.updateStatus(id, adminOrderRequest.status());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(ApiResponse.success(200, response));
     }
 
-    @DeleteMapping("/order/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> deleteOrder(@PathVariable Long id) {
 
-        adminOrderService.delete(id);
+        orderService.deleteOrder(id);
 
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.noContentSuccess());
     }
 
-    @GetMapping("/order/search")
-    public ResponseEntity<ApiResponse<Page<OrderListResponse>>> searchOrder(
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Page<OrderResponse.OrderInfo>>> searchOrder(
             @Parameter(description = "검색어 (이메일 기준)", example = "user02@naver.com")
             @RequestParam(required = false) String keyword,
             @Parameter(
@@ -63,12 +62,12 @@ public class AdminOrderController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(description = "검색 종료일 (yyyy-MM-dd 형식)", example = "2026-08-27")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         LocalDateTime start = (startDate != null) ? startDate.atStartOfDay() : null;
         LocalDateTime end = (endDate != null) ? endDate.plusDays(1).atStartOfDay() : null;
 
-        Page<OrderListResponse> result = adminOrderService.search(keyword, status, start, end, pageable);
+        Page<OrderResponse.OrderInfo> result = orderService.search(keyword, status, start, end, pageable);
         return ResponseEntity.ok(ApiResponse.success(200, result));
     }
 }

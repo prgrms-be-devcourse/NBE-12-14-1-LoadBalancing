@@ -1,4 +1,4 @@
-package com.loadbalancing.kiosk.domain.order.entity;
+package com.loadbalancing.kiosk.domain.order.infra.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
