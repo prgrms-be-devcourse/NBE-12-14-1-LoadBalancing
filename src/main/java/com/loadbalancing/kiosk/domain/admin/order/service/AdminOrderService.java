@@ -1,11 +1,11 @@
 package com.loadbalancing.kiosk.domain.admin.order.service;
 
-import com.loadbalancing.kiosk.domain.admin.order.dto.response.AdminOrderListResponse;
 import com.loadbalancing.kiosk.domain.admin.order.dto.response.AdminOrderResponse;
 import com.loadbalancing.kiosk.domain.admin.order.repository.AdminOrderRepository;
 import com.loadbalancing.kiosk.domain.order.entity.Order;
 import com.loadbalancing.kiosk.domain.order.entity.OrderItem;
 import com.loadbalancing.kiosk.domain.order.entity.OrderStatus;
+import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderListResponse;
 import com.loadbalancing.kiosk.domain.order.orderItem.repository.OrderItemRepository;
 import com.loadbalancing.kiosk.global.exception.custom.OrderNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -42,13 +42,13 @@ public class AdminOrderService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AdminOrderListResponse> search(
+    public Page<OrderListResponse> search(
             String keyword, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable
     ) {
         Page<Order> orders = adminOrderRepository.search(keyword, startDate, endDate, pageable);
         return orders.map(order -> {
             List<OrderItem> items = orderItemRepository.findAllByOrder_Id(order.getId());
-            return AdminOrderListResponse.from(order, items);
+            return OrderListResponse.from(order, items);
         });
     }
 }

@@ -1,10 +1,9 @@
 package com.loadbalancing.kiosk.domain.admin.order.controller;
 
 import com.loadbalancing.kiosk.domain.admin.order.dto.request.AdminOrderRequest;
-import com.loadbalancing.kiosk.domain.admin.order.dto.response.AdminOrderListResponse;
 import com.loadbalancing.kiosk.domain.admin.order.dto.response.AdminOrderResponse;
 import com.loadbalancing.kiosk.domain.admin.order.service.AdminOrderService;
-import com.loadbalancing.kiosk.domain.product.dto.response.ProductResponse;
+import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderListResponse;
 import com.loadbalancing.kiosk.global.ApiResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -52,20 +51,18 @@ public class AdminOrderController {
     }
 
     @GetMapping("/order/search")
-    public ResponseEntity<ApiResponse<Page<AdminOrderListResponse>>> searchOrder(
-            @Parameter(description = "검색어 (주문에 담긴 상품명 기준)", example = "케냐")
-            @RequestParam(required = false) String keyword,
+    public ResponseEntity<ApiResponse<Page<OrderListResponse>>> searchOrder(
+            @Parameter(description = "검색어 (이메일 기준)", example = "user02@naver.com") @RequestParam(required = false) String keyword,
             @Parameter(description = "검색 시작일 (yyyy-MM-dd 형식)", example = "2026-08-01")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(description = "검색 종료일 (yyyy-MM-dd 형식)", example = "2026-08-27")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         LocalDateTime start = (startDate != null) ? startDate.atStartOfDay() : null;
         LocalDateTime end = (endDate != null) ? endDate.plusDays(1).atStartOfDay() : null;
 
-        Page<AdminOrderListResponse> result = adminOrderService.search(keyword, start, end, pageable);
+        Page<OrderListResponse> result = adminOrderService.search(keyword, start, end, pageable);
         return ResponseEntity.ok(ApiResponse.success(200, result));
     }
 }
