@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { productApi } from "@/api/productApi";
 import { imageApi } from "@/api/imageApi";
+import Icon from "@/components/Icon";
 
 export default function AdminProductEditPage() {
   const params = useParams<{ id: string }>();
@@ -132,8 +133,10 @@ export default function AdminProductEditPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-8 py-10">
-      <h1 className="mb-8 text-2xl font-bold text-black">상품 수정</h1>
+    <div className="mx-auto w-[896px] px-8 py-10">
+      <h1 className="text-headline-md mb-8 font-bold text-black">
+        상품 수정
+      </h1>
 
       <div className="flex flex-col gap-4">
         <input
@@ -141,28 +144,28 @@ export default function AdminProductEditPage() {
           placeholder="제목"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="rounded-lg border border-gray-200 px-4 py-3 text-black"
+          className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
         />
         <textarea
           placeholder="설명"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
-          className="rounded-lg border border-gray-200 px-4 py-3 text-black"
+          className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
         />
         <input
           type="number"
           placeholder="가격"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          className="rounded-lg border border-gray-200 px-4 py-3 text-black"
+          className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
         />
         <input
           type="number"
           placeholder="재고"
           value={stock}
           onChange={(e) => setStock(e.target.value)}
-          className="rounded-lg border border-gray-200 px-4 py-3 text-black"
+          className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
         />
 
         <div>
@@ -240,10 +243,12 @@ export default function AdminProductEditPage() {
       <button
         onClick={handleSubmit}
         disabled={submitting}
-        className="mt-8 flex w-full items-center justify-center gap-2 rounded-lg bg-black py-4 font-medium text-white disabled:opacity-50"
+        className="mt-8 flex w-full items-center justify-center gap-2 rounded-lg bg-black py-4 font-bold text-white disabled:opacity-50"
       >
-        {submitting && (
+        {submitting ? (
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+        ) : (
+          <Icon name="check" />
         )}
         {submitting ? "수정 중..." : "수정 완료"}
       </button>

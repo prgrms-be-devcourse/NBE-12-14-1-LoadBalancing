@@ -7,6 +7,8 @@ import {
   ORDER_STATUS_OPTIONS,
   statusLabelToValue,
 } from "@/types/order";
+import AdminNav from "@/components/AdminNav";
+import Icon from "@/components/Icon";
 
 const PAGE_SIZE = 10;
 
@@ -159,20 +161,27 @@ export default function AdminOrderListPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-8 py-10">
-      <h1 className="mb-8 text-2xl font-bold text-black">주문 관리</h1>
+    <div className="mx-auto w-[896px] px-8 py-10">
+      <AdminNav />
+
+      <h1 className="text-headline-md mb-8 font-bold text-black">
+        주문 관리
+      </h1>
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
-        <input
-          type="text"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSearch();
-          }}
-          placeholder="이메일로 검색"
-          className="min-w-[160px] flex-1 rounded border border-gray-300 px-3 py-2 text-sm text-black"
-        />
+        <div className="flex min-w-[160px] flex-1 items-center gap-2 border-b border-gray-300 px-1 py-2 focus-within:border-black">
+          <Icon name="search" className="text-xl text-gray-400" />
+          <input
+            type="text"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
+            placeholder="이메일로 검색"
+            className="text-body-md w-full text-black outline-none placeholder:text-gray-400"
+          />
+        </div>
         <input
           type="date"
           value={startDate}
@@ -188,14 +197,14 @@ export default function AdminOrderListPage() {
         />
         <button
           onClick={handleSearch}
-          className="rounded bg-black px-4 py-2 text-sm font-medium text-white"
+          className="rounded bg-black px-5 py-2 text-label-sm font-bold text-white"
         >
           검색
         </button>
         {isSearching && (
           <button
             onClick={handleResetSearch}
-            className="rounded border border-gray-200 px-4 py-2 text-sm font-medium text-black hover:bg-gray-50"
+            className="rounded border-2 border-black px-5 py-2 text-label-sm font-bold text-black hover:bg-gray-50"
           >
             초기화
           </button>
@@ -245,10 +254,10 @@ export default function AdminOrderListPage() {
                     className="flex w-full cursor-pointer items-center justify-between px-4 py-3"
                   >
                     <div>
-                      <p className="font-medium text-black">
+                      <p className="font-bold text-black">
                         주문번호 {order.orderId} · {order.email}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-label-sm mt-0.5 text-gray-500">
                         {new Date(order.createdAt).toLocaleString()} · 상품{" "}
                         {order.items.length}종
                       </p>
@@ -274,16 +283,17 @@ export default function AdminOrderListPage() {
                       <button
                         onClick={() => handleDelete(order.orderId)}
                         disabled={deletingId === order.orderId}
-                        className="rounded bg-red-50 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
+                        title="삭제"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded text-gray-500 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                       >
-                        {deletingId === order.orderId ? "삭제 중..." : "삭제"}
+                        <Icon name="delete" className="text-lg" />
                       </button>
-                      <span
-                        className="cursor-pointer text-gray-400"
+                      <button
                         onClick={() => toggleExpand(order.orderId)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded text-gray-400 hover:bg-gray-100"
                       >
-                        {isExpanded ? "▲" : "▼"}
-                      </span>
+                        <Icon name={isExpanded ? "expand_less" : "expand_more"} />
+                      </button>
                     </div>
                   </div>
 

@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { productApi } from "@/api/productApi";
 import { ProductInfo } from "@/types/product";
+import AdminNav from "@/components/AdminNav";
+import Icon from "@/components/Icon";
 
 const PAGE_SIZE = 10;
 
@@ -130,31 +132,42 @@ export default function AdminProductListPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-8 py-10">
+    <div className="mx-auto w-[896px] px-8 py-10">
+      <AdminNav />
+
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-black">상품 관리</h1>
+        <div>
+          <h1 className="text-headline-md font-bold text-black">상품 관리</h1>
+          <p className="text-body-md mt-1 text-gray-500">
+            메뉴 상품, 재고, 가격을 관리해요.
+          </p>
+        </div>
         <button
           onClick={() => router.push("/admin/products/new")}
-          className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white"
+          className="flex items-center gap-1 rounded-lg bg-black px-4 py-2 text-label-sm font-bold text-white"
         >
+          <Icon name="add" className="text-lg" />
           상품 생성
         </button>
       </div>
 
       <div className="mb-6 flex gap-2">
-        <input
-          type="text"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSearch();
-          }}
-          placeholder="상품명으로 검색"
-          className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm text-black"
-        />
+        <div className="flex flex-1 items-center gap-2 border-b border-gray-300 px-1 py-2 focus-within:border-black">
+          <Icon name="search" className="text-xl text-gray-400" />
+          <input
+            type="text"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
+            placeholder="상품명으로 검색"
+            className="text-body-md w-full text-black outline-none placeholder:text-gray-400"
+          />
+        </div>
         <button
           onClick={handleSearch}
-          className="rounded bg-black px-4 py-2 text-sm font-medium text-white"
+          className="rounded bg-black px-5 py-2 text-label-sm font-bold text-white"
         >
           검색
         </button>
@@ -164,7 +177,7 @@ export default function AdminProductListPage() {
               setKeyword("");
               setAppliedKeyword("");
             }}
-            className="rounded border border-gray-200 px-4 py-2 text-sm font-medium text-black hover:bg-gray-50"
+            className="rounded border-2 border-black px-5 py-2 text-label-sm font-bold text-black hover:bg-gray-50"
           >
             초기화
           </button>
@@ -199,12 +212,22 @@ export default function AdminProductListPage() {
         <>
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-gray-500">
-                <th className="py-3 font-medium">썸네일</th>
-                <th className="py-3 font-medium">상품명</th>
-                <th className="py-3 font-medium">가격</th>
-                <th className="py-3 font-medium">재고</th>
-                <th className="py-3 font-medium"></th>
+              <tr className="border-b border-gray-200 bg-gray-50 text-left text-gray-500">
+                <th className="text-label-sm px-3 py-3 font-bold uppercase tracking-wide">
+                  썸네일
+                </th>
+                <th className="text-label-sm py-3 font-bold uppercase tracking-wide">
+                  상품명
+                </th>
+                <th className="text-label-sm py-3 font-bold uppercase tracking-wide">
+                  가격
+                </th>
+                <th className="text-label-sm py-3 font-bold uppercase tracking-wide">
+                  재고
+                </th>
+                <th className="text-label-sm px-3 py-3 text-right font-bold uppercase tracking-wide">
+                  작업
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -216,18 +239,27 @@ export default function AdminProductListPage() {
                   }
                   className="cursor-pointer border-b border-gray-100 hover:bg-gray-50"
                 >
-                  <td className="py-3">
+                  <td className="px-3 py-3">
                     <div className="h-10 w-10 overflow-hidden rounded bg-gray-100">
-                      {product.thumbnail && (
+                      {product.thumbnail ? (
                         <img
                           src={product.thumbnail}
                           alt={product.title}
                           className="h-full w-full object-cover"
                         />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <Icon
+                            name="image_not_supported"
+                            className="text-base text-gray-300"
+                          />
+                        </div>
                       )}
                     </div>
                   </td>
-                  <td className="py-3 text-black">{product.title}</td>
+                  <td className="py-3 font-medium text-black">
+                    {product.title}
+                  </td>
                   <td className="py-3 text-black">
                     {product.price.toLocaleString()}원
                   </td>
@@ -248,32 +280,36 @@ export default function AdminProductListPage() {
                         <button
                           onClick={() => saveStock(product.id)}
                           disabled={savingStock}
-                          className="rounded bg-black px-2 py-0.5 text-xs text-white disabled:opacity-50"
+                          className="rounded bg-black px-2 py-0.5 text-xs font-bold text-white disabled:opacity-50"
                         >
                           저장
                         </button>
                         <button
                           onClick={cancelEditStock}
-                          className="rounded bg-gray-100 px-2 py-0.5 text-xs text-black"
+                          className="rounded bg-gray-100 px-2 py-0.5 text-xs font-bold text-black"
                         >
                           취소
                         </button>
                       </div>
                     ) : product.stock === 0 ? (
-                      <span className="text-red-500">품절</span>
+                      <span className="text-label-sm inline-flex items-center gap-1 rounded bg-red-50 px-2 py-0.5 font-bold uppercase text-red-600">
+                        <Icon name="circle" className="text-[6px]" filled />
+                        품절
+                      </span>
                     ) : (
                       product.stock
                     )}
                   </td>
-                  <td className="py-3 text-right">
+                  <td className="px-3 py-3 text-right">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         startEditStock(product.id, product.stock);
                       }}
-                      className="mr-2 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-black hover:bg-gray-200"
+                      title="재고수정"
+                      className="mr-1 inline-flex h-8 w-8 items-center justify-center rounded text-gray-500 hover:bg-gray-100 hover:text-black"
                     >
-                      재고수정
+                      <Icon name="edit" className="text-lg" />
                     </button>
                     <button
                       onClick={(e) => {
@@ -281,9 +317,10 @@ export default function AdminProductListPage() {
                         handleDelete(product.id, product.title);
                       }}
                       disabled={deletingId === product.id}
-                      className="rounded bg-red-50 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
+                      title="삭제"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded text-gray-500 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                     >
-                      {deletingId === product.id ? "삭제 중..." : "삭제"}
+                      <Icon name="delete" className="text-lg" />
                     </button>
                   </td>
                 </tr>

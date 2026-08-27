@@ -7,6 +7,7 @@ import { ProductInfo } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import OrderStepper from "@/components/OrderStepper";
 import BackToHomeButton from "@/components/BackToHomeButton";
+import Icon from "@/components/Icon";
 
 export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
@@ -82,15 +83,18 @@ export default function ProductDetailPage() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xl">
-                    🚫
+                  <div className="flex h-full w-full items-center justify-center">
+                    <Icon
+                      name="image_not_supported"
+                      className="text-xl text-gray-300"
+                    />
                   </div>
                 )}
               </button>
             ))}
           </div>
 
-          <div className="aspect-square w-96 overflow-hidden rounded-xl bg-gray-100">
+          <div className="aspect-square w-96 overflow-hidden rounded bg-gray-100">
             {gallery[selectedIndex]?.url ? (
               <img
                 src={gallery[selectedIndex].url}
@@ -98,8 +102,11 @@ export default function ProductDetailPage() {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-8xl">
-                🚫
+              <div className="flex h-full w-full items-center justify-center">
+                <Icon
+                  name="image_not_supported"
+                  className="text-8xl text-gray-300"
+                />
               </div>
             )}
           </div>
@@ -107,39 +114,41 @@ export default function ProductDetailPage() {
 
         {/* 오른쪽: 상품 정보 */}
         <div className="flex-1 pt-2">
-          <h1 className="text-2xl font-bold text-black">
+          <h1 className="text-headline-md font-bold text-black">
             {product.title || ""}
           </h1>
 
-          <p className="mt-4 text-2xl font-semibold text-black">
+          <p className="text-body-lg mt-4 font-bold text-black">
             {product.price ? `${product.price.toLocaleString()}원` : ""}
           </p>
 
           {product.stock === 0 && (
-            <span className="mt-3 inline-block rounded bg-gray-200 px-3 py-1 text-sm font-medium text-gray-600">
+            <span className="text-label-sm mt-3 inline-block rounded bg-gray-100 px-3 py-1 font-bold uppercase text-gray-600">
               품절
             </span>
           )}
 
-          <p className="mt-6 whitespace-pre-line text-gray-600">
+          <p className="text-body-md mt-6 whitespace-pre-line text-gray-600">
             {product.description || ""}
           </p>
 
           {product.stock !== 0 && (
             <div className="mt-8 flex items-center gap-4">
-              <div className="flex items-center gap-3 rounded-lg border border-gray-200 px-3 py-2">
+              <div className="flex items-center gap-4 rounded-lg border border-gray-200 px-2">
                 <button
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="h-6 w-6 text-black"
+                  className="touch-target flex items-center justify-center text-black"
                 >
-                  -
+                  <Icon name="remove" />
                 </button>
-                <span className="w-6 text-center text-black">{quantity}</span>
+                <span className="text-body-lg w-6 text-center font-bold text-black">
+                  {quantity}
+                </span>
                 <button
                   onClick={() => setQuantity((q) => q + 1)}
-                  className="h-6 w-6 text-black"
+                  className="touch-target flex items-center justify-center text-black"
                 >
-                  +
+                  <Icon name="add" />
                 </button>
               </div>
 
@@ -158,9 +167,10 @@ export default function ProductDetailPage() {
                   // 담았다는 걸 잠깐 보여주면서 페이드아웃하고, 메뉴 목록으로 이동
                   setTimeout(() => router.push("/menu"), 500);
                 }}
-                className="rounded-lg bg-black px-6 py-3 font-medium text-white"
+                className="touch-target flex flex-1 items-center justify-center gap-2 rounded-lg bg-black px-6 font-bold text-white"
               >
-                {added ? "담았습니다 ✓" : "장바구니 담기"}
+                {added && <Icon name="check" />}
+                {added ? "담았습니다" : "장바구니 담기"}
               </button>
             </div>
           )}
