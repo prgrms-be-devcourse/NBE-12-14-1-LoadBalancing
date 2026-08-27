@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { orderApi } from "@/api/orderApi";
 import {
-  OrderListItem,
+  OrderInfo,
   ORDER_STATUS_OPTIONS,
   statusLabelToValue,
 } from "@/types/order";
@@ -13,7 +13,7 @@ import Icon from "@/components/Icon";
 const PAGE_SIZE = 10;
 
 export default function AdminOrderListPage() {
-  const [orders, setOrders] = useState<OrderListItem[]>([]);
+  const [orders, setOrders] = useState<OrderInfo[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);

@@ -1,6 +1,6 @@
-package com.loadbalancing.kiosk.domain.product.repository;
+package com.loadbalancing.kiosk.domain.product.infra.repository;
 
-import com.loadbalancing.kiosk.domain.product.entity.Product;
+import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

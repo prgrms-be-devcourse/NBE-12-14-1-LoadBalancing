@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useCart, CartItem } from "@/context/CartContext";
+import { useCart } from "@/context/CartContext";
 import { orderApi } from "@/api/orderApi";
-import { OrderCreateResponse } from "@/types/order";
+import { OrderInfo, getOrderTotal } from "@/types/order";
 import OrderStepper from "@/components/OrderStepper";
 import BackToHomeButton from "@/components/BackToHomeButton";
 import Icon from "@/components/Icon";
@@ -26,12 +26,9 @@ export default function OrderPage() {
     null
   );
 
-  // 주문 완료 화면에서 보여줄 스냅샷 (clearCart 하면 장바구니가 비니까 미리 따로 저장해둠)
-  const [orderResult, setOrderResult] = useState<OrderCreateResponse | null>(
-    null
-  );
-  const [confirmedItems, setConfirmedItems] = useState<CartItem[]>([]);
-  const [confirmedTotal, setConfirmedTotal] = useState(0);
+  // 서버가 실제로 저장한(같은 이메일로 컷오프 안에 병합됐으면 그것까지 합쳐진) 전체 주문 정보.
+  // 예전엔 프론트가 보낸 값을 그대로 다시 보여줬었는데, 이제 서버 응답을 그대로 씀
+  const [orderResult, setOrderResult] = useState<OrderInfo | null>(null);
 
   const handleSubmit = async () => {
     if (phase === "paying") return;
@@ -54,8 +51,6 @@ export default function OrderPage() {
       });
 
       setOrderResult(result);
-      setConfirmedItems(items);
-      setConfirmedTotal(totalPrice);
       clearCart();
       setPhase("done");
     } catch (e) {
@@ -115,9 +110,13 @@ export default function OrderPage() {
         </div>
 
         <div className="mb-6 flex w-full flex-col gap-3 rounded-lg bg-gray-50 p-4 text-left">
-          {confirmedItems.map((item) => (
+          {/* orderResult.items는 서버가 실제로 저장한 전체 아이템 - 같은 이메일로 오늘 이미
+              주문한 게 있었으면 이번에 담은 것뿐 아니라 그것까지 다 합쳐져서 나옴 */}
+          {orderResult.items.map((item, index) => (
             <div
-              key={item.productId}
+              // 같은 이메일로 오늘 두 번 주문하면 같은 productId가 별도 줄로 합쳐져 들어올 수 있어서
+              // (orders/admin-orders 페이지랑 동일한 이유) index를 같이 섞어 key를 고유하게 만듦
+              key={`${item.productId}-${index}`}
               className="text-body-md flex justify-between text-black"
             >
               <span>
@@ -128,27 +127,27 @@ export default function OrderPage() {
           ))}
           <div className="text-body-md mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold text-black">
             <span>총 금액</span>
-            <span>{confirmedTotal.toLocaleString()}원</span>
+            <span>{getOrderTotal(orderResult).toLocaleString()}원</span>
           </div>
         </div>
 
-        {/* request로 보냈던 배송 정보 전체 표시 */}
+        {/* 서버에 실제로 저장된 배송 정보 (프론트 입력값 재사용 아님) */}
         <div className="mb-8 flex w-full flex-col gap-2 rounded-lg bg-gray-50 p-4 text-left text-sm text-black">
           <div className="flex justify-between">
             <span className="text-gray-500">이메일</span>
-            <span>{email}</span>
+            <span>{orderResult.email}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">주소</span>
-            <span>{addressLine1}</span>
+            <span>{orderResult.addressLine1}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">상세주소</span>
-            <span>{addressLine2}</span>
+            <span>{orderResult.addressLine2}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">우편번호</span>
-            <span>{postalCode}</span>
+            <span>{orderResult.postalCode}</span>
           </div>
         </div>
 

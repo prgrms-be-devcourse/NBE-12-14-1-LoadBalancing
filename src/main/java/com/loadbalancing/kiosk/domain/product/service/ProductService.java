@@ -3,10 +3,10 @@ package com.loadbalancing.kiosk.domain.product.service;
 
 import com.loadbalancing.kiosk.domain.product.dto.ProductRequest;
 import com.loadbalancing.kiosk.domain.product.dto.ProductResponse;
-import com.loadbalancing.kiosk.domain.product.entity.Product;
-import com.loadbalancing.kiosk.domain.product.entity.ProductImg;
-import com.loadbalancing.kiosk.domain.product.repository.ProductImgRepository;
-import com.loadbalancing.kiosk.domain.product.repository.ProductRepository;
+import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
+import com.loadbalancing.kiosk.domain.product.infra.entity.ProductImg;
+import com.loadbalancing.kiosk.domain.product.infra.repository.ProductImgRepository;
+import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
 import com.loadbalancing.kiosk.global.exception.custom.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
