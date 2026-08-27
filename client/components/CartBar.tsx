@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 
@@ -8,80 +7,83 @@ export default function CartBar() {
   const router = useRouter();
   const { items, totalCount, totalPrice, updateQuantity, removeItem } =
     useCart();
-  const [open, setOpen] = useState(false);
 
   // 비어있으면 바 자체를 안 보여줌
   if (totalCount === 0) return null;
 
   return (
-    <>
-      {/* 하단바 누르면 그 위로 팝업되는 장바구니 목록 */}
-      {open && (
-        <div className="fixed inset-x-0 bottom-16 z-40 mx-auto max-h-[60vh] w-full max-w-3xl overflow-y-auto rounded-t-2xl bg-white p-6 shadow-2xl">
-          <h2 className="mb-4 text-lg font-bold text-black">장바구니</h2>
-
-          <div className="flex flex-col gap-4">
-            {items.map((item) => (
-              <div
-                key={item.productId}
-                className="flex items-center justify-between"
-              >
-                <div>
-                  <p className="font-medium text-black">{item.title}</p>
-                  <p className="text-sm text-gray-500">
-                    {item.price.toLocaleString()}원
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() =>
-                      updateQuantity(item.productId, item.quantity - 1)
-                    }
-                    className="h-7 w-7 rounded-full bg-gray-100 text-black"
-                  >
-                    -
-                  </button>
-                  <span className="w-6 text-center text-black">
-                    {item.quantity}
-                  </span>
-                  <button
-                    onClick={() =>
-                      updateQuantity(item.productId, item.quantity + 1)
-                    }
-                    className="h-7 w-7 rounded-full bg-gray-100 text-black"
-                  >
-                    +
-                  </button>
-                  <button
-                    onClick={() => removeItem(item.productId)}
-                    className="ml-2 text-sm text-red-500"
-                  >
-                    삭제
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <button
-            onClick={() => router.push("/order")}
-            className="mt-6 w-full rounded-lg bg-black py-3 font-medium text-white"
+    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
+      {/* 담은 상품들 - 클릭 없이 항상 보임, 많으면 가로 스크롤 */}
+      <div className="flex gap-3 overflow-x-auto px-6 py-3">
+        {items.map((item) => (
+          <div
+            key={item.productId}
+            className="flex shrink-0 items-center gap-2 rounded-lg bg-gray-50 p-2 pr-3"
           >
-            주문하기
-          </button>
-        </div>
-      )}
+            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-gray-100">
+              {item.thumbnail ? (
+                <img
+                  src={item.thumbnail}
+                  alt={item.title}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-lg">
+                  🚫
+                </div>
+              )}
+            </div>
 
-      {/* 화면 하단에 고정되는 바 */}
-      <button
-        onClick={() => setOpen((prev) => !prev)}
-        className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-between bg-black px-8 py-4 text-white"
-      >
-        <span>{totalCount}개</span>
-        <span className="font-bold">{totalPrice.toLocaleString()}원</span>
-        <span>{open ? "닫기" : "장바구니 보기"}</span>
-      </button>
-    </>
+            <div className="flex flex-col gap-1">
+              <span className="max-w-[110px] truncate text-sm font-medium text-black">
+                {item.title}
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() =>
+                    updateQuantity(item.productId, item.quantity - 1)
+                  }
+                  className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-xs text-black"
+                >
+                  -
+                </button>
+                <span className="w-4 text-center text-xs text-black">
+                  {item.quantity}
+                </span>
+                <button
+                  onClick={() =>
+                    updateQuantity(item.productId, item.quantity + 1)
+                  }
+                  className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-xs text-black"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={() => removeItem(item.productId)}
+              className="self-start text-xs text-gray-400 hover:text-red-500"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* 총액 + 주문하기 */}
+      <div className="flex items-center justify-between border-t border-gray-100 px-6 py-3">
+        <span className="text-sm text-black">
+          {totalCount}개 ·{" "}
+          <span className="font-bold">{totalPrice.toLocaleString()}원</span>
+        </span>
+        <button
+          onClick={() => router.push("/order")}
+          className="rounded-lg bg-black px-6 py-2 text-sm font-medium text-white"
+        >
+          주문하기
+        </button>
+      </div>
+    </div>
   );
 }
