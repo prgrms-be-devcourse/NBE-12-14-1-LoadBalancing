@@ -25,4 +25,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             nativeQuery = true
     )
     long countDeletedProducts();
+
+    Page<Product> findByPriceBetween(Long minPrice, Long maxPrice, Pageable pageable);
 }

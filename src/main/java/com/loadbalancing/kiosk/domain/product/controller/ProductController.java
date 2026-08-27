@@ -1,6 +1,7 @@
 package com.loadbalancing.kiosk.domain.product.controller;
 
 
+import com.loadbalancing.kiosk.domain.product.dto.request.PriceRequest;
 import com.loadbalancing.kiosk.domain.product.dto.request.ProductRequest;
 import com.loadbalancing.kiosk.domain.product.dto.response.ProductResponse;
 import com.loadbalancing.kiosk.domain.product.service.ProductService;
@@ -33,6 +34,18 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success(
                 200,
                 products
+        ));
+    }
+
+    @GetMapping("/auth/product/list/price")
+    public ResponseEntity<ApiResponse<?>> listByPrice(
+            @Valid @ModelAttribute PriceRequest priceRequest,
+            @PageableDefault(size = 10, sort = "price", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        Page<ProductResponse.ProductInfo> result = productService.listByPrice(priceRequest, pageable);
+        return ResponseEntity.ok(ApiResponse.success(
+                200,
+                result
         ));
     }
 

@@ -1,6 +1,7 @@
 package com.loadbalancing.kiosk.domain.product.service;
 
 
+import com.loadbalancing.kiosk.domain.product.dto.request.PriceRequest;
 import com.loadbalancing.kiosk.domain.product.dto.request.ProductRequest;
 import com.loadbalancing.kiosk.domain.product.dto.response.ProductResponse;
 import com.loadbalancing.kiosk.domain.product.entity.Product;
@@ -59,5 +60,16 @@ public class ProductService {
         List<ProductImg> imgList = productImgRepository.findAllByProduct(product);
 
         return ProductResponse.ProductInfo.from(product, imgList);
+    }
+
+    public Page<ProductResponse.ProductInfo> listByPrice(
+            PriceRequest priceRequest, Pageable pageable) {
+
+        Page<Product> products = productRepository.findByPriceBetween(
+                priceRequest.minPrice(),
+                priceRequest.maxPrice(),
+                pageable);
+
+        return products.map(ProductResponse.ProductInfo::from);
     }
 }
