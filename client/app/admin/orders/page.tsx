@@ -27,34 +27,70 @@ export default function AdminOrderListPage() {
   );
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const fetchPage = useCallback(async (targetPage: number) => {
-    setLoading(true);
-    setError(null);
+  // 검색 입력값(타이핑 중)과 실제 적용된 검색 조건을 분리
+  // -> 입력할 때마다 요청 안 나가고, "검색" 눌렀을 때만 조회
+  const [keyword, setKeyword] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [applied, setApplied] = useState({
+    keyword: "",
+    startDate: "",
+    endDate: "",
+  });
+  const isSearching = !!(applied.keyword || applied.startDate || applied.endDate);
 
-    try {
-      const res = await orderApi.getList(targetPage, PAGE_SIZE);
-      console.log("주문 목록 응답:", res); // 확인용, 나중에 지워도 됨
-      setOrders(res.content);
-      setTotalPages(res.totalPages);
-      setPage(res.number);
-    } catch (e) {
-      const axiosError = e as {
-        response?: { data?: { code?: number; message?: string } };
-      };
-      setError({
-        code: axiosError.response?.data?.code ?? 500,
-        message:
-          axiosError.response?.data?.message ??
-          "알 수 없는 오류가 발생했습니다.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const fetchPage = useCallback(
+    async (targetPage: number, cond: typeof applied) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res =
+          cond.keyword || cond.startDate || cond.endDate
+            ? await orderApi.search(
+                cond.keyword,
+                cond.startDate,
+                cond.endDate,
+                targetPage,
+                PAGE_SIZE
+              )
+            : await orderApi.getList(targetPage, PAGE_SIZE);
+        console.log("주문 목록 응답:", res); // 확인용, 나중에 지워도 됨
+        setOrders(res.content);
+        setTotalPages(res.totalPages);
+        setPage(res.number);
+      } catch (e) {
+        const axiosError = e as {
+          response?: { data?: { code?: number; message?: string } };
+        };
+        setError({
+          code: axiosError.response?.data?.code ?? 500,
+          message:
+            axiosError.response?.data?.message ??
+            "알 수 없는 오류가 발생했습니다.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
-    fetchPage(0);
-  }, [fetchPage]);
+    fetchPage(0, applied);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [applied]);
+
+  const handleSearch = () => {
+    setApplied({ keyword: keyword.trim(), startDate, endDate });
+  };
+
+  const handleResetSearch = () => {
+    setKeyword("");
+    setStartDate("");
+    setEndDate("");
+    setApplied({ keyword: "", startDate: "", endDate: "" });
+  };
 
   const toggleExpand = (orderId: number) => {
     setExpandedIds((prev) => {
@@ -106,7 +142,7 @@ export default function AdminOrderListPage() {
 
     try {
       await orderApi.delete(orderId);
-      await fetchPage(page); // 삭제 후 같은 페이지 다시 불러오기
+      await fetchPage(page, applied); // 삭제 후 같은 페이지 다시 불러오기
     } catch (e) {
       const axiosError = e as {
         response?: { data?: { code?: number; message?: string } };
@@ -126,13 +162,53 @@ export default function AdminOrderListPage() {
     <div className="mx-auto max-w-2xl px-8 py-10">
       <h1 className="mb-8 text-2xl font-bold text-black">주문 관리</h1>
 
+      <div className="mb-6 flex flex-wrap items-center gap-2">
+        <input
+          type="text"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSearch();
+          }}
+          placeholder="이메일로 검색"
+          className="min-w-[160px] flex-1 rounded border border-gray-300 px-3 py-2 text-sm text-black"
+        />
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="rounded border border-gray-300 px-3 py-2 text-sm text-black"
+        />
+        <span className="text-gray-400">~</span>
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          className="rounded border border-gray-300 px-3 py-2 text-sm text-black"
+        />
+        <button
+          onClick={handleSearch}
+          className="rounded bg-black px-4 py-2 text-sm font-medium text-white"
+        >
+          검색
+        </button>
+        {isSearching && (
+          <button
+            onClick={handleResetSearch}
+            className="rounded border border-gray-200 px-4 py-2 text-sm font-medium text-black hover:bg-gray-50"
+          >
+            초기화
+          </button>
+        )}
+      </div>
+
       {error && (
         <div className="mb-6 flex items-center justify-between rounded-lg bg-red-50 p-4 text-sm text-red-600">
           <span>
             [{error.code}] {error.message}
           </span>
           <button
-            onClick={() => fetchPage(page)}
+            onClick={() => fetchPage(page, applied)}
             className="ml-4 rounded bg-red-100 px-3 py-1 font-medium hover:bg-red-200"
           >
             다시 시도
@@ -147,7 +223,9 @@ export default function AdminOrderListPage() {
       )}
 
       {!loading && !error && orders.length === 0 && (
-        <p className="text-gray-500">주문이 없습니다.</p>
+        <p className="text-gray-500">
+          {isSearching ? "검색 결과가 없습니다." : "주문이 없습니다."}
+        </p>
       )}
 
       {!loading && orders.length > 0 && (
@@ -250,7 +328,7 @@ export default function AdminOrderListPage() {
           {/* 페이지 이동 */}
           <div className="mt-6 flex items-center justify-center gap-4">
             <button
-              onClick={() => fetchPage(page - 1)}
+              onClick={() => fetchPage(page - 1, applied)}
               disabled={page === 0}
               className="rounded border border-gray-200 px-3 py-1 text-black disabled:opacity-30"
             >
@@ -260,7 +338,7 @@ export default function AdminOrderListPage() {
               {page + 1} / {totalPages}
             </span>
             <button
-              onClick={() => fetchPage(page + 1)}
+              onClick={() => fetchPage(page + 1, applied)}
               disabled={page + 1 >= totalPages}
               className="rounded border border-gray-200 px-3 py-1 text-black disabled:opacity-30"
             >

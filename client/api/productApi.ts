@@ -8,11 +8,15 @@ import {
 } from "@/types/product";
 
 export const productApi = {
-  // GET /api/v1/auth/product/list
-  getList: async (page = 0, size = 10): Promise<PageResponse<ProductInfo>> => {
+  // GET /api/v1/auth/product/list?keyword=... - keyword는 빈 값이면 백엔드가 전체 반환
+  getList: async (
+    page = 0,
+    size = 10,
+    keyword = ""
+  ): Promise<PageResponse<ProductInfo>> => {
     const res = await apiClient.get<ApiResponse<PageResponse<ProductInfo>>>(
       "/api/v1/auth/product/list",
-      { params: { page, size } }
+      { params: { page, size, keyword: keyword || undefined } }
     );
     return res.data.data;
   },
