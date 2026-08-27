@@ -8,9 +8,8 @@ import java.util.List;
 @Builder
 public record ProductSummaryResponse(
         long totalProductCount,
-        List<ProductStockResponse> outOfStockProducts,
-        List<ProductStockResponse> lowStockProducts,
-        List<RecentProductResponse> recentProducts,
-        List<ProductStockResponse> stockStatus
+        List<DashboardProductResponse> outOfStockProducts,
+        List<DashboardProductResponse> lowStockProducts,
+        List<DashboardProductResponse> recentProducts
 ) {
 }

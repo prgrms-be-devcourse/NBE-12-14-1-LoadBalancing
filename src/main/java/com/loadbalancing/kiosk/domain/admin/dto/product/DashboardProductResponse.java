@@ -5,21 +5,22 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-//최근 등록 상품 리스트용 dto
+//상품에 있는 전체 필드를 반환하니까 DTO하나 만들어서 상품 리스트 반환하는 애들은 전부 얘를 쓰도록함
 @Builder
-public record RecentProductResponse(
+public record DashboardProductResponse(
         Long productId,
         String title,
+        String description,
         int price,
         int stock,
         String thumbnail,
         LocalDateTime createdAt
 ) {
-
-    public static RecentProductResponse from(Product product) {
-        return RecentProductResponse.builder()
+    public static DashboardProductResponse from(Product product) {
+        return DashboardProductResponse.builder()
                 .productId(product.getId())
                 .title(product.getTitle())
+                .description(product.getDescription())
                 .price(product.getPrice())
                 .stock(product.getStock())
                 .thumbnail(product.getThumbnail())
