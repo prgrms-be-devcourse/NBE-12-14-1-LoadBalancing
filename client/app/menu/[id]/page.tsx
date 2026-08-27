@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { productApi } from "@/api/productApi";
 import { ProductInfo } from "@/types/product";
 import { useCart } from "@/context/CartContext";
+import OrderStepper from "@/components/OrderStepper";
+import BackToHomeButton from "@/components/BackToHomeButton";
 
 export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const { addItem } = useCart();
   const [product, setProduct] = useState<ProductInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,107 +54,117 @@ export default function ProductDetailPage() {
     ...product.imgs.map((img) => ({ id: String(img.id), url: img.url })),
   ];
 
+  const fadeClass = added ? "opacity-0" : "opacity-100";
+
   return (
-    <div className="mx-auto flex max-w-5xl gap-12 px-8 py-10">
-      {/* 왼쪽: 작은 썸네일 리스트 + 큰 이미지 */}
-      <div className="flex gap-4">
-        <div className="flex max-h-[480px] flex-col gap-2 overflow-y-auto">
-          {gallery.map((img, index) => (
-            <button
-              key={img.id}
-              onMouseEnter={() => setSelectedIndex(index)}
-              className={`h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-100 ${
-                index === selectedIndex
-                  ? "ring-2 ring-blue-500"
-                  : "ring-1 ring-gray-200"
-              }`}
-            >
-              {img.url ? (
-                <img
-                  src={img.url}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-xl">
-                  🚫
-                </div>
-              )}
-            </button>
-          ))}
+    <div className="mx-auto max-w-5xl px-8 py-10">
+      <BackToHomeButton />
+      <OrderStepper currentStep={1} />
+
+      <div className={`flex gap-12 transition-opacity duration-500 ${fadeClass}`}>
+        {/* 왼쪽: 작은 썸네일 리스트 + 큰 이미지 */}
+        <div className="flex gap-4">
+          <div className="flex max-h-[480px] flex-col gap-2 overflow-y-auto">
+            {gallery.map((img, index) => (
+              <button
+                key={img.id}
+                onMouseEnter={() => setSelectedIndex(index)}
+                className={`h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-100 ${
+                  index === selectedIndex
+                    ? "ring-2 ring-blue-500"
+                    : "ring-1 ring-gray-200"
+                }`}
+              >
+                {img.url ? (
+                  <img
+                    src={img.url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-xl">
+                    🚫
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+
+          <div className="aspect-square w-96 overflow-hidden rounded-xl bg-gray-100">
+            {gallery[selectedIndex]?.url ? (
+              <img
+                src={gallery[selectedIndex].url}
+                alt={product.title}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-8xl">
+                🚫
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="aspect-square w-96 overflow-hidden rounded-xl bg-gray-100">
-          {gallery[selectedIndex]?.url ? (
-            <img
-              src={gallery[selectedIndex].url}
-              alt={product.title}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-8xl">
-              🚫
+        {/* 오른쪽: 상품 정보 */}
+        <div className="flex-1 pt-2">
+          <h1 className="text-2xl font-bold text-black">
+            {product.title || ""}
+          </h1>
+
+          <p className="mt-4 text-2xl font-semibold text-black">
+            {product.price ? `${product.price.toLocaleString()}원` : ""}
+          </p>
+
+          {product.stock === 0 && (
+            <span className="mt-3 inline-block rounded bg-gray-200 px-3 py-1 text-sm font-medium text-gray-600">
+              품절
+            </span>
+          )}
+
+          <p className="mt-6 whitespace-pre-line text-gray-600">
+            {product.description || ""}
+          </p>
+
+          {product.stock !== 0 && (
+            <div className="mt-8 flex items-center gap-4">
+              <div className="flex items-center gap-3 rounded-lg border border-gray-200 px-3 py-2">
+                <button
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="h-6 w-6 text-black"
+                >
+                  -
+                </button>
+                <span className="w-6 text-center text-black">{quantity}</span>
+                <button
+                  onClick={() => setQuantity((q) => q + 1)}
+                  className="h-6 w-6 text-black"
+                >
+                  +
+                </button>
+              </div>
+
+              <button
+                onClick={() => {
+                  addItem(
+                    {
+                      productId: product.id,
+                      title: product.title,
+                      price: product.price,
+                      thumbnail: product.thumbnail,
+                    },
+                    quantity
+                  );
+                  setAdded(true);
+                  // 담았다는 걸 잠깐 보여주면서 페이드아웃하고, 메뉴 목록으로 이동
+                  setTimeout(() => router.push("/menu"), 500);
+                }}
+                className="rounded-lg bg-black px-6 py-3 font-medium text-white"
+              >
+                {added ? "담았습니다 ✓" : "장바구니 담기"}
+              </button>
             </div>
           )}
         </div>
-      </div>
-
-      {/* 오른쪽: 상품 정보 */}
-      <div className="flex-1 pt-2">
-        <h1 className="text-2xl font-bold text-black">{product.title || ""}</h1>
-
-        <p className="mt-4 text-2xl font-semibold text-black">
-          {product.price ? `${product.price.toLocaleString()}원` : ""}
-        </p>
-
-        {product.stock === 0 && (
-          <span className="mt-3 inline-block rounded bg-gray-200 px-3 py-1 text-sm font-medium text-gray-600">
-            품절
-          </span>
-        )}
-
-        <p className="mt-6 whitespace-pre-line text-gray-600">
-          {product.description || ""}
-        </p>
-
-        {product.stock !== 0 && (
-          <div className="mt-8 flex items-center gap-4">
-            <div className="flex items-center gap-3 rounded-lg border border-gray-200 px-3 py-2">
-              <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="h-6 w-6 text-black"
-              >
-                -
-              </button>
-              <span className="w-6 text-center text-black">{quantity}</span>
-              <button
-                onClick={() => setQuantity((q) => q + 1)}
-                className="h-6 w-6 text-black"
-              >
-                +
-              </button>
-            </div>
-
-            <button
-              onClick={() => {
-                addItem(
-                  {
-                    productId: product.id,
-                    title: product.title,
-                    price: product.price,
-                    thumbnail: product.thumbnail,
-                  },
-                  quantity
-                );
-                setAdded(true);
-                setTimeout(() => setAdded(false), 1500);
-              }}
-              className="rounded-lg bg-black px-6 py-3 font-medium text-white"
-            >
-              {added ? "담았습니다 ✓" : "장바구니 담기"}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

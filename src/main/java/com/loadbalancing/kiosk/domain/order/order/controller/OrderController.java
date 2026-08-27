@@ -36,7 +36,6 @@ public class OrderController {
                 .body(ApiResponse.success(201, response));
     }
     //해당 email로 db를 조회하여, 최신 주문 순으로 반환.
-    //todo OrderStatus별로 주문 나눠서 보여주기.
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<Page<OrderListResponse>>> getOrderList(
             @RequestParam String email,
@@ -46,7 +45,25 @@ public class OrderController {
             ) Pageable pageable
     ) {
         Page<OrderListResponse> orders =
-                orderService.list(email, pageable);
+                orderService.list(
+                    email,
+                    pageable);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(200, orders)
+        );
+    }
+
+    @GetMapping("/admin/list")
+    public ResponseEntity<ApiResponse<Page<OrderListResponse>>> getAllOrderList(
+        @PageableDefault(
+            sort = "createdAt",
+            direction = Sort.Direction.DESC
+        ) Pageable pageable
+    ) {
+        Page<OrderListResponse> orders =
+                orderService.getAllList(
+                    pageable);
 
         return ResponseEntity.ok(
                 ApiResponse.success(200, orders)

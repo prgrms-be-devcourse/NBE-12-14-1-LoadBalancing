@@ -79,8 +79,7 @@ public class OrderService {
             Pageable pageable
     ) {
 
-        Page<Order> orders =
-                orderRepository.findAllByEmail(email, pageable);
+        Page<Order> orders = orderRepository.findAllByEmail(email, pageable);
 
         return orders.map(order -> {
 
@@ -92,6 +91,27 @@ public class OrderService {
             return OrderListResponse.from(
                     order,
                     orderItems
+            );
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderListResponse> getAllList(
+        Pageable pageable
+    ) {
+
+        Page<Order> orders = orderRepository.findAll(pageable);
+
+        return orders.map(order -> {
+
+            List<OrderItem> orderItems =
+                orderItemRepository.findAllByOrder_Id(
+                    order.getId()
+                );
+
+            return OrderListResponse.from(
+                order,
+                orderItems
             );
         });
     }
