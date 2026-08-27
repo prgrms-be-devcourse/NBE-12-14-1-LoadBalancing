@@ -59,6 +59,7 @@ public class Product extends BaseSoftDeleteTimeEntity {
         this.title = title;
         this.description = description;
         this.price = price;
+        this.stock = stock;
         this.thumbnail = thumbnail;
     }
 
