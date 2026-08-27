@@ -68,6 +68,15 @@ public class OrderController {
                 )
         );
     }
+    @DeleteMapping("/{orderId}/items/{itemId}")
+    public ResponseEntity<ApiResponse<?>> deleteOrderItem(
+            @PathVariable Long orderId, @PathVariable Long itemId
+    ) {
+        orderService.deleteOrderItem(orderId, itemId);
 
+        return ResponseEntity.ok(
+                ApiResponse.noContentSuccess()
+        );
+    }
 
 }

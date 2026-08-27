@@ -12,6 +12,7 @@ import com.loadbalancing.kiosk.domain.order.orderItem.dto.OrderItemRequest;
 import com.loadbalancing.kiosk.domain.order.orderItem.repository.OrderItemRepository;
 import com.loadbalancing.kiosk.domain.product.entity.Product;
 import com.loadbalancing.kiosk.domain.product.repository.ProductRepository;
+import com.loadbalancing.kiosk.global.exception.custom.OrderItemNotFoundException;
 import com.loadbalancing.kiosk.global.exception.custom.OrderNotFoundException;
 import com.loadbalancing.kiosk.global.exception.custom.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -137,13 +138,35 @@ public class OrderService {
         return today2pm;
     }
 
+//    @Transactional
+//    public void deleteOrder(Long orderId) {
+//        Order order = orderRepository.findById(orderId)
+//                .orElseThrow(
+//                        () -> new OrderNotFoundException(orderId)
+//                );
+//        orderRepository.delete(order);
+//    }
+
     @Transactional
-    public void deleteOrder(Long orderId) {
+    public void deleteOrderItem(Long orderId, Long itemId) {
+        OrderItem orderItem = orderItemRepository.findById(itemId)
+                .orElseThrow(
+                        () -> new OrderItemNotFoundException(itemId)
+                );
+        orderItemRepository.delete(orderItem);
+
+        //order에 item들이 하나도 없는지 확인하기 위해
+        List<OrderItem> orderItems = orderItemRepository.findAllByOrder_Id(orderId);
+
+        //지우기 위한 주문도 호출
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(
-                        () -> new OrderNotFoundException(orderId)
+                        () -> new OrderItemNotFoundException(itemId)
                 );
-        orderRepository.delete(order);
+        //주문의 item들이 하나도 없다면
+        if(orderItems.size() == 0) {
+            orderRepository.delete(order); //주문도 지우기
+        }
     }
 
 }
