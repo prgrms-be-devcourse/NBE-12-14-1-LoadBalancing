@@ -58,7 +58,7 @@ public class OrderController {
         );
     }
 
-    @GetMapping("admin/list")
+    @GetMapping("/admin/list")
     public ResponseEntity<ApiResponse<Page<OrderListResponse>>> getAllOrderList(
         @PageableDefault(
             sort = "createdAt",
