@@ -1,4 +1,4 @@
-package com.loadbalancing.kiosk.domain.admin.order.dto;
+package com.loadbalancing.kiosk.domain.admin.order.dto.response;
 
 
 import com.loadbalancing.kiosk.domain.order.entity.Order;
