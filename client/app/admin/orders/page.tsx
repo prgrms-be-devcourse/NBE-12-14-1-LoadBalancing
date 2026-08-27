@@ -33,6 +33,7 @@ export default function AdminOrderListPage() {
 
     try {
       const res = await orderApi.getList(targetPage, PAGE_SIZE);
+      console.log("주문 목록 응답:", res); // 확인용, 나중에 지워도 됨
       setOrders(res.content);
       setTotalPages(res.totalPages);
       setPage(res.number);
@@ -208,30 +209,39 @@ export default function AdminOrderListPage() {
                     </div>
                   </div>
 
-                  {/* 펼쳐졌을 때만 orderItem 배열 표시 */}
-                  {isExpanded && (
-                    <div className="border-t border-gray-100 px-4 py-3">
-                      <div className="mb-3 flex flex-col gap-2">
-                        {order.items.map((item) => (
-                          <div
-                            key={item.productId}
-                            className="flex justify-between text-sm text-black"
-                          >
-                            <span>
-                              {item.title} x {item.quantity}
-                            </span>
-                            <span>
-                              {(item.price * item.quantity).toLocaleString()}원
-                            </span>
-                          </div>
-                        ))}
+                  {/* 펼쳐짐/접힘을 grid-template-rows로 부드럽게 애니메이션 (박스 크기가 갑자기 툭 바뀌는 것 방지) */}
+                  <div
+                    className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${
+                      isExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="border-t border-gray-100 px-4 py-3">
+                        <div className="mb-3 flex flex-col gap-2">
+                          {order.items.map((item, index) => (
+                            <div
+                              // productId만 쓰면 한 주문 안에 같은 상품이 두 줄로 들어올 때 key가 중복돼서
+                              // index를 같이 섞어 고유하게 만듦
+                              key={`${item.productId}-${index}`}
+                              className="flex justify-between text-sm text-black"
+                            >
+                              <span>
+                                {item.title} x {item.quantity}
+                              </span>
+                              <span>
+                                {(item.price * item.quantity).toLocaleString()}
+                                원
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          배송지: {order.addressLine1} {order.addressLine2} (
+                          {order.postalCode})
+                        </p>
                       </div>
-                      <p className="text-xs text-gray-500">
-                        배송지: {order.addressLine1} {order.addressLine2} (
-                        {order.postalCode})
-                      </p>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}

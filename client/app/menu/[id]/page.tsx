@@ -6,6 +6,7 @@ import { productApi } from "@/api/productApi";
 import { ProductInfo } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import OrderStepper from "@/components/OrderStepper";
+import BackToHomeButton from "@/components/BackToHomeButton";
 
 export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
@@ -57,6 +58,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-8 py-10">
+      <BackToHomeButton />
       <OrderStepper currentStep={1} />
 
       <div className={`flex gap-12 transition-opacity duration-500 ${fadeClass}`}>
