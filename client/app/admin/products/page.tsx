@@ -18,37 +18,54 @@ export default function AdminProductListPage() {
   );
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  // 검색창에 타이핑 중인 값(keyword)과, 실제로 마지막에 "검색"을 눌러서 조회에 쓰인 값(appliedKeyword)을 분리
+  // -> 타이핑할 때마다 요청 안 나가고, 검색 버튼/엔터 눌렀을 때만 조회
+  const [keyword, setKeyword] = useState("");
+  const [appliedKeyword, setAppliedKeyword] = useState("");
+
   const [editingStockId, setEditingStockId] = useState<number | null>(null);
   const [stockInput, setStockInput] = useState("");
   const [savingStock, setSavingStock] = useState(false);
 
-  const fetchPage = useCallback(async (targetPage: number) => {
-    setLoading(true);
-    setError(null);
+  const fetchPage = useCallback(
+    async (targetPage: number, searchKeyword: string) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const res = await productApi.getList(targetPage, PAGE_SIZE);
-      setProducts(res.content);
-      setTotalPages(res.totalPages);
-      setPage(res.number);
-    } catch (e) {
-      const axiosError = e as {
-        response?: { data?: { code?: number; message?: string } };
-      };
-      setError({
-        code: axiosError.response?.data?.code ?? 500,
-        message:
-          axiosError.response?.data?.message ??
-          "알 수 없는 오류가 발생했습니다.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      try {
+        const res = await productApi.getList(
+          targetPage,
+          PAGE_SIZE,
+          searchKeyword
+        );
+        setProducts(res.content);
+        setTotalPages(res.totalPages);
+        setPage(res.number);
+      } catch (e) {
+        const axiosError = e as {
+          response?: { data?: { code?: number; message?: string } };
+        };
+        setError({
+          code: axiosError.response?.data?.code ?? 500,
+          message:
+            axiosError.response?.data?.message ??
+            "알 수 없는 오류가 발생했습니다.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
-    fetchPage(0);
-  }, [fetchPage]);
+    fetchPage(0, appliedKeyword);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appliedKeyword]);
+
+  const handleSearch = () => {
+    setAppliedKeyword(keyword.trim());
+  };
 
   const handleDelete = async (productId: number, title: string) => {
     if (!window.confirm(`"${title}" 상품을 삭제하시겠습니까?`)) return;
@@ -58,7 +75,7 @@ export default function AdminProductListPage() {
 
     try {
       await productApi.delete(productId);
-      await fetchPage(page); // 삭제 후 같은 페이지 다시 불러오기
+      await fetchPage(page, appliedKeyword); // 삭제 후 같은 페이지 다시 불러오기
     } catch (e) {
       const axiosError = e as {
         response?: { data?: { code?: number; message?: string } };
@@ -124,13 +141,43 @@ export default function AdminProductListPage() {
         </button>
       </div>
 
+      <div className="mb-6 flex gap-2">
+        <input
+          type="text"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSearch();
+          }}
+          placeholder="상품명으로 검색"
+          className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm text-black"
+        />
+        <button
+          onClick={handleSearch}
+          className="rounded bg-black px-4 py-2 text-sm font-medium text-white"
+        >
+          검색
+        </button>
+        {appliedKeyword && (
+          <button
+            onClick={() => {
+              setKeyword("");
+              setAppliedKeyword("");
+            }}
+            className="rounded border border-gray-200 px-4 py-2 text-sm font-medium text-black hover:bg-gray-50"
+          >
+            초기화
+          </button>
+        )}
+      </div>
+
       {error && (
         <div className="mb-6 flex items-center justify-between rounded-lg bg-red-50 p-4 text-sm text-red-600">
           <span>
             [{error.code}] {error.message}
           </span>
           <button
-            onClick={() => fetchPage(page)}
+            onClick={() => fetchPage(page, appliedKeyword)}
             className="ml-4 rounded bg-red-100 px-3 py-1 font-medium hover:bg-red-200"
           >
             다시 시도
@@ -247,7 +294,7 @@ export default function AdminProductListPage() {
           {/* 페이지 이동 (무한스크롤 아니고 이전/다음 버튼 방식) */}
           <div className="mt-6 flex items-center justify-center gap-4">
             <button
-              onClick={() => fetchPage(page - 1)}
+              onClick={() => fetchPage(page - 1, appliedKeyword)}
               disabled={page === 0}
               className="rounded border border-gray-200 px-3 py-1 text-black disabled:opacity-30"
             >
@@ -257,7 +304,7 @@ export default function AdminProductListPage() {
               {page + 1} / {totalPages}
             </span>
             <button
-              onClick={() => fetchPage(page + 1)}
+              onClick={() => fetchPage(page + 1, appliedKeyword)}
               disabled={page + 1 >= totalPages}
               className="rounded border border-gray-200 px-3 py-1 text-black disabled:opacity-30"
             >
