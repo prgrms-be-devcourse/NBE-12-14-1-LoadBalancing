@@ -41,6 +41,30 @@ export const orderApi = {
     return res.data.data;
   },
 
+  // GET /api/v1/admin/order/search?keyword=&startDate=&endDate= - 관리자용 주문 검색
+  // keyword: 이메일 기준 검색, startDate/endDate: yyyy-MM-dd 문자열 (없으면 전체 기간)
+  search: async (
+    keyword: string,
+    startDate: string,
+    endDate: string,
+    page = 0,
+    size = 10
+  ): Promise<PageResponse<OrderListItem>> => {
+    const res = await apiClient.get<ApiResponse<PageResponse<OrderListItem>>>(
+      "/api/v1/admin/order/search",
+      {
+        params: {
+          keyword: keyword || undefined,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
+          page,
+          size,
+        },
+      }
+    );
+    return res.data.data;
+  },
+
   // PATCH /api/v1/admin/order/status/{id} - status는 OrderStatus enum 이름 그대로 보내야 함
   updateStatus: async (orderId: number, status: string): Promise<void> => {
     await apiClient.patch(`/api/v1/admin/order/status/${orderId}`, { status });
