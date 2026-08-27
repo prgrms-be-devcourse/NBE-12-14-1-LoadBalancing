@@ -44,9 +44,12 @@ public class ProductService {
         return ProductResponse.ProductInfo.from(savedProduct, newImgs);
     }
 
-    public Page<ProductResponse.ProductInfo> list(Pageable pageable) {
-        return productRepository.findAll(pageable)
-                .map(ProductResponse.ProductInfo::from);
+    public Page<ProductResponse.ProductInfo> list(String keyword, Pageable pageable) {
+
+        String safeKeyword = (keyword == null) ? "" : keyword.trim();
+        Page<Product> products = productRepository.findByTitleContainingIgnoreCase(safeKeyword, pageable);
+
+        return products.map(ProductResponse.ProductInfo::from);
     }
 
     public ProductResponse.ProductInfo findById(Long id) {
