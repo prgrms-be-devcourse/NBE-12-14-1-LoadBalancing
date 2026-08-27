@@ -1,10 +1,10 @@
 package com.loadbalancing.kiosk.domain.order.order.service;
 
+import com.loadbalancing.kiosk.domain.order.entity.Order;
 import com.loadbalancing.kiosk.domain.order.entity.OrderItem;
+import com.loadbalancing.kiosk.domain.order.entity.OrderStatus;
 import com.loadbalancing.kiosk.domain.order.order.dto.request.OrderCreateRequest;
 import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderCreateResponse;
-import com.loadbalancing.kiosk.domain.order.entity.Order;
-import com.loadbalancing.kiosk.domain.order.entity.OrderStatus;
 import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderDetailResponse;
 import com.loadbalancing.kiosk.domain.order.order.dto.response.OrderListResponse;
 import com.loadbalancing.kiosk.domain.order.order.repository.OrderRepository;
@@ -16,9 +16,7 @@ import com.loadbalancing.kiosk.global.exception.custom.OrderNotFoundException;
 import com.loadbalancing.kiosk.global.exception.custom.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -138,4 +136,14 @@ public class OrderService {
 
         return today2pm;
     }
+
+    @Transactional
+    public void deleteOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(
+                        () -> new OrderNotFoundException(orderId)
+                );
+        orderRepository.delete(order);
+    }
+
 }
