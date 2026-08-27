@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { orderApi } from "@/api/orderApi";
-import { OrderListItem } from "@/types/order";
+import { OrderInfo } from "@/types/order";
 import BackToHomeButton from "@/components/BackToHomeButton";
 import Icon from "@/components/Icon";
 
@@ -14,7 +14,7 @@ export default function CustomerOrderLookupPage() {
   const [phase, setPhase] = useState<Phase>("email");
   const [email, setEmail] = useState("");
 
-  const [orders, setOrders] = useState<OrderListItem[]>([]);
+  const [orders, setOrders] = useState<OrderInfo[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);

@@ -1,41 +1,38 @@
 import { apiClient } from "./client";
 import { ApiResponse, PageResponse } from "@/types/common";
-import {
-  OrderCreateRequest,
-  OrderCreateResponse,
-  OrderListItem,
-} from "@/types/order";
+import { OrderCreateRequest, OrderInfo } from "@/types/order";
 
 export const orderApi = {
-  // POST /api/v1/order
-  create: async (request: OrderCreateRequest): Promise<OrderCreateResponse> => {
-    const res = await apiClient.post<ApiResponse<OrderCreateResponse>>(
-      "/api/v1/order",
+  // POST /api/v1/auth/order
+  create: async (request: OrderCreateRequest): Promise<OrderInfo> => {
+    const res = await apiClient.post<ApiResponse<OrderInfo>>(
+      "/api/v1/auth/order",
       request
     );
     return res.data.data;
   },
 
-  // GET /api/v1/order/admin/list - 관리자용 전체 주문 목록 (email 필터 없음)
+  // GET /api/v1/admin/order/search (파라미터 없이 호출) - 관리자용 전체 주문 목록 (email 필터 없음)
+  // 예전엔 /order/admin/list가 따로 있었는데, search가 파라미터 없으면 전체 목록과 동일해서 그쪽으로 흡수됨
   getList: async (
     page = 0,
     size = 10
-  ): Promise<PageResponse<OrderListItem>> => {
-    const res = await apiClient.get<ApiResponse<PageResponse<OrderListItem>>>(
-      "/api/v1/order/admin/list",
+  ): Promise<PageResponse<OrderInfo>> => {
+    const res = await apiClient.get<ApiResponse<PageResponse<OrderInfo>>>(
+      "/api/v1/admin/order/search",
       { params: { page, size } }
     );
     return res.data.data;
   },
 
-  // GET /api/v1/order/list?email=... - 고객이 자기 이메일로 주문 조회
+  // GET /api/v1/auth/order/list?email=... - 고객이 자기 이메일로 주문 조회
   getMyList: async (
     email: string,
     page = 0,
     size = 10
-  ): Promise<PageResponse<OrderListItem>> => {
-    const res = await apiClient.get<ApiResponse<PageResponse<OrderListItem>>>(
-      "/api/v1/order/list",
+  ): Promise<PageResponse<OrderInfo>> => {
+    const res = await apiClient.get<ApiResponse<PageResponse<OrderInfo>>>(
+      "/api/v1/auth/order/list",
       { params: { email, page, size } }
     );
     return res.data.data;
@@ -49,8 +46,8 @@ export const orderApi = {
     endDate: string,
     page = 0,
     size = 10
-  ): Promise<PageResponse<OrderListItem>> => {
-    const res = await apiClient.get<ApiResponse<PageResponse<OrderListItem>>>(
+  ): Promise<PageResponse<OrderInfo>> => {
+    const res = await apiClient.get<ApiResponse<PageResponse<OrderInfo>>>(
       "/api/v1/admin/order/search",
       {
         params: {
@@ -65,9 +62,9 @@ export const orderApi = {
     return res.data.data;
   },
 
-  // PATCH /api/v1/admin/order/status/{id} - status는 OrderStatus enum 이름 그대로 보내야 함
+  // PATCH /api/v1/admin/order/{id}/status - status는 OrderStatus enum 이름 그대로 보내야 함
   updateStatus: async (orderId: number, status: string): Promise<void> => {
-    await apiClient.patch(`/api/v1/admin/order/status/${orderId}`, { status });
+    await apiClient.patch(`/api/v1/admin/order/${orderId}/status`, { status });
   },
 
   // DELETE /api/v1/admin/order/{id}

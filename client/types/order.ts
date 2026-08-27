@@ -1,10 +1,10 @@
-// OrderItemRequest (백엔드)
+// OrderRequest.OrderItem (백엔드)
 export interface OrderItemRequest {
   productId: number;
   quantity: number;
 }
 
-// OrderCreateRequest (백엔드)
+// OrderRequest.OrderCreate (백엔드)
 export interface OrderCreateRequest {
   email: string;
   addressLine1: string;
@@ -13,13 +13,7 @@ export interface OrderCreateRequest {
   items: OrderItemRequest[];
 }
 
-// OrderCreateResponse (백엔드)
-export interface OrderCreateResponse {
-  orderId: number;
-  status: string;
-}
-
-// OrderItemResponse (백엔드) - 주문 목록 안에 들어가는 아이템 하나
+// OrderResponse.OrderItemInfo (백엔드) - 주문 안에 들어가는 아이템 하나
 export interface OrderItemInfo {
   productId: number;
   title: string;
@@ -27,8 +21,9 @@ export interface OrderItemInfo {
   quantity: number;
 }
 
-// OrderListResponse (백엔드)
-export interface OrderListItem {
+// OrderResponse.OrderInfo (백엔드) - 생성/목록/조회/검색 응답이 전부 이 모양 하나로 통일됨.
+// 총액은 서버가 안 내려줌 - items로 프론트에서 직접 계산해서 씀 (아래 getOrderTotal 참고)
+export interface OrderInfo {
   orderId: number;
   email: string;
   addressLine1: string;
@@ -37,6 +32,14 @@ export interface OrderListItem {
   status: string;
   createdAt: string;
   items: OrderItemInfo[];
+}
+
+// OrderInfo.items로 총 금액 계산 (백엔드가 안 주니까 프론트에서 직접 합산)
+export function getOrderTotal(order: Pick<OrderInfo, "items">): number {
+  return order.items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 }
 
 // 백엔드 OrderStatus enum이랑 1:1로 맞춘 값.
