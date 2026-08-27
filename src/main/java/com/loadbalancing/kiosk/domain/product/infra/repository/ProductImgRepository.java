@@ -1,7 +1,7 @@
-package com.loadbalancing.kiosk.domain.product.repository;
+package com.loadbalancing.kiosk.domain.product.infra.repository;
 
-import com.loadbalancing.kiosk.domain.product.entity.Product;
-import com.loadbalancing.kiosk.domain.product.entity.ProductImg;
+import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
+import com.loadbalancing.kiosk.domain.product.infra.entity.ProductImg;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

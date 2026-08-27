@@ -1,7 +1,7 @@
 package com.loadbalancing.kiosk.domain.product.dto;
 
-import com.loadbalancing.kiosk.domain.product.entity.Product;
-import com.loadbalancing.kiosk.domain.product.entity.ProductImg;
+import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
+import com.loadbalancing.kiosk.domain.product.infra.entity.ProductImg;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

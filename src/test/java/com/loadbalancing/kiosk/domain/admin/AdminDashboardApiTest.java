@@ -79,7 +79,7 @@ class AdminDashboardApiTest {
                 "items", List.of(Map.of("productId", 1, "quantity", 2)) // 예가체프 18000원 x 2 = 36000원
         );
 
-        mockMvc.perform(post("/api/v1/order")
+        mockMvc.perform(post("/api/v1/auth/order")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
