@@ -11,7 +11,6 @@ import com.loadbalancing.kiosk.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
@@ -37,41 +36,43 @@ public class AdminDashboardService {
     // 상품/재고용 메서드
     private ProductSummaryResponse getProductSummary() {
 
-
         List<Product> products = productRepository.findAll();
-        //전체 상품 수
+
+        // 전체 상품 수
         long totalProductCount = products.size();
-        //품절 상품 수
-        long outOfStockProductCount = products.stream()
+
+        // 품절 상품 리스트
+        List<ProductStockResponse> outOfStockProducts = products.stream()
                 .filter(product -> product.getStock() == 0)
-                .count();
-        //재고 부족 상품 수(1~10으로 범위를 잡음)
-        long lowStockProductCount = products.stream()
+                .map(ProductStockResponse::from)
+                .toList();
+
+        // 재고 부족 상품 리스트(1~10으로 범위를 잡음)
+        List<ProductStockResponse> lowStockProducts = products.stream()
                 .filter(product ->
                         product.getStock() >= 1
                                 && product.getStock() <= 10
                 )
-                .count();
-        //삭제 상품 수
-        long deletedProductCount =
-                productRepository.countDeletedProducts();
-        //최근에 등록된 상품 5개 리스트(createdAt을 기준으로 최신 순 정렬함)
+                .map(ProductStockResponse::from)
+                .toList();
+
+        // 최근에 등록된 상품 5개 리스트(createdAt을 기준으로 최신 순 정렬함)
         List<RecentProductResponse> recentProducts =
                 productRepository.findTop5ByOrderByCreatedAtDesc()
                         .stream()
                         .map(RecentProductResponse::from)
                         .toList();
-        //상품 별 재고 현황
+
+        // 상품 별 재고 현황
         List<ProductStockResponse> stockStatus =
                 products.stream()
                         .map(ProductStockResponse::from)
                         .toList();
-        // 상품/ 재고용 dto를 만들어서 전달
+
         return ProductSummaryResponse.builder()
                 .totalProductCount(totalProductCount)
-                .outOfStockProductCount(outOfStockProductCount)
-                .lowStockProductCount(lowStockProductCount)
-                .deletedProductCount(deletedProductCount)
+                .outOfStockProducts(outOfStockProducts)
+                .lowStockProducts(lowStockProducts)
                 .recentProducts(recentProducts)
                 .stockStatus(stockStatus)
                 .build();
