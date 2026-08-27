@@ -1,7 +1,9 @@
 package com.loadbalancing.kiosk.domain.admin.service;
 
 import com.loadbalancing.kiosk.domain.admin.dto.AdminDashboardResponse;
+import com.loadbalancing.kiosk.domain.admin.dto.order.OrderDashboardMetrics;
 import com.loadbalancing.kiosk.domain.admin.dto.order.OrderStatusCountResponse;
+import com.loadbalancing.kiosk.domain.admin.dto.order.PeriodOrderMetric;
 import com.loadbalancing.kiosk.domain.order.entity.OrderStatus;
 import com.loadbalancing.kiosk.domain.order.order.repository.OrderRepository;
 import com.loadbalancing.kiosk.domain.order.orderItem.repository.OrderItemRepository;
@@ -112,12 +114,12 @@ public class AdminDashboardService {
                         ))
                         .toList();
 
-        return new OrderDashboardMetrics(
-                daily,
-                weekly,
-                monthly,
-                orderStatusCounts
-        );
+        return OrderDashboardMetrics.builder()
+                .daily(daily)
+                .weekly(weekly)
+                .monthly(monthly)
+                .orderStatusCounts(orderStatusCounts)
+                .build();
     }
 
     private PeriodOrderMetric getPeriodOrderMetric(
@@ -138,11 +140,11 @@ public class AdminDashboardService {
                 ? 0
                 : totalSales / orderCount;
 
-        return new PeriodOrderMetric(
-                totalSales,
-                orderCount,
-                averageOrderAmount
-        );
+        return PeriodOrderMetric.builder()
+                .totalSales(totalSales)
+                .orderCount(orderCount)
+                .averageOrderAmount(averageOrderAmount)
+                .build();
     }
 
     private LocalDateTime calculateDailyStart(LocalDateTime now) {
@@ -177,20 +179,5 @@ public class AdminDashboardService {
                 .toLocalDate()
                 .withDayOfMonth(1)
                 .atTime(14, 0);
-    }
-
-    private record OrderDashboardMetrics(
-            PeriodOrderMetric daily,
-            PeriodOrderMetric weekly,
-            PeriodOrderMetric monthly,
-            List<OrderStatusCountResponse> orderStatusCounts
-    ) {
-    }
-
-    private record PeriodOrderMetric(
-            long totalSales,
-            long orderCount,
-            long averageOrderAmount
-    ) {
     }
 }
