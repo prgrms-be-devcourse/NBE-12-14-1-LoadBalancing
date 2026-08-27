@@ -13,15 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/admin/dashboard")
 @RequiredArgsConstructor
 public class AdminDashboardController {
+
     private final AdminDashboardService adminDashboardService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<AdminDashboardResponse>> dashboard(){
+    public ResponseEntity<ApiResponse<AdminDashboardResponse>> dashboard() {
         AdminDashboardResponse response =
                 adminDashboardService.getDashboard();
 
         return ResponseEntity.ok(
-                ApiResponse.success(200,response)
+                ApiResponse.success(200, response)
         );
     }
 }
