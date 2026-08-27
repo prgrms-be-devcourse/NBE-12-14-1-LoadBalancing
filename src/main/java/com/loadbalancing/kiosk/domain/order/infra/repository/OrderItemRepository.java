@@ -1,9 +1,6 @@
-package com.loadbalancing.kiosk.domain.order.orderItem.repository;
+package com.loadbalancing.kiosk.domain.order.infra.repository;
 
-import com.loadbalancing.kiosk.domain.order.entity.Order;
-import com.loadbalancing.kiosk.domain.order.entity.OrderItem;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.loadbalancing.kiosk.domain.order.infra.entity.OrderItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,7 +17,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             FROM OrderItem oi
             WHERE oi.order.createdAt >= :startAt
               AND oi.order.createdAt < :endAt
-              AND oi.order.orderStatus <> com.loadbalancing.kiosk.domain.order.entity.OrderStatus.CANCELLED
+              AND oi.order.orderStatus <> OrderStatus.CANCELLED
             """)
     long sumSalesBetween(
             @Param("startAt") LocalDateTime startAt,

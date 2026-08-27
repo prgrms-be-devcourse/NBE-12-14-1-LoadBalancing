@@ -2,10 +2,10 @@ package com.loadbalancing.kiosk.global.init;
 
 import com.loadbalancing.kiosk.domain.admin.entity.Admin;
 import com.loadbalancing.kiosk.domain.admin.repository.AdminRepository;
-import com.loadbalancing.kiosk.domain.product.entity.Product;
-import com.loadbalancing.kiosk.domain.product.entity.ProductImg;
-import com.loadbalancing.kiosk.domain.product.repository.ProductImgRepository;
-import com.loadbalancing.kiosk.domain.product.repository.ProductRepository;
+import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
+import com.loadbalancing.kiosk.domain.product.infra.entity.ProductImg;
+import com.loadbalancing.kiosk.domain.product.infra.repository.ProductImgRepository;
+import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;

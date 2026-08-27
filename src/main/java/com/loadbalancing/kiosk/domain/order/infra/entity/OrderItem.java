@@ -1,6 +1,6 @@
-package com.loadbalancing.kiosk.domain.order.entity;
+package com.loadbalancing.kiosk.domain.order.infra.entity;
 
-import com.loadbalancing.kiosk.domain.product.entity.Product;
+import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
 import com.loadbalancing.kiosk.global.entity.BaseSoftDeleteTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;

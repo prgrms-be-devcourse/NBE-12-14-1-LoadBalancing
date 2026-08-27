@@ -46,7 +46,7 @@ class AdminOrderApiTest {
                 "items", List.of(Map.of("productId", 1, "quantity", 1))
         );
 
-        String body = mockMvc.perform(post("/api/v1/order")
+        String body = mockMvc.perform(post("/api/v1/auth/order")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andReturn().getResponse().getContentAsString();
@@ -58,7 +58,7 @@ class AdminOrderApiTest {
     void 주문상태를_변경하면_한글_설명으로_응답한다() throws Exception {
         Long orderId = createOrder("status-test@example.com");
 
-        mockMvc.perform(patch("/api/v1/admin/order/status/" + orderId)
+        mockMvc.perform(patch("/api/v1/admin/order/" + orderId + "/status")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("status", "PAYMENT_COMPLETED"))))
                 .andExpect(status().isOk())
@@ -68,7 +68,7 @@ class AdminOrderApiTest {
 
     @Test
     void 존재하지_않는_주문_상태를_바꾸면_404가_난다() throws Exception {
-        mockMvc.perform(patch("/api/v1/admin/order/status/9999")
+        mockMvc.perform(patch("/api/v1/admin/order/9999/status")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("status", "CANCELLED"))))
                 .andExpect(status().isNotFound());
