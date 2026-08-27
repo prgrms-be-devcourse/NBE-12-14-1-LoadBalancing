@@ -43,9 +43,9 @@ public class AdminOrderService {
 
     @Transactional(readOnly = true)
     public Page<OrderListResponse> search(
-            String keyword, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable
+            String keyword, OrderStatus status, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable
     ) {
-        Page<Order> orders = adminOrderRepository.search(keyword, startDate, endDate, pageable);
+        Page<Order> orders = adminOrderRepository.search(keyword, status, startDate, endDate, pageable);
         return orders.map(order -> {
             List<OrderItem> items = orderItemRepository.findAllByOrder_Id(order.getId());
             return OrderListResponse.from(order, items);
