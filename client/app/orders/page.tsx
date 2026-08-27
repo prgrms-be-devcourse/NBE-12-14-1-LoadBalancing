@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { orderApi } from "@/api/orderApi";
 import { OrderListItem } from "@/types/order";
 import BackToHomeButton from "@/components/BackToHomeButton";
+import Icon from "@/components/Icon";
 
 const PAGE_SIZE = 10;
 
@@ -82,7 +83,10 @@ export default function CustomerOrderLookupPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-8">
         <BackToHomeButton />
-        <h1 className="text-2xl font-bold text-black">이메일을 입력해주세요</h1>
+        <Icon name="receipt_long" className="text-5xl text-black" />
+        <h1 className="text-headline-md font-bold text-black">
+          이메일을 입력해주세요
+        </h1>
 
         <div className="flex w-full max-w-sm flex-col gap-4">
           <input
@@ -93,7 +97,7 @@ export default function CustomerOrderLookupPage() {
             onKeyDown={(e) => {
               if (e.key === "Enter") handleEmailSubmit();
             }}
-            className="rounded-lg border border-gray-200 px-4 py-3 text-black"
+            className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
           />
 
           {error && (
@@ -104,7 +108,7 @@ export default function CustomerOrderLookupPage() {
 
           <button
             onClick={handleEmailSubmit}
-            className="rounded-lg bg-black py-3 font-medium text-white"
+            className="touch-target rounded-lg bg-black font-bold text-white"
           >
             조회하기
           </button>
@@ -117,7 +121,9 @@ export default function CustomerOrderLookupPage() {
   return (
     <div className="mx-auto max-w-2xl px-8 py-10">
       <BackToHomeButton />
-      <h1 className="mb-8 text-2xl font-bold text-black">주문 조회</h1>
+      <h1 className="text-headline-md mb-8 font-bold text-black">
+        주문 조회
+      </h1>
 
       {error && (
         <div className="mb-6 flex items-center justify-between rounded-lg bg-red-50 p-4 text-sm text-red-600">
@@ -171,9 +177,10 @@ export default function CustomerOrderLookupPage() {
                       <span className="text-sm text-black">
                         {order.status}
                       </span>
-                      <span className="text-gray-400">
-                        {isExpanded ? "▲" : "▼"}
-                      </span>
+                      <Icon
+                        name={isExpanded ? "expand_less" : "expand_more"}
+                        className="text-gray-400"
+                      />
                     </div>
                   </button>
 

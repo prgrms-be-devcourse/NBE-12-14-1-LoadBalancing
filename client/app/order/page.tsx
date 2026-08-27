@@ -7,6 +7,7 @@ import { orderApi } from "@/api/orderApi";
 import { OrderCreateResponse } from "@/types/order";
 import OrderStepper from "@/components/OrderStepper";
 import BackToHomeButton from "@/components/BackToHomeButton";
+import Icon from "@/components/Icon";
 
 type Phase = "review" | "paying" | "done";
 
@@ -77,8 +78,8 @@ export default function OrderPage() {
       <div className="mx-auto max-w-2xl px-8 py-10">
         <OrderStepper currentStep={3} />
         <div className="flex flex-col items-center justify-center gap-4 py-24">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-gray-800" />
-          <p className="text-gray-500">결제 처리 중입니다...</p>
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-black" />
+          <p className="text-body-md text-gray-500">결제 처리 중입니다...</p>
         </div>
       </div>
     );
@@ -87,21 +88,37 @@ export default function OrderPage() {
   // 주문 완료 화면
   if (phase === "done" && orderResult) {
     return (
-      <div className="mx-auto max-w-2xl px-8 py-10">
+      <div className="mx-auto flex max-w-2xl flex-col items-center px-8 py-10 text-center">
         <OrderStepper currentStep={4} />
 
-        <div className="flex flex-col items-center gap-2 py-6 text-center">
-          <p className="text-xl font-bold text-black">결제가 완료되었습니다</p>
-          <p className="text-sm text-gray-500">
-            주문번호 {orderResult.orderId} · {orderResult.status}
-          </p>
+        <div className="flex w-full flex-col items-center gap-4 py-6">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-black">
+            <Icon name="check" className="text-4xl text-white" filled />
+          </div>
+          <div>
+            <p className="text-headline-md font-bold text-black">
+              주문이 완료되었습니다
+            </p>
+            <p className="text-body-md mt-1 text-gray-500">
+              결제가 정상적으로 처리됐어요
+            </p>
+          </div>
+
+          <div className="w-full max-w-xs rounded-lg border border-gray-200 py-6">
+            <p className="text-label-sm font-bold uppercase tracking-wide text-gray-400">
+              주문번호
+            </p>
+            <p className="text-headline-lg mt-1 font-extrabold text-black">
+              #{orderResult.orderId}
+            </p>
+          </div>
         </div>
 
-        <div className="mb-8 flex flex-col gap-3 rounded-lg bg-gray-50 p-4">
+        <div className="mb-6 flex w-full flex-col gap-3 rounded-lg bg-gray-50 p-4 text-left">
           {confirmedItems.map((item) => (
             <div
               key={item.productId}
-              className="flex justify-between text-sm text-black"
+              className="text-body-md flex justify-between text-black"
             >
               <span>
                 {item.title} x {item.quantity}
@@ -109,14 +126,14 @@ export default function OrderPage() {
               <span>{(item.price * item.quantity).toLocaleString()}원</span>
             </div>
           ))}
-          <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold text-black">
+          <div className="text-body-md mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold text-black">
             <span>총 금액</span>
             <span>{confirmedTotal.toLocaleString()}원</span>
           </div>
         </div>
 
         {/* request로 보냈던 배송 정보 전체 표시 */}
-        <div className="mb-8 flex flex-col gap-2 rounded-lg bg-gray-50 p-4 text-sm text-black">
+        <div className="mb-8 flex w-full flex-col gap-2 rounded-lg bg-gray-50 p-4 text-left text-sm text-black">
           <div className="flex justify-between">
             <span className="text-gray-500">이메일</span>
             <span>{email}</span>
@@ -137,7 +154,7 @@ export default function OrderPage() {
 
         <button
           onClick={() => router.push("/menu")}
-          className="w-full rounded-lg bg-black py-4 font-medium text-white"
+          className="touch-target w-full rounded-lg bg-black font-bold text-white"
         >
           메뉴로 돌아가기
         </button>
@@ -153,7 +170,7 @@ export default function OrderPage() {
         <p className="text-gray-500">장바구니가 비어있습니다.</p>
         <button
           onClick={() => router.push("/menu")}
-          className="rounded-lg bg-black px-6 py-3 text-white"
+          className="touch-target rounded-lg bg-black px-6 font-bold text-white"
         >
           메뉴 보러가기
         </button>
@@ -166,14 +183,14 @@ export default function OrderPage() {
     <div className="mx-auto max-w-2xl px-8 py-10 pb-32">
       <BackToHomeButton />
       <OrderStepper currentStep={2} />
-      <h1 className="mb-8 text-2xl font-bold text-black">주문하기</h1>
+      <h1 className="text-headline-md mb-8 font-bold text-black">주문하기</h1>
 
       {/* 담은 상품 요약 */}
-      <div className="mb-8 flex flex-col gap-3 rounded-lg bg-gray-50 p-4">
+      <div className="mb-8 flex flex-col gap-3 rounded-lg border border-gray-200 p-4">
         {items.map((item) => (
           <div
             key={item.productId}
-            className="flex justify-between text-sm text-black"
+            className="text-body-md flex justify-between text-black"
           >
             <span>
               {item.title} x {item.quantity}
@@ -181,7 +198,7 @@ export default function OrderPage() {
             <span>{(item.price * item.quantity).toLocaleString()}원</span>
           </div>
         ))}
-        <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold text-black">
+        <div className="text-body-md mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold text-black">
           <span>총 금액</span>
           <span>{totalPrice.toLocaleString()}원</span>
         </div>
@@ -194,28 +211,28 @@ export default function OrderPage() {
           placeholder="이메일"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded-lg border border-gray-200 px-4 py-3 text-black"
+          className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
         />
         <input
           type="text"
           placeholder="주소"
           value={addressLine1}
           onChange={(e) => setAddressLine1(e.target.value)}
-          className="rounded-lg border border-gray-200 px-4 py-3 text-black"
+          className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
         />
         <input
           type="text"
           placeholder="상세주소"
           value={addressLine2}
           onChange={(e) => setAddressLine2(e.target.value)}
-          className="rounded-lg border border-gray-200 px-4 py-3 text-black"
+          className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
         />
         <input
           type="text"
           placeholder="우편번호"
           value={postalCode}
           onChange={(e) => setPostalCode(e.target.value)}
-          className="rounded-lg border border-gray-200 px-4 py-3 text-black"
+          className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
         />
       </div>
 
@@ -227,7 +244,7 @@ export default function OrderPage() {
 
       <button
         onClick={handleSubmit}
-        className="mt-8 w-full rounded-lg bg-black py-4 font-medium text-white"
+        className="touch-target mt-8 w-full rounded-lg bg-black font-bold text-white"
       >
         결제하기
       </button>

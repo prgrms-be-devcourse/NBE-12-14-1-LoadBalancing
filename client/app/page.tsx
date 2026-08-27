@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import Icon from "@/components/Icon";
 
 export default function Home() {
   const { clearCart } = useCart();
@@ -14,23 +15,38 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex h-screen w-screen flex-col items-center justify-center gap-8 bg-black text-white">
-      <h1 className="text-3xl font-bold">어서오세요</h1>
+    <div className="flex h-screen w-screen flex-col bg-white text-black">
+      <header className="flex h-24 shrink-0 items-center justify-center border-b-2 border-black">
+        <span className="text-headline-md font-extrabold uppercase tracking-tighter">
+          Kiosk
+        </span>
+      </header>
 
-      <div className="flex gap-4">
-        <Link
-          href="/menu"
-          className="flex h-40 w-40 flex-col items-center justify-center gap-2 rounded-2xl bg-white text-lg font-bold text-black"
-        >
-          상품 주문
-        </Link>
-        <Link
-          href="/orders"
-          className="flex h-40 w-40 flex-col items-center justify-center gap-2 rounded-2xl bg-yellow-400 text-lg font-bold text-black"
-        >
-          주문 확인
-        </Link>
-      </div>
+      <main className="flex flex-1 flex-col items-center justify-center gap-10 px-8">
+        <div className="text-center">
+          <h1 className="text-headline-lg font-bold">어서오세요</h1>
+          <p className="text-body-md mt-2 text-gray-500">
+            원하시는 메뉴를 선택해주세요
+          </p>
+        </div>
+
+        <div className="grid w-full max-w-2xl grid-cols-1 gap-6 sm:grid-cols-2">
+          <Link
+            href="/menu"
+            className="touch-target flex min-h-[240px] flex-col items-center justify-center gap-3 rounded-xl border-4 border-transparent bg-black text-white transition-colors hover:bg-black/90"
+          >
+            <Icon name="restaurant_menu" className="text-6xl" filled />
+            <span className="text-headline-md font-bold">상품 주문</span>
+          </Link>
+          <Link
+            href="/orders"
+            className="touch-target flex min-h-[240px] flex-col items-center justify-center gap-3 rounded-xl border-4 border-black bg-white text-black transition-colors hover:bg-black hover:text-white"
+          >
+            <Icon name="receipt_long" className="text-6xl" />
+            <span className="text-headline-md font-bold">주문 확인</span>
+          </Link>
+        </div>
+      </main>
     </div>
   );
 }

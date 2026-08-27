@@ -6,6 +6,7 @@ import { productApi } from "@/api/productApi";
 import { ProductInfo } from "@/types/product";
 import OrderStepper from "@/components/OrderStepper";
 import BackToHomeButton from "@/components/BackToHomeButton";
+import Icon from "@/components/Icon";
 
 export default function MenuPage() {
   const router = useRouter();
@@ -96,22 +97,25 @@ export default function MenuPage() {
     <div className="min-h-screen bg-white px-8 py-10">
       <BackToHomeButton />
       <OrderStepper currentStep={1} />
-      <h1 className="mb-8 text-2xl font-bold text-black">메뉴</h1>
+      <h1 className="text-headline-md mb-8 font-bold text-black">메뉴</h1>
 
-      <div className="mb-6 flex gap-2">
-        <input
-          type="text"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSearch();
-          }}
-          placeholder="메뉴 이름으로 검색"
-          className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm text-black"
-        />
+      <div className="mb-8 flex gap-2">
+        <div className="flex flex-1 items-center gap-2 border-b border-gray-300 px-1 py-2 focus-within:border-black">
+          <Icon name="search" className="text-xl text-gray-400" />
+          <input
+            type="text"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
+            placeholder="메뉴 이름으로 검색"
+            className="text-body-md w-full text-black outline-none placeholder:text-gray-400"
+          />
+        </div>
         <button
           onClick={handleSearch}
-          className="rounded bg-black px-4 py-2 text-sm font-medium text-white"
+          className="rounded bg-black px-5 py-2 text-label-sm font-bold text-white"
         >
           검색
         </button>
@@ -121,7 +125,7 @@ export default function MenuPage() {
               setKeyword("");
               setAppliedKeyword("");
             }}
-            className="rounded border border-gray-200 px-4 py-2 text-sm font-medium text-black hover:bg-gray-50"
+            className="rounded border-2 border-black px-5 py-2 text-label-sm font-bold text-black hover:bg-gray-50"
           >
             초기화
           </button>
@@ -150,14 +154,14 @@ export default function MenuPage() {
         </p>
       )}
 
-      <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4">
         {products.map((product) => (
           <div
             key={product.id}
             onClick={() => router.push(`/menu/${product.id}`)}
-            className="flex cursor-pointer flex-col gap-2"
+            className="flex cursor-pointer flex-col overflow-hidden rounded border border-gray-200 transition-colors hover:border-black"
           >
-            <div className="aspect-square overflow-hidden rounded-xl bg-gray-100">
+            <div className="aspect-square overflow-hidden bg-gray-100">
               {product.thumbnail ? (
                 <img
                   src={product.thumbnail}
@@ -165,15 +169,22 @@ export default function MenuPage() {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-5xl">
-                  🚫
+                <div className="flex h-full w-full items-center justify-center">
+                  <Icon
+                    name="image_not_supported"
+                    className="text-4xl text-gray-300"
+                  />
                 </div>
               )}
             </div>
-            <p className="font-medium text-black">{product.title}</p>
-            <p className="text-sm text-gray-500">
-              {product.price.toLocaleString()}원
-            </p>
+            <div className="flex flex-col gap-1 border-t border-gray-100 px-3 py-3">
+              <p className="text-body-md font-bold text-black">
+                {product.title}
+              </p>
+              <p className="text-body-md text-gray-500">
+                {product.price.toLocaleString()}원
+              </p>
+            </div>
           </div>
         ))}
       </div>
