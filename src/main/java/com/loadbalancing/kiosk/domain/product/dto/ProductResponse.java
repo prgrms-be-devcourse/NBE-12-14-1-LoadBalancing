@@ -1,4 +1,4 @@
-package com.loadbalancing.kiosk.domain.product.dto.response;
+package com.loadbalancing.kiosk.domain.product.dto;
 
 import com.loadbalancing.kiosk.domain.product.entity.Product;
 import com.loadbalancing.kiosk.domain.product.entity.ProductImg;
@@ -22,19 +22,6 @@ public class ProductResponse {
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
-        // 1. 이미지 응답 전용 record 정의
-        @Builder
-        public record ProductImgInfo(
-                Long id,
-                String url
-        ) {
-            public static ProductImgInfo from(ProductImg img) {
-                return ProductImgInfo.builder()
-                        .id(img.getId())
-                        .url(img.getUrl())
-                        .build();
-            }
-        }
         //이건 목록용 응답(목록에서는 굳이 세부 사진까지 필요 없기 때문)
         public static ProductInfo from(Product product) {
             return from(product, List.of());
@@ -57,6 +44,19 @@ public class ProductResponse {
                     .createdAt(product.getCreatedAt())
                     .updatedAt(product.getUpdatedAt())
                     .build();
+        }
+    }
+    // 1. 이미지 응답 전용 record 정의
+    @Builder
+    public record ProductImgInfo(
+        Long id,
+        String url
+    ) {
+        public static ProductImgInfo from(ProductImg img) {
+            return ProductImgInfo.builder()
+                .id(img.getId())
+                .url(img.getUrl())
+                .build();
         }
     }
 }
