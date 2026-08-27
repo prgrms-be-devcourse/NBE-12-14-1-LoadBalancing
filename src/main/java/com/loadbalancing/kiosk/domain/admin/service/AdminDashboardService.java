@@ -1,10 +1,9 @@
 package com.loadbalancing.kiosk.domain.admin.service;
 
 import com.loadbalancing.kiosk.domain.admin.dto.AdminDashboardResponse;
-import com.loadbalancing.kiosk.domain.admin.dto.product.DashboardProductResponse;
-import com.loadbalancing.kiosk.domain.admin.dto.product.ProductSummaryResponse;
 import com.loadbalancing.kiosk.domain.order.order.repository.OrderRepository;
 import com.loadbalancing.kiosk.domain.order.orderItem.repository.OrderItemRepository;
+import com.loadbalancing.kiosk.domain.product.dto.response.ProductResponse;
 import com.loadbalancing.kiosk.domain.product.entity.Product;
 import com.loadbalancing.kiosk.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,45 +23,37 @@ public class AdminDashboardService {
     @Transactional(readOnly = true)
     public AdminDashboardResponse getDashboard() {
 
-        ProductSummaryResponse productSummary =
-                getProductSummary();
-
-        return AdminDashboardResponse.builder()
-                .productSummary(productSummary)
-                .build();
-    }
-
-    // 상품/재고용 메서드
-    private ProductSummaryResponse getProductSummary() {
-
         List<Product> products = productRepository.findAll();
 
         long totalProductCount = products.size();
 
-        List<DashboardProductResponse> outOfStockProducts = products.stream()
+        List<ProductResponse.ProductInfo> outOfStockProducts = products.stream()
                 .filter(product -> product.getStock() == 0)
-                .map(DashboardProductResponse::from)
+                .map(ProductResponse.ProductInfo::from)
                 .toList();
 
-        List<DashboardProductResponse> lowStockProducts = products.stream()
+        List<ProductResponse.ProductInfo> lowStockProducts = products.stream()
                 .filter(product ->
                         product.getStock() >= 1
                                 && product.getStock() <= 10
                 )
-                .map(DashboardProductResponse::from)
+                .map(ProductResponse.ProductInfo::from)
                 .toList();
 
-        List<DashboardProductResponse> recentProducts =
+        List<ProductResponse.ProductInfo> recentProducts =
                 productRepository.findTop5ByOrderByCreatedAtDesc()
                         .stream()
-                        .map(DashboardProductResponse::from)
+                        .map(ProductResponse.ProductInfo::from)
                         .toList();
 
-        return ProductSummaryResponse.builder()
+        return AdminDashboardResponse.builder()
                 .totalProductCount(totalProductCount)
                 .outOfStockProducts(outOfStockProducts)
                 .lowStockProducts(lowStockProducts)
                 .recentProducts(recentProducts)
                 .build();
     }
+
+
+
 }

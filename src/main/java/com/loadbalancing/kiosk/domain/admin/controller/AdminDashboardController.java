@@ -1,7 +1,6 @@
 package com.loadbalancing.kiosk.domain.admin.controller;
 
 import com.loadbalancing.kiosk.domain.admin.dto.AdminDashboardResponse;
-import com.loadbalancing.kiosk.domain.admin.entity.Admin;
 import com.loadbalancing.kiosk.domain.admin.service.AdminDashboardService;
 import com.loadbalancing.kiosk.global.ApiResponse;
 import lombok.RequiredArgsConstructor;
