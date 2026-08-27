@@ -44,9 +44,16 @@ public class ProductService {
         return ProductResponse.ProductInfo.from(savedProduct, newImgs);
     }
 
-    public Page<ProductResponse.ProductInfo> list(Pageable pageable) {
-        return productRepository.findAll(pageable)
-                .map(ProductResponse.ProductInfo::from);
+    public Page<ProductResponse.ProductInfo> list(String keyword, Pageable pageable) {
+
+        Page<Product> products;//if문 안에서 선언하면 안되기 때문에 밖에서 선언
+
+        if(keyword == null || keyword.isEmpty()){
+            products = productRepository.findAll(pageable);
+        } else {
+            products = productRepository.findByTitleContainingIgnoreCase(keyword.trim(), pageable);
+        }
+        return products.map(ProductResponse.ProductInfo::from);
     }
 
     public ProductResponse.ProductInfo findById(Long id) {

@@ -22,13 +22,14 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/auth/product/list")
+    @GetMapping("/auth/product/list")//다건 조회
     public ResponseEntity<ApiResponse<?>> list(
+            @RequestParam(value = "keyword", required = false) String keyword,//검색 문자열, 공백이면 전체 반환
             @PageableDefault(
                     sort = "id",
-                    direction = Sort.Direction.DESC) Pageable pageable
+                    direction = Sort.Direction.DESC) Pageable pageable//10개 단위 페이징
     ){
-        Page<ProductResponse.ProductInfo> products = productService.list(pageable);
+        Page<ProductResponse.ProductInfo> products = productService.list(keyword, pageable);
         return ResponseEntity.ok(ApiResponse.success(
                 200,
                 products
