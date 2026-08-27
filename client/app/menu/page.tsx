@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { productApi } from "@/api/productApi";
 import { ProductInfo } from "@/types/product";
 import OrderStepper from "@/components/OrderStepper";
+import BackToHomeButton from "@/components/BackToHomeButton";
 
 export default function MenuPage() {
   const router = useRouter();
@@ -73,6 +74,7 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-white px-8 py-10">
+      <BackToHomeButton />
       <OrderStepper currentStep={1} />
       <h1 className="mb-8 text-2xl font-bold text-black">메뉴</h1>
 

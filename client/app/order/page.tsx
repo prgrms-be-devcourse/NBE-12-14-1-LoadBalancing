@@ -6,6 +6,7 @@ import { useCart, CartItem } from "@/context/CartContext";
 import { orderApi } from "@/api/orderApi";
 import { OrderCreateResponse } from "@/types/order";
 import OrderStepper from "@/components/OrderStepper";
+import BackToHomeButton from "@/components/BackToHomeButton";
 
 type Phase = "review" | "paying" | "done";
 
@@ -148,6 +149,7 @@ export default function OrderPage() {
   if (items.length === 0) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+        <BackToHomeButton />
         <p className="text-gray-500">장바구니가 비어있습니다.</p>
         <button
           onClick={() => router.push("/menu")}
@@ -162,6 +164,7 @@ export default function OrderPage() {
   // 주문확인 (기본 화면)
   return (
     <div className="mx-auto max-w-2xl px-8 py-10 pb-32">
+      <BackToHomeButton />
       <OrderStepper currentStep={2} />
       <h1 className="mb-8 text-2xl font-bold text-black">주문하기</h1>
 

@@ -1,6 +1,18 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 
 export default function Home() {
+  const { clearCart } = useCart();
+
+  // 처음화면으로 돌아오면 이전에 담아뒀던 장바구니는 초기화
+  useEffect(() => {
+    clearCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center gap-8 bg-black text-white">
       <h1 className="text-3xl font-bold">어서오세요</h1>
