@@ -1,8 +1,7 @@
 package com.loadbalancing.kiosk.domain.qna.service;
 
 import com.loadbalancing.kiosk.domain.qna.dto.QnaRequest.QnaCreateRequest;
-import com.loadbalancing.kiosk.domain.qna.dto.QnaResponse.QnaDetailResponse;
-import com.loadbalancing.kiosk.domain.qna.dto.QnaResponse.QnaListResponse;
+import com.loadbalancing.kiosk.domain.qna.dto.QnaResponse.QnaInfo;
 import com.loadbalancing.kiosk.domain.qna.infra.entity.Qna;
 import com.loadbalancing.kiosk.domain.qna.infra.repository.QnaRepository;
 import com.loadbalancing.kiosk.global.exception.custom.QnaNotFoundException;
@@ -19,33 +18,33 @@ public class QnaService {
     private final QnaRepository qnaRepository;
 
     @Transactional
-    public QnaDetailResponse create(QnaCreateRequest request) {
+    public QnaInfo create(QnaCreateRequest request) {
         Qna qna = Qna.builder()
-                            .email(request.email())
-                            .title(request.title())
-                            .content(request.content())
-                            .answered(false)
-                            .build();
-        return QnaDetailResponse.from(qnaRepository.save(qna));
+                .email(request.email())
+                .title(request.title())
+                .content(request.content())
+                .answered(false)
+                .build();
+        return QnaInfo.from(qnaRepository.save(qna));
     }
 
     @Transactional(readOnly = true)
-    public QnaDetailResponse getDetail(Long id) {
+    public QnaInfo getDetail(Long id) {
         Qna qna = qnaRepository.findById(id)
                 .orElseThrow(() -> new QnaNotFoundException(id));
-        return QnaDetailResponse.from(qna);
+        return QnaInfo.from(qna);
     }
 
     @Transactional(readOnly = true)
-    public Page<QnaListResponse> getList(Pageable pageable) {
-        return qnaRepository.findAll(pageable).map(QnaListResponse::from);
+    public Page<QnaInfo> getList(Pageable pageable) {
+        return qnaRepository.findAll(pageable).map(QnaInfo::from);
     }
 
     @Transactional
-    public QnaDetailResponse answer(Long id, String answer) {
+    public QnaInfo answer(Long id, String answer) {
         Qna qna = qnaRepository.findById(id)
                 .orElseThrow(() -> new QnaNotFoundException(id));
         qna.answer(answer);
-        return QnaDetailResponse.from(qna);
+        return QnaInfo.from(qna);
     }
 }

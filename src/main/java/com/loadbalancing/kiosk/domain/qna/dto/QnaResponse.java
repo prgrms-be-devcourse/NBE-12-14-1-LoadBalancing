@@ -1,22 +1,14 @@
 package com.loadbalancing.kiosk.domain.qna.dto;
 
 import com.loadbalancing.kiosk.domain.qna.infra.entity.Qna;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
-public class QnaResponse {
-    public record QnaListResponse(
-            Long id,
-            String title,
-            String email,
-            boolean answered,
-            LocalDateTime createdAt
-    ) {
-        public static QnaListResponse from(Qna qna) {
-            return new QnaListResponse(qna.getId(), qna.getTitle(), qna.getEmail(), qna.isAnswered(), qna.getCreatedAt());
-        }
-    }
 
-    public record QnaDetailResponse(
+public class QnaResponse {
+
+    @Builder
+    public record QnaInfo(
             Long id,
             String email,
             String title,
@@ -25,8 +17,16 @@ public class QnaResponse {
             boolean answered,
             LocalDateTime createdAt
     ) {
-        public static QnaDetailResponse from(Qna qna) {
-            return new QnaDetailResponse(qna.getId(), qna.getEmail(), qna.getTitle(), qna.getContent(), qna.getAnswer(), qna.isAnswered(), qna.getCreatedAt());
+        public static QnaInfo from(Qna qna) {
+            return QnaInfo.builder()
+                    .id(qna.getId())
+                    .email(qna.getEmail())
+                    .title(qna.getTitle())
+                    .content(qna.getContent())
+                    .answer(qna.getAnswer())
+                    .answered(qna.isAnswered())
+                    .createdAt(qna.getCreatedAt())
+                    .build();
         }
     }
 }
