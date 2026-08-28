@@ -1,24 +1,19 @@
 package com.loadbalancing.kiosk.domain.order.service;
 
-
-import com.loadbalancing.kiosk.domain.order.infra.repository.OrderItemRepository;
-import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
-import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
-import com.loadbalancing.kiosk.domain.order.infra.entity.OrderItem;
+import com.loadbalancing.kiosk.domain.notification.dto.OrderCompletedEvent;
 import com.loadbalancing.kiosk.domain.order.dto.OrderRequest;
 import com.loadbalancing.kiosk.domain.order.dto.OrderResponse;
 import com.loadbalancing.kiosk.domain.order.infra.entity.Order;
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderItem;
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
-import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
 import com.loadbalancing.kiosk.domain.order.infra.repository.OrderItemRepository;
 import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
 import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
 import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
 import com.loadbalancing.kiosk.global.exception.custom.OrderItemNotFoundException;
 import com.loadbalancing.kiosk.global.exception.custom.OrderNotFoundException;
-import com.loadbalancing.kiosk.global.exception.custom.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,6 +29,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public OrderResponse.OrderInfo createOrder(OrderRequest.OrderCreate request) {
@@ -74,7 +70,11 @@ public class OrderService {
 
         List<OrderItem> allItems = orderItemRepository.findAllByOrder_Id(order.getId());
 
-        return OrderResponse.OrderInfo.from(order, allItems);
+        OrderResponse.OrderInfo orderInfo = OrderResponse.OrderInfo.from(order, allItems);
+        // 주문 응답 정보를 알림 이벤트로 전달
+        eventPublisher.publishEvent(OrderCompletedEvent.of(orderInfo));
+
+        return orderInfo;
     }
 
     @Transactional(readOnly = true)

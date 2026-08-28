@@ -27,3 +27,8 @@ cloudflare:
     secret-key: ${R2_SECRET_KEY}
     bucket: ${R2_BUCKET_NAME}
     url: ${R2_PUBLIC_URL}
+
+notification:
+  discord:
+    enabled: ${DISCORD_NOTIFICATION_ENABLED:false}
+    webhook-url: ${DISCORD_WEBHOOK_URL:}
