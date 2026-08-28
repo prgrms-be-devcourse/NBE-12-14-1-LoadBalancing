@@ -1,6 +1,5 @@
 package com.loadbalancing.kiosk.domain.admin.dto;
 import com.loadbalancing.kiosk.domain.admin.dto.order.OrderStatusCountResponse;
-import com.loadbalancing.kiosk.domain.admin.dto.sales.ProductSalesAnalysisResponse;
 import com.loadbalancing.kiosk.domain.product.dto.ProductResponse;
 import lombok.Builder;
 
@@ -33,8 +32,8 @@ public record AdminDashboardResponse(
         List<OrderStatusCountResponse> orderStatusCounts,
 
         // 판매 분석
-        ProductSalesAnalysisResponse bestSellingProduct,
-        ProductSalesAnalysisResponse mostPurchasedAtOnceProduct,
-        ProductSalesAnalysisResponse worstSellingProduct
+        ProductResponse.ProductSalesAnalysisInfo bestSellingProduct,
+        ProductResponse.ProductSalesAnalysisInfo mostPurchasedAtOnceProduct,
+        ProductResponse.ProductSalesAnalysisInfo worstSellingProduct
 ) {
 }

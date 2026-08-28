@@ -1,8 +1,9 @@
 package com.loadbalancing.kiosk.domain.order.infra.repository;
 
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
-import com.loadbalancing.kiosk.domain.admin.dto.sales.ProductSalesAnalysisResponse;
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderItem;
+import com.loadbalancing.kiosk.domain.product.dto.ProductResponse;
+import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,44 +29,36 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             @Param("excludedStatus") OrderStatus excludedStatus
     );
 
-    // 가장 많이 팔린 상품
     @Query("""
-            SELECT new com.loadbalancing.kiosk.domain.admin.dto.sales.ProductSalesAnalysisResponse(
-                p.id,
-                p.title,
-                p.price,
-                p.stock,
-                p.thumbnail,
-                SUM(oi.quantity)
-            )
+            SELECT p AS product,
+                   SUM(oi.quantity) AS totalQuantity
             FROM OrderItem oi
             JOIN oi.product p
             WHERE oi.order.orderStatus <> :excludedStatus
-            GROUP BY p.id, p.title, p.price, p.stock, p.thumbnail
+            GROUP BY p
             ORDER BY SUM(oi.quantity) DESC
             """)
-    List<ProductSalesAnalysisResponse> findBestSellingProduct(
+    List<ProductSalesAnalysisProjection> findBestSellingProduct(
             @Param("excludedStatus") OrderStatus excludedStatus,
             Pageable pageable
     );
 
-    // 한번에 가장 많이 구매된 상품
     @Query("""
-            SELECT new com.loadbalancing.kiosk.domain.admin.dto.sales.ProductSalesAnalysisResponse(
-                p.id,
-                p.title,
-                p.price,
-                p.stock,
-                p.thumbnail,
-                oi.quantity
-            )
+            SELECT p AS product,
+                   oi.quantity AS totalQuantity
             FROM OrderItem oi
             JOIN oi.product p
             WHERE oi.order.orderStatus <> :excludedStatus
             ORDER BY oi.quantity DESC
             """)
-    List<ProductSalesAnalysisResponse> findMostPurchasedAtOnceProduct(
+    List<ProductSalesAnalysisProjection> findMostPurchasedAtOnceProduct(
             @Param("excludedStatus") OrderStatus excludedStatus,
             Pageable pageable
     );
+
+    interface ProductSalesAnalysisProjection {
+        Product getProduct();
+
+        Long getTotalQuantity();
+    }
 }

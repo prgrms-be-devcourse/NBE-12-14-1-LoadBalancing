@@ -4,7 +4,6 @@ import com.loadbalancing.kiosk.domain.admin.dto.AdminDashboardResponse;
 import com.loadbalancing.kiosk.domain.admin.dto.order.OrderDashboardMetrics;
 import com.loadbalancing.kiosk.domain.admin.dto.order.OrderStatusCountResponse;
 import com.loadbalancing.kiosk.domain.admin.dto.order.PeriodOrderMetric;
-import com.loadbalancing.kiosk.domain.admin.dto.sales.ProductSalesAnalysisResponse;
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
 import com.loadbalancing.kiosk.domain.order.infra.repository.OrderItemRepository;
 import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
@@ -59,13 +58,13 @@ public class AdminDashboardService {
         OrderDashboardMetrics orderMetrics =
                 getOrderDashboardMetrics();
 
-        ProductSalesAnalysisResponse bestSellingProduct =
+        ProductResponse.ProductSalesAnalysisInfo bestSellingProduct =
                 getBestSellingProduct();
 
-        ProductSalesAnalysisResponse mostPurchasedAtOnceProduct =
+        ProductResponse.ProductSalesAnalysisInfo mostPurchasedAtOnceProduct =
                 getMostPurchasedAtOnceProduct();
 
-        ProductSalesAnalysisResponse worstSellingProduct =
+        ProductResponse.ProductSalesAnalysisInfo worstSellingProduct =
                 getWorstSellingProduct();
 
         return AdminDashboardResponse.builder()
@@ -100,7 +99,7 @@ public class AdminDashboardService {
                 .build();
     }
 
-    private ProductSalesAnalysisResponse getBestSellingProduct() {
+    private ProductResponse.ProductSalesAnalysisInfo getBestSellingProduct() {
 
         Pageable limitOne = PageRequest.of(0, 1);
 
@@ -110,10 +109,14 @@ public class AdminDashboardService {
                 )
                 .stream()
                 .findFirst()
+                .map(result -> ProductResponse.ProductSalesAnalysisInfo.from(
+                        result.getProduct(),
+                        result.getTotalQuantity()
+                ))
                 .orElse(null);
     }
 
-    private ProductSalesAnalysisResponse getMostPurchasedAtOnceProduct() {
+    private ProductResponse.ProductSalesAnalysisInfo getMostPurchasedAtOnceProduct() {
 
         Pageable limitOne = PageRequest.of(0, 1);
 
@@ -123,10 +126,14 @@ public class AdminDashboardService {
                 )
                 .stream()
                 .findFirst()
+                .map(result -> ProductResponse.ProductSalesAnalysisInfo.from(
+                        result.getProduct(),
+                        result.getTotalQuantity()
+                ))
                 .orElse(null);
     }
 
-    private ProductSalesAnalysisResponse getWorstSellingProduct() {
+    private ProductResponse.ProductSalesAnalysisInfo getWorstSellingProduct() {
 
         Pageable limitOne = PageRequest.of(0, 1);
 
@@ -136,6 +143,10 @@ public class AdminDashboardService {
                 )
                 .stream()
                 .findFirst()
+                .map(result -> ProductResponse.ProductSalesAnalysisInfo.from(
+                        result.getProduct(),
+                        result.getTotalQuantity()
+                ))
                 .orElse(null);
     }
 
