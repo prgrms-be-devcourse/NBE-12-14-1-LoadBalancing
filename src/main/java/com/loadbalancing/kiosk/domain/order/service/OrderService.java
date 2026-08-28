@@ -1,16 +1,11 @@
 package com.loadbalancing.kiosk.domain.order.service;
 
-
-import com.loadbalancing.kiosk.domain.order.infra.repository.OrderItemRepository;
-import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
-import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
-import com.loadbalancing.kiosk.domain.order.infra.entity.OrderItem;
+import com.loadbalancing.kiosk.domain.notification.event.OrderCompletedEvent;
 import com.loadbalancing.kiosk.domain.order.dto.OrderRequest;
 import com.loadbalancing.kiosk.domain.order.dto.OrderResponse;
 import com.loadbalancing.kiosk.domain.order.infra.entity.Order;
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderItem;
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
-import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
 import com.loadbalancing.kiosk.domain.order.infra.repository.OrderItemRepository;
 import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
 import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
@@ -19,6 +14,7 @@ import com.loadbalancing.kiosk.global.exception.custom.OrderItemNotFoundExceptio
 import com.loadbalancing.kiosk.global.exception.custom.OrderNotFoundException;
 import com.loadbalancing.kiosk.global.exception.custom.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -34,6 +30,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public OrderResponse.OrderInfo createOrder(OrderRequest.OrderCreate request) {
@@ -71,6 +68,14 @@ public class OrderService {
 
             orderItemRepository.save(orderItem);
         }
+
+        // 주문 저장 후 알림 처리 시작하도록 이벤트 방행
+        eventPublisher.publishEvent(
+                OrderCompletedEvent.of(
+                        order.getId(),
+                        order.getEmail()
+                )
+        );
 
         List<OrderItem> allItems = orderItemRepository.findAllByOrder_Id(order.getId());
 
