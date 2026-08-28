@@ -13,7 +13,8 @@ type Phase = "review" | "paying" | "done";
 
 export default function OrderPage() {
   const router = useRouter();
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, totalPrice, updateQuantity, removeItem, clearCart } =
+    useCart();
 
   const [phase, setPhase] = useState<Phase>("review");
 
@@ -177,76 +178,144 @@ export default function OrderPage() {
     );
   }
 
-  // 주문확인 (기본 화면)
+  // 주문확인 (기본 화면) - zz/_1 카트 화면 참고, 왼쪽엔 상품 목록 / 오른쪽엔 입력폼+총액+결제 2단 구성
   return (
-    <div className="mx-auto max-w-2xl px-8 py-10 pb-32">
+    <div className="mx-auto max-w-5xl px-8 py-10 pb-12">
       <BackToHomeButton />
       <OrderStepper currentStep={2} />
       <h1 className="text-headline-md mb-8 font-bold text-black">주문하기</h1>
 
-      {/* 담은 상품 요약 */}
-      <div className="mb-8 flex flex-col gap-3 rounded-lg border border-gray-200 p-4">
-        {items.map((item) => (
-          <div
-            key={item.productId}
-            className="text-body-md flex justify-between text-black"
-          >
-            <span>
-              {item.title} x {item.quantity}
-            </span>
-            <span>{(item.price * item.quantity).toLocaleString()}원</span>
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.3fr_1fr]">
+        {/* 왼쪽: 담은 상품 목록 (수량 변경/삭제 바로 가능) */}
+        <div>
+          <h2 className="text-label-lg mb-3 font-bold text-black">
+            주문 상품 ({items.length})
+          </h2>
+          <div className="flex flex-col divide-y divide-gray-100 border-y border-gray-200">
+            {items.map((item) => (
+              <div key={item.productId} className="flex items-center gap-4 py-4">
+                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                  {item.thumbnail ? (
+                    <img
+                      src={item.thumbnail}
+                      alt={item.title}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Icon
+                        name="image_not_supported"
+                        className="text-2xl text-gray-300"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1">
+                  <p className="text-body-md font-bold text-black">
+                    {item.title}
+                  </p>
+                  <p className="text-label-sm mt-1 text-gray-500">
+                    {item.price.toLocaleString()}원
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 rounded-lg border border-gray-200">
+                  <button
+                    onClick={() =>
+                      updateQuantity(item.productId, item.quantity - 1)
+                    }
+                    className="touch-target flex w-10 items-center justify-center text-black"
+                  >
+                    <Icon name="remove" className="text-lg" />
+                  </button>
+                  <span className="text-body-md w-4 text-center font-bold text-black">
+                    {item.quantity}
+                  </span>
+                  <button
+                    onClick={() =>
+                      updateQuantity(item.productId, item.quantity + 1)
+                    }
+                    className="touch-target flex w-10 items-center justify-center text-black"
+                  >
+                    <Icon name="add" className="text-lg" />
+                  </button>
+                </div>
+
+                <span className="text-body-md w-20 text-right font-bold text-black">
+                  {(item.price * item.quantity).toLocaleString()}원
+                </span>
+
+                <button
+                  onClick={() => removeItem(item.productId)}
+                  className="touch-target flex items-center justify-center text-gray-400 hover:text-red-500"
+                >
+                  <Icon name="delete" className="text-lg" />
+                </button>
+              </div>
+            ))}
           </div>
-        ))}
-        <div className="text-body-md mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold text-black">
-          <span>총 금액</span>
-          <span>{totalPrice.toLocaleString()}원</span>
+        </div>
+
+        {/* 오른쪽: 위부터 배송 정보 입력 -> 총액 -> 결제 버튼 순서 */}
+        <div className="flex flex-col gap-6">
+          <div>
+            <h2 className="text-label-lg mb-3 font-bold text-black">
+              배송 정보
+            </h2>
+            <div className="flex flex-col gap-3">
+              <input
+                type="email"
+                placeholder="이메일"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
+              />
+              <input
+                type="text"
+                placeholder="주소"
+                value={addressLine1}
+                onChange={(e) => setAddressLine1(e.target.value)}
+                className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
+              />
+              <input
+                type="text"
+                placeholder="상세주소"
+                value={addressLine2}
+                onChange={(e) => setAddressLine2(e.target.value)}
+                className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
+              />
+              <input
+                type="text"
+                placeholder="우편번호"
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+                className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
+              />
+            </div>
+          </div>
+
+          <div className="rounded-lg border-2 border-black p-5">
+            <div className="text-body-md flex justify-between font-bold text-black">
+              <span>총 금액</span>
+              <span>{totalPrice.toLocaleString()}원</span>
+            </div>
+          </div>
+
+          {error && (
+            <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
+              [{error.code}] {error.message}
+            </div>
+          )}
+
+          <button
+            onClick={handleSubmit}
+            className="touch-target w-full rounded-lg bg-black font-bold text-white"
+          >
+            결제하기
+          </button>
         </div>
       </div>
-
-      {/* 배송 정보 입력 폼 */}
-      <div className="flex flex-col gap-4">
-        <input
-          type="email"
-          placeholder="이메일"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
-        />
-        <input
-          type="text"
-          placeholder="주소"
-          value={addressLine1}
-          onChange={(e) => setAddressLine1(e.target.value)}
-          className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
-        />
-        <input
-          type="text"
-          placeholder="상세주소"
-          value={addressLine2}
-          onChange={(e) => setAddressLine2(e.target.value)}
-          className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
-        />
-        <input
-          type="text"
-          placeholder="우편번호"
-          value={postalCode}
-          onChange={(e) => setPostalCode(e.target.value)}
-          className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
-        />
-      </div>
-
-      {error && (
-        <div className="mt-4 rounded-lg bg-red-50 p-4 text-sm text-red-600">
-          [{error.code}] {error.message}
-        </div>
-      )}
-
-      <button
-        onClick={handleSubmit}
-        className="touch-target mt-8 w-full rounded-lg bg-black font-bold text-white"
-      >
-        결제하기
-      </button>
     </div>
   );
 }

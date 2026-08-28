@@ -75,16 +75,22 @@ export default function CartBar() {
         ))}
       </div>
 
-      {/* 총액 + 주문하기 */}
-      <div className="flex items-center justify-between border-t border-gray-100 px-6 py-3">
-        <span className="text-body-md text-black">
-          {totalCount}개 ·{" "}
-          <span className="font-bold">{totalPrice.toLocaleString()}원</span>
-        </span>
+      {/* 총액 + 주문하기 - zz/_3 하단바 타이포 참고 (라벨 위, 큰 총액 아래) */}
+      <div className="flex items-center justify-between gap-4 border-t border-gray-100 px-6 py-4">
+        <div>
+          <p className="text-label-sm uppercase tracking-wide text-gray-400">
+            총 금액
+          </p>
+          <p className="text-headline-md font-extrabold text-black">
+            {totalPrice.toLocaleString()}원
+          </p>
+        </div>
+        <span className="text-label-sm text-gray-500">{totalCount}개 담음</span>
         <button
           onClick={() => router.push("/order")}
-          className="touch-target flex items-center rounded-lg bg-black px-6 text-label-sm font-bold text-white"
+          className="touch-target flex items-center gap-2 rounded-lg bg-black px-6 text-label-sm font-bold text-white"
         >
+          <Icon name="shopping_cart" className="text-lg" />
           주문하기
         </button>
       </div>

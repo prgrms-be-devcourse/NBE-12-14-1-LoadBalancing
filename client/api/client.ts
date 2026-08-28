@@ -16,9 +16,6 @@ apiClient.interceptors.request.use((config) => {
     const token = localStorage.getItem("admin_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log(
-        `[요청 헤더로 토큰 첨부] ${config.method?.toUpperCase()} ${config.url} → Authorization: Bearer ${token}`
-      ); // 확인용, 나중에 지워도 됨
     }
   }
   return config;

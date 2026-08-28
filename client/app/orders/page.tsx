@@ -25,6 +25,9 @@ export default function CustomerOrderLookupPage() {
   // 지금 펼쳐져 있는 주문 id들
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
 
+  // 삭제 처리 중인 주문항목 id (중복 클릭 방지 + 버튼 비활성화 표시용)
+  const [deletingItemId, setDeletingItemId] = useState<number | null>(null);
+
   const fetchPage = useCallback(
     async (targetPage: number, targetEmail: string) => {
       setLoading(true);
@@ -36,7 +39,6 @@ export default function CustomerOrderLookupPage() {
           targetPage,
           PAGE_SIZE
         );
-        console.log("주문 목록 응답:", res); // 확인용, 나중에 지워도 됨
         setOrders(res.content);
         setTotalPages(res.totalPages);
         setPage(res.number);
@@ -76,6 +78,35 @@ export default function CustomerOrderLookupPage() {
       }
       return next;
     });
+  };
+
+  const handleDeleteItem = async (
+    orderId: number,
+    itemId: number,
+    title: string
+  ) => {
+    if (!window.confirm(`"${title}" 항목을 주문에서 삭제하시겠습니까?`)) return;
+
+    setDeletingItemId(itemId);
+    setError(null);
+
+    try {
+      await orderApi.deleteItem(orderId, itemId);
+      // 항목 하나만 지워도(마지막 항목이면 주문 자체도 백엔드에서 같이 삭제됨) 목록을 새로 불러와서 최신 상태로 맞춤
+      await fetchPage(page, email);
+    } catch (e) {
+      const axiosError = e as {
+        response?: { data?: { code?: number; message?: string } };
+      };
+      setError({
+        code: axiosError.response?.data?.code ?? 500,
+        message:
+          axiosError.response?.data?.message ??
+          "알 수 없는 오류가 발생했습니다.",
+      });
+    } finally {
+      setDeletingItemId(null);
+    }
   };
 
   // 1단계: 이메일 입력 (로그인 창처럼)
@@ -197,16 +228,35 @@ export default function CustomerOrderLookupPage() {
                             <div
                               // productId만 쓰면 한 주문 안에 같은 상품이 두 줄로 들어올 때(예: 따로 담아서
                               // 합쳐지지 않은 경우) key가 중복돼서 index를 같이 섞어 고유하게 만듦
-                              key={`${item.productId}-${index}`}
-                              className="flex justify-between text-sm text-black"
+                              key={`${item.itemId}-${index}`}
+                              className="flex items-center justify-between gap-2 text-sm text-black"
                             >
                               <span>
                                 {item.title} x {item.quantity}
                               </span>
-                              <span>
-                                {(item.price * item.quantity).toLocaleString()}
-                                원
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span>
+                                  {(
+                                    item.price * item.quantity
+                                  ).toLocaleString()}
+                                  원
+                                </span>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // 펼치기/접기 토글이랑 안 겹치게
+                                    handleDeleteItem(
+                                      order.orderId,
+                                      item.itemId,
+                                      item.title
+                                    );
+                                  }}
+                                  disabled={deletingItemId === item.itemId}
+                                  title="이 항목 삭제"
+                                  className="flex h-6 w-6 items-center justify-center rounded text-gray-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                                >
+                                  <Icon name="delete" className="text-base" />
+                                </button>
+                              </div>
                             </div>
                           ))}
                         </div>

@@ -25,12 +25,27 @@ export default function AdminProductListPage() {
   const [keyword, setKeyword] = useState("");
   const [appliedKeyword, setAppliedKeyword] = useState("");
 
+  // 가격 범위 검색 - 최소/최대 중 하나만 입력해도 적용됨 (백엔드가 빈 쪽을 0~무제한으로 처리)
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [appliedMinPrice, setAppliedMinPrice] = useState<number | undefined>(
+    undefined
+  );
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState<number | undefined>(
+    undefined
+  );
+
   const [editingStockId, setEditingStockId] = useState<number | null>(null);
   const [stockInput, setStockInput] = useState("");
   const [savingStock, setSavingStock] = useState(false);
 
   const fetchPage = useCallback(
-    async (targetPage: number, searchKeyword: string) => {
+    async (
+      targetPage: number,
+      searchKeyword: string,
+      searchMinPrice?: number,
+      searchMaxPrice?: number
+    ) => {
       setLoading(true);
       setError(null);
 
@@ -38,7 +53,9 @@ export default function AdminProductListPage() {
         const res = await productApi.getList(
           targetPage,
           PAGE_SIZE,
-          searchKeyword
+          searchKeyword,
+          searchMinPrice,
+          searchMaxPrice
         );
         setProducts(res.content);
         setTotalPages(res.totalPages);
@@ -61,12 +78,26 @@ export default function AdminProductListPage() {
   );
 
   useEffect(() => {
-    fetchPage(0, appliedKeyword);
+    fetchPage(0, appliedKeyword, appliedMinPrice, appliedMaxPrice);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appliedKeyword]);
+  }, [appliedKeyword, appliedMinPrice, appliedMaxPrice]);
 
   const handleSearch = () => {
     setAppliedKeyword(keyword.trim());
+    setAppliedMinPrice(minPrice.trim() === "" ? undefined : Number(minPrice));
+    setAppliedMaxPrice(maxPrice.trim() === "" ? undefined : Number(maxPrice));
+  };
+
+  const hasAppliedSearch =
+    appliedKeyword || appliedMinPrice !== undefined || appliedMaxPrice !== undefined;
+
+  const handleResetSearch = () => {
+    setKeyword("");
+    setMinPrice("");
+    setMaxPrice("");
+    setAppliedKeyword("");
+    setAppliedMinPrice(undefined);
+    setAppliedMaxPrice(undefined);
   };
 
   const handleDelete = async (productId: number, title: string) => {
@@ -77,7 +108,7 @@ export default function AdminProductListPage() {
 
     try {
       await productApi.delete(productId);
-      await fetchPage(page, appliedKeyword); // 삭제 후 같은 페이지 다시 불러오기
+      await fetchPage(page, appliedKeyword, appliedMinPrice, appliedMaxPrice); // 삭제 후 같은 페이지 다시 불러오기
     } catch (e) {
       const axiosError = e as {
         response?: { data?: { code?: number; message?: string } };
@@ -151,7 +182,7 @@ export default function AdminProductListPage() {
         </button>
       </div>
 
-      <div className="mb-6 flex gap-2">
+      <div className="mb-6 flex flex-wrap items-center gap-2">
         <div className="flex flex-1 items-center gap-2 border-b border-gray-300 px-1 py-2 focus-within:border-black">
           <Icon name="search" className="text-xl text-gray-400" />
           <input
@@ -165,18 +196,41 @@ export default function AdminProductListPage() {
             className="text-body-md w-full text-black outline-none placeholder:text-gray-400"
           />
         </div>
+
+        {/* 가격 범위 - 하나만 입력해도 적용됨 */}
+        <div className="flex items-center gap-1 border-b border-gray-300 px-1 py-2 focus-within:border-black">
+          <input
+            type="number"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
+            placeholder="최소가격"
+            className="text-body-md w-24 text-black outline-none placeholder:text-gray-400"
+          />
+          <span className="text-gray-400">~</span>
+          <input
+            type="number"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
+            placeholder="최대가격"
+            className="text-body-md w-24 text-black outline-none placeholder:text-gray-400"
+          />
+        </div>
+
         <button
           onClick={handleSearch}
           className="rounded bg-black px-5 py-2 text-label-sm font-bold text-white"
         >
           검색
         </button>
-        {appliedKeyword && (
+        {hasAppliedSearch && (
           <button
-            onClick={() => {
-              setKeyword("");
-              setAppliedKeyword("");
-            }}
+            onClick={handleResetSearch}
             className="rounded border-2 border-black px-5 py-2 text-label-sm font-bold text-black hover:bg-gray-50"
           >
             초기화
@@ -190,7 +244,7 @@ export default function AdminProductListPage() {
             [{error.code}] {error.message}
           </span>
           <button
-            onClick={() => fetchPage(page, appliedKeyword)}
+            onClick={() => fetchPage(page, appliedKeyword, appliedMinPrice, appliedMaxPrice)}
             className="ml-4 rounded bg-red-100 px-3 py-1 font-medium hover:bg-red-200"
           >
             다시 시도
@@ -331,7 +385,7 @@ export default function AdminProductListPage() {
           {/* 페이지 이동 (무한스크롤 아니고 이전/다음 버튼 방식) */}
           <div className="mt-6 flex items-center justify-center gap-4">
             <button
-              onClick={() => fetchPage(page - 1, appliedKeyword)}
+              onClick={() => fetchPage(page - 1, appliedKeyword, appliedMinPrice, appliedMaxPrice)}
               disabled={page === 0}
               className="rounded border border-gray-200 px-3 py-1 text-black disabled:opacity-30"
             >
@@ -341,7 +395,7 @@ export default function AdminProductListPage() {
               {page + 1} / {totalPages}
             </span>
             <button
-              onClick={() => fetchPage(page + 1, appliedKeyword)}
+              onClick={() => fetchPage(page + 1, appliedKeyword, appliedMinPrice, appliedMaxPrice)}
               disabled={page + 1 >= totalPages}
               className="rounded border border-gray-200 px-3 py-1 text-black disabled:opacity-30"
             >
