@@ -121,6 +121,28 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
+    @Transactional
+    public void deleteOrderItem(Long orderId, Long itemId) {
+        OrderItem orderItem = orderItemRepository.findById(itemId)
+                .orElseThrow(
+                        () -> new OrderItemNotFoundException(itemId)
+                );
+        orderItemRepository.delete(orderItem);
+
+        //order에 item들이 하나도 없는지 확인
+        boolean existItems = orderItemRepository.existsByOrder_Id(orderId);
+
+        //주문의 item들이 하나도 없다면
+        if(!existItems) {
+            //지우기 위한 주문도 호출
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(
+                            () -> new OrderNotFoundException(orderId)
+                    );
+            orderRepository.delete(order); //주문도 지우기
+        }
+    }
+
     private Order createNewOrder(OrderRequest.OrderCreate request) {
 
         Order order = Order.builder()
@@ -145,36 +167,4 @@ public class OrderService {
 
         return today2pm;
     }
-
-//    @Transactional
-//    public void deleteOrder(Long orderId) {
-//        Order order = orderRepository.findById(orderId)
-//                .orElseThrow(
-//                        () -> new OrderNotFoundException(orderId)
-//                );
-//        orderRepository.delete(order);
-//    }
-
-    @Transactional
-    public void deleteOrderItem(Long orderId, Long itemId) {
-        OrderItem orderItem = orderItemRepository.findById(itemId)
-                .orElseThrow(
-                        () -> new OrderItemNotFoundException(itemId)
-                );
-        orderItemRepository.delete(orderItem);
-
-        //order에 item들이 하나도 없는지 확인
-        boolean existItems = orderItemRepository.existsByOrder_Id(orderId);
-
-        //주문의 item들이 하나도 없다면
-        if(!existItems) {
-            //지우기 위한 주문도 호출
-            Order order = orderRepository.findById(orderId)
-                    .orElseThrow(
-                            () -> new OrderNotFoundException(orderId)
-                    );
-            orderRepository.delete(order); //주문도 지우기
-        }
-    }
-
 }

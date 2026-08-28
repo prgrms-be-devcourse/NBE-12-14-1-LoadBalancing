@@ -3,7 +3,7 @@ package com.loadbalancing.kiosk.domain.product.service;
 
 import com.loadbalancing.kiosk.domain.product.dto.ProductRequest;
 import com.loadbalancing.kiosk.domain.product.dto.ProductResponse;
-import com.loadbalancing.kiosk.domain.product.dto.request.PriceRequest;
+import com.loadbalancing.kiosk.domain.product.dto.ProductSearchRequest;
 import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
 import com.loadbalancing.kiosk.domain.product.infra.entity.ProductImg;
 import com.loadbalancing.kiosk.domain.product.infra.repository.ProductImgRepository;
@@ -48,22 +48,41 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductResponse.ProductInfo> getProductsList(String keyword, Pageable pageable) {
+    public Page<ProductResponse.ProductInfo> getProductsList(
+            ProductSearchRequest searchRequest,
+            Pageable pageable
+    ) {
+        Page<Product> products;
 
-        String safeKeyword = (keyword == null) ? "" : keyword.trim();
-        Page<Product> products = productRepository.findByTitleContainingIgnoreCase(safeKeyword, pageable);
+        String keyword = searchRequest.keyword();
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+        boolean hasPrice = searchRequest.minPrice() != null && searchRequest.maxPrice() != null;
 
-        return products.map(ProductResponse.ProductInfo::from);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<ProductResponse.ProductInfo> listByPrice(
-            PriceRequest priceRequest, Pageable pageable) {
-
-        Page<Product> products = productRepository.findByPriceBetween(
-                priceRequest.minPrice(),
-                priceRequest.maxPrice(),
-                pageable);
+        if (hasKeyword && hasPrice) {
+            // 키워드 + 가격 범위 모두 검색
+            products = productRepository.findByTitleContainingIgnoreCaseAndPriceBetween(
+                    keyword.trim(),
+                    searchRequest.minPrice(),
+                    searchRequest.maxPrice(),
+                    pageable
+            );
+        } else if (hasPrice) {
+            // 가격 범위만 검색
+            products = productRepository.findByPriceBetween(
+                    searchRequest.minPrice(),
+                    searchRequest.maxPrice(),
+                    pageable
+            );
+        } else if (hasKeyword) {
+            // 키워드만 검색
+            products = productRepository.findByTitleContainingIgnoreCase(
+                    keyword.trim(),
+                    pageable
+            );
+        } else {
+            // 전체 조회
+            products = productRepository.findAll(pageable);
+        }
 
         return products.map(ProductResponse.ProductInfo::from);
     }
