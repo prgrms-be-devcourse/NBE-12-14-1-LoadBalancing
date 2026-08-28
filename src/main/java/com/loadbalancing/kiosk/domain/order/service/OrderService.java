@@ -1,14 +1,15 @@
 package com.loadbalancing.kiosk.domain.order.service;
 
-import com.loadbalancing.kiosk.domain.order.infra.entity.OrderItem;
 import com.loadbalancing.kiosk.domain.order.dto.OrderRequest;
 import com.loadbalancing.kiosk.domain.order.dto.OrderResponse;
 import com.loadbalancing.kiosk.domain.order.infra.entity.Order;
+import com.loadbalancing.kiosk.domain.order.infra.entity.OrderItem;
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
-import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
 import com.loadbalancing.kiosk.domain.order.infra.repository.OrderItemRepository;
+import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
 import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
 import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
+import com.loadbalancing.kiosk.global.exception.custom.OrderItemNotFoundException;
 import com.loadbalancing.kiosk.global.exception.custom.OrderNotFoundException;
 import com.loadbalancing.kiosk.global.exception.custom.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -118,6 +119,28 @@ public class OrderService {
         Order order = orderRepository.findById(id)
             .orElseThrow(() -> new OrderNotFoundException(id));
         orderRepository.delete(order);
+    }
+
+    @Transactional
+    public void deleteOrderItem(Long orderId, Long itemId) {
+        OrderItem orderItem = orderItemRepository.findById(itemId)
+                .orElseThrow(
+                        () -> new OrderItemNotFoundException(itemId)
+                );
+        orderItemRepository.delete(orderItem);
+
+        //order에 item들이 하나도 없는지 확인
+        boolean existItems = orderItemRepository.existsByOrder_Id(orderId);
+
+        //주문의 item들이 하나도 없다면
+        if(!existItems) {
+            //지우기 위한 주문도 호출
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(
+                            () -> new OrderNotFoundException(orderId)
+                    );
+            orderRepository.delete(order); //주문도 지우기
+        }
     }
 
     private Order createNewOrder(OrderRequest.OrderCreate request) {

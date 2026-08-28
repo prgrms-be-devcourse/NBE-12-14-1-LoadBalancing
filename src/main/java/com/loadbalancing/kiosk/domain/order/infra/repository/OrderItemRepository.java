@@ -12,6 +12,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     List<OrderItem> findAllByOrder_Id(Long orderId);
 
+    Boolean existsByOrder_Id(Long orderId);
+
     @Query("""
             SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
             FROM OrderItem oi
