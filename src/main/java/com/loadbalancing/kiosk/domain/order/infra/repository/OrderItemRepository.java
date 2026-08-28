@@ -16,7 +16,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     List<OrderItem> findAllByOrder_Id(Long orderId);
 
     @Query("""
-            SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0)
+            SELECT COALESCE(SUM(oi.quantity * oi.product.price), 0L)
             FROM OrderItem oi
             WHERE oi.order.createdAt >= :startAt
               AND oi.order.createdAt < :endAt
