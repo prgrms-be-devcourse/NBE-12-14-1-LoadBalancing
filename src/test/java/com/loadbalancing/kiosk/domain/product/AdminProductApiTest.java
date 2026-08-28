@@ -1,10 +1,12 @@
 package com.loadbalancing.kiosk.domain.product;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.loadbalancing.kiosk.global.jwt.JwtProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,9 +31,18 @@ class AdminProductApiTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    JwtProvider jwtProvider;
+
     // Spring Boot 4 기본 ObjectMapper 빈은 Jackson 3(tools.jackson.*) 타입이라
     // com.fasterxml.jackson(고전 Jackson 2) 타입으로 autowire가 안 됨 - 그냥 직접 생성해서 씀
     ObjectMapper objectMapper = new ObjectMapper();
+
+    // /api/v1/admin/**는 SecurityConfig에서 인증을 요구하므로, 매번 로그인하는 대신
+    // JwtProvider로 바로 유효한 토큰을 발급해서 헤더에 붙인다.
+    private String adminAuthHeader() {
+        return "Bearer " + jwtProvider.generateToken("admin01");
+    }
 
     @Test
     void 상품을_생성하면_201과_함께_생성된_상품정보를_반환한다() throws Exception {
@@ -45,6 +56,7 @@ class AdminProductApiTest {
         );
 
         mockMvc.perform(post("/api/v1/admin/product") // 경로 중복 버그(admin/product/product) 재발 확인용
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -68,6 +80,7 @@ class AdminProductApiTest {
         );
 
         mockMvc.perform(put("/api/v1/admin/product/1")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -89,6 +102,7 @@ class AdminProductApiTest {
         );
 
         mockMvc.perform(put("/api/v1/admin/product/9999")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -97,6 +111,7 @@ class AdminProductApiTest {
     @Test
     void 재고만_수정하면_다른_필드는_그대로다() throws Exception {
         mockMvc.perform(put("/api/v1/admin/product/1/stock")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("stock", 7))))
                 .andExpect(status().isNoContent());
@@ -108,7 +123,8 @@ class AdminProductApiTest {
 
     @Test
     void 상품을_삭제하면_더이상_조회되지_않는다() throws Exception {
-        mockMvc.perform(delete("/api/v1/admin/product/1"))
+        mockMvc.perform(delete("/api/v1/admin/product/1")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader()))
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/api/v1/auth/product/detail/1"))

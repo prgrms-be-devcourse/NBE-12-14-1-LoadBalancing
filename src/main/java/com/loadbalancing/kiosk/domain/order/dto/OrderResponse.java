@@ -41,6 +41,9 @@ public class OrderResponse {
     }
     @Builder
     public record OrderItemInfo(
+        // OrderItem 자신의 PK. OrderController.deleteOrderItem(orderId, itemId)를 호출하려면
+        // productId가 아니라 이 id(주문 항목 자체의 id)가 필요해서 추가함.
+        Long itemId,
         Long productId,
         String title,
         int price,
@@ -49,6 +52,7 @@ public class OrderResponse {
 
         public static OrderItemInfo from(OrderItem orderItem) {
             return OrderItemInfo.builder()
+                .itemId(orderItem.getId())
                 .productId(orderItem.getProduct().getId())
                 .title(orderItem.getProduct().getTitle())
                 .price(orderItem.getProduct().getPrice())

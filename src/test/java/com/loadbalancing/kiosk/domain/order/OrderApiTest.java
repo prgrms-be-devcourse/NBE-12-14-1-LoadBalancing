@@ -158,7 +158,53 @@ class OrderApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.email").value("detail-test@example.com"))
                 .andExpect(jsonPath("$.data.items.length()").value(1))
+                .andExpect(jsonPath("$.data.items[0].itemId").isNotEmpty()) // 항목 삭제 API를 부르려면 필요한 값
                 .andExpect(jsonPath("$.data.items[0].title").value("에티오피아 예가체프"))
                 .andExpect(jsonPath("$.data.items[0].quantity").value(2));
+    }
+
+    @Test
+    void 주문항목을_하나_삭제하면_주문은_남고_그_항목만_빠진다() throws Exception {
+        String body = mockMvc.perform(post("/api/v1/auth/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                orderRequest("item-delete@example.com",
+                                        List.of(item(1, 1), item(2, 1))))))
+                .andReturn().getResponse().getContentAsString();
+        Long orderId = objectMapper.readTree(body).path("data").path("orderId").asLong();
+        Long firstItemId = objectMapper.readTree(body)
+                .path("data").path("items").get(0).path("itemId").asLong();
+
+        mockMvc.perform(delete("/api/v1/auth/order/" + orderId + "/items/" + firstItemId))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/auth/order/detail/" + orderId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.items.length()").value(1)); // 2개 중 1개만 남음
+    }
+
+    @Test
+    void 주문의_마지막_항목을_삭제하면_주문_자체도_같이_삭제된다() throws Exception {
+        String body = mockMvc.perform(post("/api/v1/auth/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                orderRequest("last-item-delete@example.com", List.of(item(1, 1))))))
+                .andReturn().getResponse().getContentAsString();
+        Long orderId = objectMapper.readTree(body).path("data").path("orderId").asLong();
+        Long itemId = objectMapper.readTree(body)
+                .path("data").path("items").get(0).path("itemId").asLong();
+
+        mockMvc.perform(delete("/api/v1/auth/order/" + orderId + "/items/" + itemId))
+                .andExpect(status().isOk());
+
+        // 주문에 항목이 하나도 안 남으면 OrderService.deleteOrderItem이 주문 자체도 지움
+        mockMvc.perform(get("/api/v1/auth/order/detail/" + orderId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void 존재하지_않는_주문항목을_삭제하면_404가_난다() throws Exception {
+        mockMvc.perform(delete("/api/v1/auth/order/1/items/999999"))
+                .andExpect(status().isNotFound());
     }
 }
