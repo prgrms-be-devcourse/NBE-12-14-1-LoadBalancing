@@ -59,4 +59,22 @@ public class ProductResponse {
                 .build();
         }
     }
+
+    // 상품 판매 분석 전용 record 정의
+    @Builder
+    public record ProductSalesAnalysisInfo(
+            ProductInfo product,
+            long totalQuantity
+    ) {
+        public static ProductSalesAnalysisInfo from(
+                Product product,
+                Long totalQuantity
+        ) {
+            return ProductSalesAnalysisInfo.builder()
+                    .product(ProductInfo.from(product))
+                    .totalQuantity(totalQuantity == null ? 0L : totalQuantity)
+                    .build();
+        }
+    }
+
 }

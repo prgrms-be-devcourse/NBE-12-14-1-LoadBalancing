@@ -1,6 +1,7 @@
 package com.loadbalancing.kiosk.domain.order.infra.repository;
 
 
+
 import com.loadbalancing.kiosk.domain.order.infra.entity.Order;
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
 import org.springframework.data.domain.Page;
@@ -54,10 +55,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                   AND (:endDate IS NULL OR o.createdAt < :endDate)
         """)
     Page<Order> search(
-        @Param("keyword") String keyword,
-        @Param("status") OrderStatus status,
-        @Param("startDate") LocalDateTime startDate,
-        @Param("endDate") LocalDateTime endDate,
-        Pageable pageable
+            @Param("keyword") String keyword,
+            @Param("status") OrderStatus status,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            Pageable pageable
     );
 }

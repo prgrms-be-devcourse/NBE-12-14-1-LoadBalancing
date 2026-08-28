@@ -5,12 +5,14 @@ import com.loadbalancing.kiosk.domain.admin.dto.order.OrderDashboardMetrics;
 import com.loadbalancing.kiosk.domain.admin.dto.order.OrderStatusCountResponse;
 import com.loadbalancing.kiosk.domain.admin.dto.order.PeriodOrderMetric;
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
-import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
 import com.loadbalancing.kiosk.domain.order.infra.repository.OrderItemRepository;
+import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
 import com.loadbalancing.kiosk.domain.product.dto.ProductResponse;
 import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
 import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +58,15 @@ public class AdminDashboardService {
         OrderDashboardMetrics orderMetrics =
                 getOrderDashboardMetrics();
 
+        ProductResponse.ProductSalesAnalysisInfo bestSellingProduct =
+                getBestSellingProduct();
+
+        ProductResponse.ProductSalesAnalysisInfo mostPurchasedAtOnceProduct =
+                getMostPurchasedAtOnceProduct();
+
+        ProductResponse.ProductSalesAnalysisInfo worstSellingProduct =
+                getWorstSellingProduct();
+
         return AdminDashboardResponse.builder()
                 // 상품/재고
                 .totalProductCount(totalProductCount)
@@ -80,7 +91,63 @@ public class AdminDashboardService {
 
                 // 주문 상태별 개수
                 .orderStatusCounts(orderMetrics.orderStatusCounts())
+
+                // 판매 분석
+                .bestSellingProduct(bestSellingProduct)
+                .mostPurchasedAtOnceProduct(mostPurchasedAtOnceProduct)
+                .worstSellingProduct(worstSellingProduct)
                 .build();
+    }
+
+    private ProductResponse.ProductSalesAnalysisInfo getBestSellingProduct() {
+
+        Pageable limitOne = PageRequest.of(0, 1);
+
+        return orderItemRepository.findBestSellingProduct(
+                        OrderStatus.CANCELLED,
+                        limitOne
+                )
+                .stream()
+                .findFirst()
+                .map(result -> ProductResponse.ProductSalesAnalysisInfo.from(
+                        result.getProduct(),
+                        result.getTotalQuantity()
+                ))
+                .orElse(null);
+    }
+
+    private ProductResponse.ProductSalesAnalysisInfo getMostPurchasedAtOnceProduct() {
+
+        Pageable limitOne = PageRequest.of(0, 1);
+
+        return orderItemRepository.findMostPurchasedAtOnceProduct(
+                        OrderStatus.CANCELLED,
+                        limitOne
+                )
+                .stream()
+                .findFirst()
+                .map(result -> ProductResponse.ProductSalesAnalysisInfo.from(
+                        result.getProduct(),
+                        result.getTotalQuantity()
+                ))
+                .orElse(null);
+    }
+
+    private ProductResponse.ProductSalesAnalysisInfo getWorstSellingProduct() {
+
+        Pageable limitOne = PageRequest.of(0, 1);
+
+        return productRepository.findWorstSellingProduct(
+                        OrderStatus.CANCELLED,
+                        limitOne
+                )
+                .stream()
+                .findFirst()
+                .map(result -> ProductResponse.ProductSalesAnalysisInfo.from(
+                        result.getProduct(),
+                        result.getTotalQuantity()
+                ))
+                .orElse(null);
     }
 
     private OrderDashboardMetrics getOrderDashboardMetrics() {
@@ -127,7 +194,11 @@ public class AdminDashboardService {
             LocalDateTime endAt
     ) {
         long totalSales =
-                orderItemRepository.sumSalesBetween(startAt, endAt);
+                orderItemRepository.sumSalesBetween(
+                        startAt,
+                        endAt,
+                        OrderStatus.CANCELLED
+                );
 
         long orderCount =
                 orderRepository.countByCreatedAtGreaterThanEqualAndCreatedAtLessThanAndOrderStatusNot(

@@ -29,6 +29,11 @@ public record AdminDashboardResponse(
         long monthlyAverageOrderAmount,
 
         // 주문 상태별 개수
-        List<OrderStatusCountResponse> orderStatusCounts
+        List<OrderStatusCountResponse> orderStatusCounts,
+
+        // 판매 분석
+        ProductResponse.ProductSalesAnalysisInfo bestSellingProduct,
+        ProductResponse.ProductSalesAnalysisInfo mostPurchasedAtOnceProduct,
+        ProductResponse.ProductSalesAnalysisInfo worstSellingProduct
 ) {
 }
