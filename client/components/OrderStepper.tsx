@@ -10,9 +10,9 @@ export default function OrderStepper({ currentStep }: { currentStep: number }) {
 
         return (
           <div key={label} className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <span
-                className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-label-sm font-bold ${
                   isActive
                     ? "bg-black text-white"
                     : isDone
@@ -23,14 +23,14 @@ export default function OrderStepper({ currentStep }: { currentStep: number }) {
                 {step}
               </span>
               <span
-                className={`text-sm ${
-                  isActive ? "font-medium text-black" : "text-gray-400"
+                className={`text-label-sm uppercase tracking-wide ${
+                  isActive ? "font-bold text-black" : "text-gray-400"
                 }`}
               >
                 {label}
               </span>
             </div>
-            {step < STEPS.length && <span className="h-px w-6 bg-gray-200" />}
+            {step < STEPS.length && <span className="h-px w-8 bg-gray-200" />}
           </div>
         );
       })}

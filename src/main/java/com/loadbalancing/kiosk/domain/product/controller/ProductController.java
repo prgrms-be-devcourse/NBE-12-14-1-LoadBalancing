@@ -1,9 +1,9 @@
 package com.loadbalancing.kiosk.domain.product.controller;
 
 
+import com.loadbalancing.kiosk.domain.product.dto.ProductRequest;
+import com.loadbalancing.kiosk.domain.product.dto.ProductResponse;
 import com.loadbalancing.kiosk.domain.product.dto.request.PriceRequest;
-import com.loadbalancing.kiosk.domain.product.dto.request.ProductRequest;
-import com.loadbalancing.kiosk.domain.product.dto.response.ProductResponse;
 import com.loadbalancing.kiosk.domain.product.service.ProductService;
 import com.loadbalancing.kiosk.global.ApiResponse;
 import jakarta.validation.Valid;
@@ -18,19 +18,19 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/auth/product")
 public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping("/auth/product/list")//다건 조회
-    public ResponseEntity<ApiResponse<?>> list(
+    @GetMapping("/list")//다건 조회
+    public ResponseEntity<ApiResponse<?>> getProducts(
             @RequestParam(value = "keyword", required = false) String keyword,//검색 문자열, 공백이면 전체 반환
             @PageableDefault(
                     sort = "id",
                     direction = Sort.Direction.DESC) Pageable pageable//10개 단위 페이징
     ){
-        Page<ProductResponse.ProductInfo> products = productService.list(keyword, pageable);
+        Page<ProductResponse.ProductInfo> products = productService.getProductsList(keyword, pageable);
         return ResponseEntity.ok(ApiResponse.success(
                 200,
                 products
@@ -49,9 +49,9 @@ public class ProductController {
         ));
     }
 
-    @GetMapping("/auth/product/detail/{id}")
-    public ResponseEntity<ApiResponse<?>> detail(@PathVariable Long id) {
-        ProductResponse.ProductInfo product = productService.findById(id);
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<ApiResponse<?>> getProduct(@PathVariable Long id) {
+        ProductResponse.ProductInfo product = productService.getProduct(id);
 
         return ResponseEntity.ok(ApiResponse.success(
                 200,

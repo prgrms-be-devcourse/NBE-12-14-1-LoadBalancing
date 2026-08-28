@@ -2,19 +2,20 @@ package com.loadbalancing.kiosk.global.init;
 
 import com.loadbalancing.kiosk.domain.admin.entity.Admin;
 import com.loadbalancing.kiosk.domain.admin.repository.AdminRepository;
-import com.loadbalancing.kiosk.domain.product.entity.Product;
-import com.loadbalancing.kiosk.domain.product.entity.ProductImg;
-import com.loadbalancing.kiosk.domain.product.repository.ProductImgRepository;
-import com.loadbalancing.kiosk.domain.product.repository.ProductRepository;
+import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
+import com.loadbalancing.kiosk.domain.product.infra.entity.ProductImg;
+import com.loadbalancing.kiosk.domain.product.infra.repository.ProductImgRepository;
+import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-// dev 프로필에서 서버 뜰 때 상품 4개(썸네일+이미지 3장씩) + 관리자 계정 하나 자동 삽입
+// dev/test 프로필에서 서버 뜰 때 상품 4개(썸네일+이미지 3장씩) + 관리자 계정 하나 자동 삽입
+// test 프로필도 포함시킨 이유: 테스트가 이 초기 데이터를 기준으로 돌아가야 해서 (H2에도 동일하게 시딩됨)
 // Order/OrderItem 목데이터는 그쪽 담당자가 자기 Repository 만들면서 추가할 예정이라 여기선 안 건드림
-@Profile("dev")
+@Profile({"dev", "test"})
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
