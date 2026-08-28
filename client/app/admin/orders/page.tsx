@@ -32,14 +32,21 @@ export default function AdminOrderListPage() {
   // 검색 입력값(타이핑 중)과 실제 적용된 검색 조건을 분리
   // -> 입력할 때마다 요청 안 나가고, "검색" 눌렀을 때만 조회
   const [keyword, setKeyword] = useState("");
+  const [status, setStatus] = useState(""); // 빈 문자열 = 전체 상태
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [applied, setApplied] = useState({
     keyword: "",
+    status: "",
     startDate: "",
     endDate: "",
   });
-  const isSearching = !!(applied.keyword || applied.startDate || applied.endDate);
+  const isSearching = !!(
+    applied.keyword ||
+    applied.status ||
+    applied.startDate ||
+    applied.endDate
+  );
 
   const fetchPage = useCallback(
     async (targetPage: number, cond: typeof applied) => {
@@ -48,16 +55,16 @@ export default function AdminOrderListPage() {
 
       try {
         const res =
-          cond.keyword || cond.startDate || cond.endDate
+          cond.keyword || cond.status || cond.startDate || cond.endDate
             ? await orderApi.search(
                 cond.keyword,
+                cond.status,
                 cond.startDate,
                 cond.endDate,
                 targetPage,
                 PAGE_SIZE
               )
             : await orderApi.getList(targetPage, PAGE_SIZE);
-        console.log("주문 목록 응답:", res); // 확인용, 나중에 지워도 됨
         setOrders(res.content);
         setTotalPages(res.totalPages);
         setPage(res.number);
@@ -84,14 +91,15 @@ export default function AdminOrderListPage() {
   }, [applied]);
 
   const handleSearch = () => {
-    setApplied({ keyword: keyword.trim(), startDate, endDate });
+    setApplied({ keyword: keyword.trim(), status, startDate, endDate });
   };
 
   const handleResetSearch = () => {
     setKeyword("");
+    setStatus("");
     setStartDate("");
     setEndDate("");
-    setApplied({ keyword: "", startDate: "", endDate: "" });
+    setApplied({ keyword: "", status: "", startDate: "", endDate: "" });
   };
 
   const toggleExpand = (orderId: number) => {
@@ -182,6 +190,18 @@ export default function AdminOrderListPage() {
             className="text-body-md w-full text-black outline-none placeholder:text-gray-400"
           />
         </div>
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="rounded border border-gray-300 px-3 py-2 text-sm text-black"
+        >
+          <option value="">전체 상태</option>
+          {ORDER_STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
         <input
           type="date"
           value={startDate}

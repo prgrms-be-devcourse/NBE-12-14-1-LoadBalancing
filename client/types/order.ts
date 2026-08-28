@@ -15,6 +15,8 @@ export interface OrderCreateRequest {
 
 // OrderResponse.OrderItemInfo (백엔드) - 주문 안에 들어가는 아이템 하나
 export interface OrderItemInfo {
+  // 주문 항목(OrderItem) 자체의 PK. productId(상품 id)랑 다름 - 항목 삭제(DELETE .../items/{itemId})할 때 이걸 씀
+  itemId: number;
   productId: number;
   title: string;
   price: number;

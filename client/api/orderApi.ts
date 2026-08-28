@@ -38,10 +38,11 @@ export const orderApi = {
     return res.data.data;
   },
 
-  // GET /api/v1/admin/order/search?keyword=&startDate=&endDate= - 관리자용 주문 검색
-  // keyword: 이메일 기준 검색, startDate/endDate: yyyy-MM-dd 문자열 (없으면 전체 기간)
+  // GET /api/v1/admin/order/search?keyword=&status=&startDate=&endDate= - 관리자용 주문 검색
+  // keyword: 이메일 기준 검색, status: OrderStatus enum 이름(빈 값이면 전체), startDate/endDate: yyyy-MM-dd 문자열 (없으면 전체 기간)
   search: async (
     keyword: string,
+    status: string,
     startDate: string,
     endDate: string,
     page = 0,
@@ -52,6 +53,7 @@ export const orderApi = {
       {
         params: {
           keyword: keyword || undefined,
+          status: status || undefined,
           startDate: startDate || undefined,
           endDate: endDate || undefined,
           page,
@@ -70,5 +72,11 @@ export const orderApi = {
   // DELETE /api/v1/admin/order/{id}
   delete: async (orderId: number): Promise<void> => {
     await apiClient.delete(`/api/v1/admin/order/${orderId}`);
+  },
+
+  // DELETE /api/v1/auth/order/{orderId}/items/{itemId} - 고객이 자기 주문에서 항목 하나만 뺄 때 사용
+  // (로그인 없이 되는 공개 API라, 주문 상세를 아는 사람이면 누구나 지울 수 있음 - 지금은 이메일 조회 흐름 뒤에서만 노출)
+  deleteItem: async (orderId: number, itemId: number): Promise<void> => {
+    await apiClient.delete(`/api/v1/auth/order/${orderId}/items/${itemId}`);
   },
 };

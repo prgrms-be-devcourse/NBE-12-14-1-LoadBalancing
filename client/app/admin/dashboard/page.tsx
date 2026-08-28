@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminApi } from "@/api/adminApi";
-import { AdminDashboardResponse } from "@/types/admin";
+import { AdminDashboardResponse, ProductSalesAnalysisInfo } from "@/types/admin";
 import { ProductInfo } from "@/types/product";
 import AdminNav from "@/components/AdminNav";
 import Icon from "@/components/Icon";
@@ -132,6 +132,34 @@ export default function AdminDashboardPage() {
             )}
           </div>
 
+          {/* 판매 분석 - 주문이 하나도 없으면 각 필드가 null로 옴 */}
+          <div>
+            <h2 className="mb-3 flex items-center gap-2 text-label-lg font-bold uppercase tracking-wide text-black">
+              <Icon name="insights" />
+              판매 분석
+            </h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <SalesAnalysisCard
+                label="베스트셀러 (누적 판매량)"
+                icon="workspace_premium"
+                data={data.bestSellingProduct}
+                unit="개 판매"
+              />
+              <SalesAnalysisCard
+                label="1회 최다 구매"
+                icon="shopping_bag"
+                data={data.mostPurchasedAtOnceProduct}
+                unit="개 주문"
+              />
+              <SalesAnalysisCard
+                label="판매 저조"
+                icon="trending_down"
+                data={data.worstSellingProduct}
+                unit="개 판매"
+              />
+            </div>
+          </div>
+
           {/* 전체 상품 수 - 요약 카드 하나짜리라 크게 */}
           <div className="flex items-center gap-4 rounded-lg border border-gray-200 p-6">
             <Icon name="inventory_2" className="text-4xl text-gray-400" />
@@ -224,6 +252,58 @@ function SalesCard({
         <span>주문 {orderCount.toLocaleString()}건</span>
         <span>평균 {averageAmount.toLocaleString()}원</span>
       </div>
+    </div>
+  );
+}
+
+function SalesAnalysisCard({
+  label,
+  icon,
+  data,
+  unit,
+}: {
+  label: string;
+  icon: string;
+  data: ProductSalesAnalysisInfo | null;
+  unit: string;
+}) {
+  return (
+    <div className="rounded-lg border border-gray-200 p-5">
+      <p className="mb-3 flex items-center gap-1 text-label-sm text-gray-500">
+        <Icon name={icon} className="text-base" />
+        {label}
+      </p>
+      {data ? (
+        <div className="flex items-center gap-3">
+          <div className="h-12 w-12 shrink-0 overflow-hidden rounded bg-gray-100">
+            {data.product.thumbnail ? (
+              <img
+                src={data.product.thumbnail}
+                alt={data.product.title}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                <Icon
+                  name="image_not_supported"
+                  className="text-base text-gray-300"
+                />
+              </div>
+            )}
+          </div>
+          <div>
+            <p className="text-body-md font-bold text-black">
+              {data.product.title}
+            </p>
+            <p className="text-label-sm text-gray-500">
+              {data.totalQuantity.toLocaleString()}
+              {unit}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <p className="text-sm text-gray-400">데이터가 없습니다.</p>
+      )}
     </div>
   );
 }

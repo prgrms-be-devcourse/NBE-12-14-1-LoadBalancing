@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { productApi } from "@/api/productApi";
 import { ProductInfo } from "@/types/product";
 import OrderStepper from "@/components/OrderStepper";
-import BackToHomeButton from "@/components/BackToHomeButton";
 import Icon from "@/components/Icon";
 
 export default function MenuPage() {
@@ -27,6 +27,16 @@ export default function MenuPage() {
   const [keyword, setKeyword] = useState("");
   const [appliedKeyword, setAppliedKeyword] = useState("");
 
+  // 가격 범위 검색 - 최소/최대 중 하나만 입력해도 적용됨 (백엔드가 빈 쪽을 0~무제한으로 처리)
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [appliedMinPrice, setAppliedMinPrice] = useState<number | undefined>(
+    undefined
+  );
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState<number | undefined>(
+    undefined
+  );
+
   // page는 "다음에 불러올 페이지 번호"를 담는 ref로 관리.
   // appliedKeyword가 바뀌면 새로 검색해야 하는데, loadMore가 이전 page state를 클로저로 들고 있으면
   // 검색 시작 시점에 page를 0으로 리셋해도 다음 tick에야 반영돼서 꼬일 수 있어 ref로 즉시 동기화
@@ -42,7 +52,13 @@ export default function MenuPage() {
       const targetPage = reset ? 0 : pageRef.current;
 
       try {
-        const res = await productApi.getList(targetPage, 10, appliedKeyword);
+        const res = await productApi.getList(
+          targetPage,
+          10,
+          appliedKeyword,
+          appliedMinPrice,
+          appliedMaxPrice
+        );
         setProducts((prev) =>
           reset ? res.content : [...prev, ...res.content]
         );
@@ -65,17 +81,31 @@ export default function MenuPage() {
         loadingRef.current = false;
       }
     },
-    [hasMore, appliedKeyword]
+    [hasMore, appliedKeyword, appliedMinPrice, appliedMaxPrice]
   );
 
-  // 첫 진입 + 검색어가 바뀔 때마다 처음부터 다시 로드
+  // 첫 진입 + 검색 조건이 바뀔 때마다 처음부터 다시 로드
   useEffect(() => {
     loadMore(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appliedKeyword]);
+  }, [appliedKeyword, appliedMinPrice, appliedMaxPrice]);
 
   const handleSearch = () => {
     setAppliedKeyword(keyword.trim());
+    setAppliedMinPrice(minPrice.trim() === "" ? undefined : Number(minPrice));
+    setAppliedMaxPrice(maxPrice.trim() === "" ? undefined : Number(maxPrice));
+  };
+
+  const hasAppliedSearch =
+    appliedKeyword || appliedMinPrice !== undefined || appliedMaxPrice !== undefined;
+
+  const handleResetSearch = () => {
+    setKeyword("");
+    setMinPrice("");
+    setMaxPrice("");
+    setAppliedKeyword("");
+    setAppliedMinPrice(undefined);
+    setAppliedMaxPrice(undefined);
   };
 
   // 스크롤이 맨 아래 sentinel까지 내려오면 다음 페이지 자동 로드
@@ -94,12 +124,22 @@ export default function MenuPage() {
   }, [loadMore, error]);
 
   return (
-    <div className="min-h-screen bg-white px-8 py-10">
-      <BackToHomeButton />
+    <div className="mx-auto min-h-screen max-w-7xl bg-white px-8 py-10">
+      {/* zz/_3 참고 - 상단 로고 바 (누르면 처음으로). 페이지 전체가 max-w-7xl(1280px)로 잡혀있어서
+          더 이상 -mx-8로 삐져나오게 할 필요 없이 본문이랑 같은 폭으로 정렬함 */}
+      <Link
+        href="/"
+        className="mb-8 flex h-20 items-center justify-center border-b-2 border-black"
+      >
+        <span className="text-headline-md font-extrabold uppercase tracking-tighter text-black">
+          Kiosk
+        </span>
+      </Link>
+
       <OrderStepper currentStep={1} />
       <h1 className="text-headline-md mb-8 font-bold text-black">메뉴</h1>
 
-      <div className="mb-8 flex gap-2">
+      <div className="mb-8 flex flex-wrap items-center gap-2">
         <div className="flex flex-1 items-center gap-2 border-b border-gray-300 px-1 py-2 focus-within:border-black">
           <Icon name="search" className="text-xl text-gray-400" />
           <input
@@ -113,18 +153,41 @@ export default function MenuPage() {
             className="text-body-md w-full text-black outline-none placeholder:text-gray-400"
           />
         </div>
+
+        {/* 가격 범위 - 하나만 입력해도 적용됨 */}
+        <div className="flex items-center gap-1 border-b border-gray-300 px-1 py-2 focus-within:border-black">
+          <input
+            type="number"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
+            placeholder="최소가격"
+            className="text-body-md w-24 text-black outline-none placeholder:text-gray-400"
+          />
+          <span className="text-gray-400">~</span>
+          <input
+            type="number"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
+            placeholder="최대가격"
+            className="text-body-md w-24 text-black outline-none placeholder:text-gray-400"
+          />
+        </div>
+
         <button
           onClick={handleSearch}
           className="rounded bg-black px-5 py-2 text-label-sm font-bold text-white"
         >
           검색
         </button>
-        {appliedKeyword && (
+        {hasAppliedSearch && (
           <button
-            onClick={() => {
-              setKeyword("");
-              setAppliedKeyword("");
-            }}
+            onClick={handleResetSearch}
             className="rounded border-2 border-black px-5 py-2 text-label-sm font-bold text-black hover:bg-gray-50"
           >
             초기화
@@ -148,13 +211,14 @@ export default function MenuPage() {
 
       {products.length === 0 && !loading && !error && (
         <p className="text-gray-500">
-          {appliedKeyword
-            ? `"${appliedKeyword}"에 대한 검색 결과가 없습니다.`
+          {hasAppliedSearch
+            ? "검색 결과가 없습니다."
             : "상품이 없습니다."}
         </p>
       )}
 
-      <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4">
+      {/* zz/_3 참고 - 카드 크게(최대 3열), 상품명 더 크고 굵게. 사진 위/텍스트 아래 구조는 그대로 유지 */}
+      <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
         {products.map((product) => (
           <div
             key={product.id}
@@ -177,8 +241,8 @@ export default function MenuPage() {
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-1 border-t border-gray-100 px-3 py-3">
-              <p className="text-body-md font-bold text-black">
+            <div className="flex flex-col gap-1 border-t border-gray-100 px-4 py-4">
+              <p className="text-body-lg font-bold text-black">
                 {product.title}
               </p>
               <p className="text-body-md text-gray-500">

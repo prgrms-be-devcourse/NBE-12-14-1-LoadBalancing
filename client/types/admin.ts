@@ -44,4 +44,15 @@ export interface AdminDashboardResponse {
 
   // 주문 상태별 개수
   orderStatusCounts: OrderStatusCount[];
+
+  // 판매 분석 - 주문이 하나도 없으면 null로 옴
+  bestSellingProduct: ProductSalesAnalysisInfo | null;
+  mostPurchasedAtOnceProduct: ProductSalesAnalysisInfo | null;
+  worstSellingProduct: ProductSalesAnalysisInfo | null;
+}
+
+// ProductResponse.ProductSalesAnalysisInfo (백엔드)
+export interface ProductSalesAnalysisInfo {
+  product: ProductInfo;
+  totalQuantity: number;
 }

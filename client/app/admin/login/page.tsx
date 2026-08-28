@@ -20,9 +20,7 @@ export default function AdminLoginPage() {
     setError(null);
 
     try {
-      console.log("[로그인 요청 body]", { adminId, password }); // 확인용, 나중에 지워도 됨
       const data = await adminApi.login({ adminId, password });
-      console.log("로그인 응답으로 받은 JWT:", data.token); // 확인용, 나중에 지워도 됨
       localStorage.setItem("admin_token", data.token); // api/client.ts가 이 키를 읽어서 Authorization 헤더에 자동으로 붙임
       router.push("/admin/dashboard");
     } catch (e) {
