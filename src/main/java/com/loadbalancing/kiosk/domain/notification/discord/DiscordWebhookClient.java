@@ -1,7 +1,7 @@
-package com.loadbalancing.kiosk.domain.notification.client;
+package com.loadbalancing.kiosk.domain.notification.discord;
 
 import com.loadbalancing.kiosk.domain.notification.dto.DiscordWebhookRequest;
-import com.loadbalancing.kiosk.domain.notification.event.OrderCompletedEvent;
+import com.loadbalancing.kiosk.domain.notification.dto.OrderCompletedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -55,8 +55,8 @@ public class DiscordWebhookClient {
                 주문자: %s
                 주문 시간: %s
                 """.formatted(
-                event.orderId(),
-                event.email(),
+                event.orderInfo().orderId(),
+                event.orderInfo().email(),
                 event.orderedAt().format(ORDERED_AT_FORMATTER)
         );
 

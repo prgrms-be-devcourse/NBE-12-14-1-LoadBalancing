@@ -1,7 +1,7 @@
 package com.loadbalancing.kiosk.domain.notification.listener;
 
-import com.loadbalancing.kiosk.domain.notification.client.DiscordWebhookClient;
-import com.loadbalancing.kiosk.domain.notification.event.OrderCompletedEvent;
+import com.loadbalancing.kiosk.domain.notification.discord.DiscordWebhookClient;
+import com.loadbalancing.kiosk.domain.notification.dto.OrderCompletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -31,7 +31,7 @@ public class DiscordOrderNotificationListener {
         } catch (Exception exception) {
             log.error(
                     "Discord 주문 알림 전송에 실패했습니다. orderId={}",
-                    event.orderId(),
+                    event.orderInfo().orderId(),
                     exception
             );
         }
