@@ -1,6 +1,6 @@
-package com.loadbalancing.kiosk.domain.product.infra.repository;
+package com.loadbalancing.kiosk.domain.product.repository;
 
-import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
+import com.loadbalancing.kiosk.domain.product.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +25,23 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             nativeQuery = true
     )
     long countDeletedProducts();
+
+    //가장 안팔리는 상품 -> 상품별 전체 판매 수량 SUM(quantity)이 가장 작은 상품
+    @Query("""
+        SELECT new com.loadbalancing.kiosk.domain.admin.dto.sales.ProductSalesAnalysisResponse(
+            p.id,
+            p.title,
+            p.price,
+            p.stock,
+            p.thumbnail,
+            COALESCE(SUM(oi.quantity), 0)
+        )
+        FROM Product p
+        LEFT JOIN OrderItem oi
+            ON oi.product = p
+           AND oi.order.orderStatus <> com.loadbalancing.kiosk.domain.order.entity.OrderStatus.CANCELLED
+        GROUP BY p.id, p.title, p.price, p.stock, p.thumbnail
+        ORDER BY COALESCE(SUM(oi.quantity), 0) ASC
+        """)
+    List<ProductSalesAnalysisResponse> findWorstSellingProducts();
 }

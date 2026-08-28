@@ -4,12 +4,13 @@ import com.loadbalancing.kiosk.domain.admin.dto.AdminDashboardResponse;
 import com.loadbalancing.kiosk.domain.admin.dto.order.OrderDashboardMetrics;
 import com.loadbalancing.kiosk.domain.admin.dto.order.OrderStatusCountResponse;
 import com.loadbalancing.kiosk.domain.admin.dto.order.PeriodOrderMetric;
-import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
-import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
-import com.loadbalancing.kiosk.domain.order.infra.repository.OrderItemRepository;
-import com.loadbalancing.kiosk.domain.product.dto.ProductResponse;
-import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
-import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
+import com.loadbalancing.kiosk.domain.admin.dto.sales.ProductSalesAnalysisResponse;
+import com.loadbalancing.kiosk.domain.order.entity.OrderStatus;
+import com.loadbalancing.kiosk.domain.order.order.repository.OrderRepository;
+import com.loadbalancing.kiosk.domain.order.orderItem.repository.OrderItemRepository;
+import com.loadbalancing.kiosk.domain.product.dto.response.ProductResponse;
+import com.loadbalancing.kiosk.domain.product.entity.Product;
+import com.loadbalancing.kiosk.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,15 @@ public class AdminDashboardService {
         OrderDashboardMetrics orderMetrics =
                 getOrderDashboardMetrics();
 
+        List<ProductSalesAnalysisResponse> bestSellingProducts =
+                orderItemRepository.findBestSellingProducts();
+
+        List<ProductSalesAnalysisResponse> mostPurchasedAtOnceProducts =
+                orderItemRepository.findMostPurchasedAtOnceProducts();
+
+        List<ProductSalesAnalysisResponse> worstSellingProducts =
+                productRepository.findWorstSellingProducts();
+
         return AdminDashboardResponse.builder()
                 // 상품/재고
                 .totalProductCount(totalProductCount)
@@ -80,6 +90,12 @@ public class AdminDashboardService {
 
                 // 주문 상태별 개수
                 .orderStatusCounts(orderMetrics.orderStatusCounts())
+
+
+                //판매 분석 -> 가장 많이 팔리는 상품, 한번에 가장 많이 구매하는 상품, 가장 안팔리는 상품
+                .bestSellingProducts(bestSellingProducts)
+                .mostPurchasedAtOnceProducts(mostPurchasedAtOnceProducts)
+                .worstSellingProducts(worstSellingProducts)
                 .build();
     }
 

@@ -1,13 +1,13 @@
-package com.loadbalancing.kiosk.domain.order.infra.repository;
+package com.loadbalancing.kiosk.domain.order.order.repository;
 
 
-import com.loadbalancing.kiosk.domain.order.infra.entity.Order;
-import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
+import com.loadbalancing.kiosk.domain.admin.dto.sales.ProductSalesAnalysisResponse;
+import com.loadbalancing.kiosk.domain.order.entity.Order;
+import com.loadbalancing.kiosk.domain.order.entity.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,19 +45,4 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
         long getCount();
     }
-
-    @Query("""
-                SELECT o FROM Order o
-                WHERE (:keyword IS NULL OR o.email LIKE %:keyword%)
-                  AND (:status IS NULL OR o.orderStatus = :status)
-                  AND (:startDate IS NULL OR o.createdAt >= :startDate)
-                  AND (:endDate IS NULL OR o.createdAt < :endDate)
-        """)
-    Page<Order> search(
-        @Param("keyword") String keyword,
-        @Param("status") OrderStatus status,
-        @Param("startDate") LocalDateTime startDate,
-        @Param("endDate") LocalDateTime endDate,
-        Pageable pageable
-    );
 }
