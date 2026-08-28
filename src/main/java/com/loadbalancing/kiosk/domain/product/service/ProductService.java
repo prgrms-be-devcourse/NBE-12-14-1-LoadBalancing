@@ -47,42 +47,26 @@ public class ProductService {
         return ProductResponse.ProductInfo.from(savedProduct, newImgs);
     }
 
+    // 상품 가격 범위 검색 시, maxPrice 미지정(null/0)일 때 사실상 무제한으로 취급하기 위한 상한값
+    private static final int MAX_PRICE_DEFAULT = 99_999_999;
+
     @Transactional(readOnly = true)
     public Page<ProductResponse.ProductInfo> getProductsList(
             ProductSearchRequest searchRequest,
             Pageable pageable
     ) {
-        Page<Product> products;
+        // 키워드/가격 둘 다 null이든 하나만 오든 상관없이 항상 같은 쿼리 하나로 처리.
+        // - keyword가 null/빈 값이면 "" 로 대체 (Containing이라 ""는 전체 매치)
+        // - minPrice가 null이면 0으로, maxPrice가 null/0이면 사실상 무제한으로 대체
+        String keyword = searchRequest.keyword() == null ? "" : searchRequest.keyword().trim();
+        Integer minPrice = searchRequest.minPrice() == null ? 0 : searchRequest.minPrice();
+        Integer maxPrice = (searchRequest.maxPrice() == null || searchRequest.maxPrice() == 0)
+                ? MAX_PRICE_DEFAULT
+                : searchRequest.maxPrice();
 
-        String keyword = searchRequest.keyword();
-        boolean hasKeyword = keyword != null && !keyword.isBlank();
-        boolean hasPrice = searchRequest.minPrice() != null && searchRequest.maxPrice() != null;
-
-        if (hasKeyword && hasPrice) {
-            // 키워드 + 가격 범위 모두 검색
-            products = productRepository.findByTitleContainingIgnoreCaseAndPriceBetween(
-                    keyword.trim(),
-                    searchRequest.minPrice(),
-                    searchRequest.maxPrice(),
-                    pageable
-            );
-        } else if (hasPrice) {
-            // 가격 범위만 검색
-            products = productRepository.findByPriceBetween(
-                    searchRequest.minPrice(),
-                    searchRequest.maxPrice(),
-                    pageable
-            );
-        } else if (hasKeyword) {
-            // 키워드만 검색
-            products = productRepository.findByTitleContainingIgnoreCase(
-                    keyword.trim(),
-                    pageable
-            );
-        } else {
-            // 전체 조회
-            products = productRepository.findAll(pageable);
-        }
+        Page<Product> products = productRepository.findByTitleContainingIgnoreCaseAndPriceBetween(
+                keyword, minPrice, maxPrice, pageable
+        );
 
         return products.map(ProductResponse.ProductInfo::from);
     }

@@ -15,7 +15,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findAll(Pageable pageable);
 
-    Page<Product> findByTitleContainingIgnoreCase(String keyword, Pageable pageable);
+    // 상품 검색은 ProductService에서 keyword/minPrice/maxPrice에 기본값을 채워 항상 이 메서드 하나로 조회함
+    Page<Product> findByTitleContainingIgnoreCaseAndPriceBetween(
+            String title, Integer minPrice, Integer maxPrice, Pageable pageable);
 
     List<Product> findTop5ByOrderByCreatedAtDesc();
 
@@ -51,10 +53,3 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         Long getTotalQuantity();
     }
 }
-
-    Page<Product> findByPriceBetween(Integer minPrice, Integer maxPrice, Pageable pageable);
-
-    Page<Product> findByTitleContainingIgnoreCaseAndPriceBetween(
-            String title, Integer minPrice, Integer maxPrice, Pageable pageable);
-}
-

@@ -12,6 +12,7 @@ import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
 import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
 import com.loadbalancing.kiosk.global.exception.custom.OrderItemNotFoundException;
 import com.loadbalancing.kiosk.global.exception.custom.OrderNotFoundException;
+import com.loadbalancing.kiosk.global.exception.custom.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -55,7 +56,8 @@ public class OrderService {
         for (OrderRequest.OrderItem itemRequest : request.items()) {
 
             Product product = productRepository.findById(itemRequest.productId())
-                    .orElseThrow(
+                    .orElseThrow(() ->
+                        new ProductNotFoundException(itemRequest.productId())
                     );
             product.decreaseStock(itemRequest.quantity().intValue());
 
