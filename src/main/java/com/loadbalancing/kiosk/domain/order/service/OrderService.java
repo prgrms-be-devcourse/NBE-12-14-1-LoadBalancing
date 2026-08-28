@@ -1,14 +1,14 @@
 package com.loadbalancing.kiosk.domain.order.service;
 
+import com.loadbalancing.kiosk.domain.order.infra.repository.OrderItemRepository;
+import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
+import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderItem;
 import com.loadbalancing.kiosk.domain.order.dto.OrderRequest;
 import com.loadbalancing.kiosk.domain.order.dto.OrderResponse;
 import com.loadbalancing.kiosk.domain.order.infra.entity.Order;
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
-import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
-import com.loadbalancing.kiosk.domain.order.infra.repository.OrderItemRepository;
 import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
-import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
 import com.loadbalancing.kiosk.global.exception.custom.OrderNotFoundException;
 import com.loadbalancing.kiosk.global.exception.custom.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +25,8 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
+    private final OrderItemRepository orderItemRepository;
 
     @Transactional
     public OrderResponse.OrderInfo createOrder(OrderRequest.OrderCreate request) {
@@ -52,8 +52,7 @@ public class OrderService {
         for (OrderRequest.OrderItem itemRequest : request.items()) {
 
             Product product = productRepository.findById(itemRequest.productId())
-                    .orElseThrow(() ->
-                            new ProductNotFoundException(itemRequest.productId())
+                    .orElseThrow(
                     );
             product.decreaseStock(itemRequest.quantity().intValue());
 
