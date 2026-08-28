@@ -29,6 +29,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     )
     long countDeletedProducts();
 
+
     @Query("""
             SELECT p AS product,
                    COALESCE(SUM(oi.quantity), 0L) AS totalQuantity
@@ -50,3 +51,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         Long getTotalQuantity();
     }
 }
+
+    Page<Product> findByPriceBetween(Integer minPrice, Integer maxPrice, Pageable pageable);
+
+    Page<Product> findByTitleContainingIgnoreCaseAndPriceBetween(
+            String title, Integer minPrice, Integer maxPrice, Pageable pageable);
+}
+
