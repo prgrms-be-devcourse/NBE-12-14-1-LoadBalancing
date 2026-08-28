@@ -1,11 +1,13 @@
 package com.loadbalancing.kiosk.domain.admin.order;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.loadbalancing.kiosk.global.jwt.JwtProvider;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,9 +34,18 @@ class AdminOrderApiTest {
     @Autowired
     EntityManager entityManager;
 
+    @Autowired
+    JwtProvider jwtProvider;
+
     // Spring Boot 4 기본 ObjectMapper 빈은 Jackson 3(tools.jackson.*) 타입이라
     // com.fasterxml.jackson(고전 Jackson 2) 타입으로 autowire가 안 됨 - 그냥 직접 생성해서 씀
     ObjectMapper objectMapper = new ObjectMapper();
+
+    // /api/v1/admin/**는 SecurityConfig에서 인증을 요구하므로, 매번 로그인하는 대신
+    // JwtProvider로 바로 유효한 토큰을 발급해서 헤더에 붙인다.
+    private String adminAuthHeader() {
+        return "Bearer " + jwtProvider.generateToken("admin01");
+    }
 
     // 매 테스트마다 주문을 하나 새로 만들어서 그 orderId를 돌려줌 (email로 구분 가능하게)
     private Long createOrder(String email) throws Exception {
@@ -59,6 +70,7 @@ class AdminOrderApiTest {
         Long orderId = createOrder("status-test@example.com");
 
         mockMvc.perform(patch("/api/v1/admin/order/" + orderId + "/status")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("status", "PAYMENT_COMPLETED"))))
                 .andExpect(status().isOk())
@@ -69,6 +81,7 @@ class AdminOrderApiTest {
     @Test
     void 존재하지_않는_주문_상태를_바꾸면_404가_난다() throws Exception {
         mockMvc.perform(patch("/api/v1/admin/order/9999/status")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("status", "CANCELLED"))))
                 .andExpect(status().isNotFound());
@@ -87,10 +100,12 @@ class AdminOrderApiTest {
         entityManager.flush();
         entityManager.clear();
 
-        mockMvc.perform(delete("/api/v1/admin/order/" + orderId))
+        mockMvc.perform(delete("/api/v1/admin/order/" + orderId)
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader()))
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/api/v1/admin/order/search")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
                         .param("keyword", "delete-test@example.com"))
                 .andExpect(jsonPath("$.data.content.length()").value(0));
     }
@@ -101,6 +116,7 @@ class AdminOrderApiTest {
         createOrder("someone-else@example.com");
 
         mockMvc.perform(get("/api/v1/admin/order/search")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
                         .param("keyword", "search-target"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content.length()").value(1))
@@ -114,6 +130,7 @@ class AdminOrderApiTest {
 
         // 오늘 하루로 검색 -> 방금 만든 주문이 걸려야 함
         mockMvc.perform(get("/api/v1/admin/order/search")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
                         .param("startDate", today.toString())
                         .param("endDate", today.toString()))
                 .andExpect(status().isOk())
@@ -122,6 +139,7 @@ class AdminOrderApiTest {
         // 한참 미래 날짜로 검색 -> 아무것도 안 걸려야 함
         LocalDate future = today.plusYears(1);
         mockMvc.perform(get("/api/v1/admin/order/search")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
                         .param("startDate", future.toString())
                         .param("endDate", future.toString()))
                 .andExpect(status().isOk())
@@ -133,7 +151,8 @@ class AdminOrderApiTest {
         createOrder("no-filter-1@example.com");
         createOrder("no-filter-2@example.com");
 
-        mockMvc.perform(get("/api/v1/admin/order/search"))
+        mockMvc.perform(get("/api/v1/admin/order/search")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content.length()").value(2));
     }

@@ -1,10 +1,12 @@
 package com.loadbalancing.kiosk.domain.admin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.loadbalancing.kiosk.global.jwt.JwtProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,13 +32,23 @@ class AdminDashboardApiTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    JwtProvider jwtProvider;
+
     // Spring Boot 4 기본 ObjectMapper 빈은 Jackson 3(tools.jackson.*) 타입이라
     // com.fasterxml.jackson(고전 Jackson 2) 타입으로 autowire가 안 됨 - 그냥 직접 생성해서 씀
     ObjectMapper objectMapper = new ObjectMapper();
 
+    // /api/v1/admin/**는 SecurityConfig에서 인증을 요구하므로, 매번 로그인하는 대신
+    // JwtProvider로 바로 유효한 토큰을 발급해서 헤더에 붙인다.
+    private String adminAuthHeader() {
+        return "Bearer " + jwtProvider.generateToken("admin01");
+    }
+
     @Test
     void 초기_상태에서는_품절_재고부족_상품이_없다() throws Exception {
-        mockMvc.perform(get("/api/v1/admin/dashboard"))
+        mockMvc.perform(get("/api/v1/admin/dashboard")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.totalProductCount").value(4))
                 .andExpect(jsonPath("$.data.outOfStockProducts.length()").value(0))
@@ -47,11 +59,13 @@ class AdminDashboardApiTest {
     @Test
     void 재고를_0으로_만들면_품절_목록에_잡힌다() throws Exception {
         mockMvc.perform(put("/api/v1/admin/product/1/stock")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("stock", 0))))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/api/v1/admin/dashboard"))
+        mockMvc.perform(get("/api/v1/admin/dashboard")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader()))
                 .andExpect(jsonPath("$.data.outOfStockProducts.length()").value(1))
                 .andExpect(jsonPath("$.data.outOfStockProducts[0].id").value(1));
     }
@@ -59,11 +73,13 @@ class AdminDashboardApiTest {
     @Test
     void 재고를_1에서_10사이로_만들면_재고부족_목록에_잡힌다() throws Exception {
         mockMvc.perform(put("/api/v1/admin/product/2/stock")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("stock", 5))))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/api/v1/admin/dashboard"))
+        mockMvc.perform(get("/api/v1/admin/dashboard")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader()))
                 .andExpect(jsonPath("$.data.lowStockProducts.length()").value(1))
                 .andExpect(jsonPath("$.data.lowStockProducts[0].id").value(2))
                 .andExpect(jsonPath("$.data.outOfStockProducts.length()").value(0)); // 품절이랑 안 겹침
@@ -84,7 +100,8 @@ class AdminDashboardApiTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/api/v1/admin/dashboard"))
+        mockMvc.perform(get("/api/v1/admin/dashboard")
+                        .header(HttpHeaders.AUTHORIZATION, adminAuthHeader()))
                 .andExpect(jsonPath("$.data.dailyOrderCount").value(1))
                 .andExpect(jsonPath("$.data.dailyTotalSales").value(36000))
                 .andExpect(jsonPath("$.data.orderStatusCounts[0].status").value("ORDER_RECEIVED"))
