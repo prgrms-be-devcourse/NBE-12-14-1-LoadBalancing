@@ -135,6 +135,62 @@ class OrderApiTest {
     }
 
     @Test
+    void 이메일이_비어있으면_400이_난다() throws Exception {
+        var request = orderRequest("", List.of(item(1, 1)));
+
+        mockMvc.perform(post("/api/v1/auth/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 이메일_형식이_아니면_400이_난다() throws Exception {
+        var request = orderRequest("not-an-email", List.of(item(1, 1)));
+
+        mockMvc.perform(post("/api/v1/auth/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 우편번호가_숫자_5자리가_아니면_400이_난다() throws Exception {
+        Map<String, Object> request = Map.of(
+                "email", "bad-postal@example.com",
+                "addressLine1", "서울시 강남구",
+                "addressLine2", "101동 202호",
+                "postalCode", "abc12", // 숫자 5자리가 아님
+                "items", List.of(item(1, 1))
+        );
+
+        mockMvc.perform(post("/api/v1/auth/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 상품을_하나도_안_담으면_400이_난다() throws Exception {
+        var request = orderRequest("empty-items@example.com", List.of());
+
+        mockMvc.perform(post("/api/v1/auth/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void 수량이_0이하이면_400이_난다() throws Exception {
+        var request = orderRequest("zero-quantity@example.com", List.of(item(1, 0)));
+
+        mockMvc.perform(post("/api/v1/auth/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void 주문한적_없는_이메일로_조회하면_빈_목록이_나온다() throws Exception {
         mockMvc.perform(get("/api/v1/auth/order/list").param("email", "nobody@example.com"))
                 .andExpect(status().isOk())

@@ -7,7 +7,6 @@ import {
   ORDER_STATUS_OPTIONS,
   statusLabelToValue,
 } from "@/types/order";
-import AdminNav from "@/components/AdminNav";
 import Icon from "@/components/Icon";
 
 const PAGE_SIZE = 10;
@@ -170,7 +169,6 @@ export default function AdminOrderListPage() {
 
   return (
     <div className="mx-auto w-[896px] px-8 py-10">
-      <AdminNav />
 
       <h1 className="text-headline-md mb-8 font-bold text-black">
         주문 관리

@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { productApi } from "@/api/productApi";
 import { ProductInfo } from "@/types/product";
-import AdminNav from "@/components/AdminNav";
 import Icon from "@/components/Icon";
 
 const PAGE_SIZE = 10;
@@ -164,7 +163,6 @@ export default function AdminProductListPage() {
 
   return (
     <div className="mx-auto w-[896px] px-8 py-10">
-      <AdminNav />
 
       <div className="mb-8 flex items-center justify-between">
         <div>
@@ -288,10 +286,7 @@ export default function AdminProductListPage() {
               {products.map((product) => (
                 <tr
                   key={product.id}
-                  onClick={() =>
-                    router.push(`/admin/products/${product.id}/edit`)
-                  }
-                  className="cursor-pointer border-b border-gray-100 hover:bg-gray-50"
+                  className="border-b border-gray-100 hover:bg-gray-50"
                 >
                   <td className="px-3 py-3">
                     <div className="h-10 w-10 overflow-hidden rounded bg-gray-100">
@@ -319,10 +314,7 @@ export default function AdminProductListPage() {
                   </td>
                   <td className="py-3 text-black">
                     {editingStockId === product.id ? (
-                      <div
-                        className="flex items-center gap-1"
-                        onClick={(e) => e.stopPropagation()} // 이 안에서 클릭해도 행 이동 안 되게
-                      >
+                      <div className="flex items-center gap-1">
                         {/* type=number라 브라우저 기본 위/아래 화살표로 증감 가능 + 직접 숫자 입력도 가능 */}
                         <input
                           type="number"
@@ -345,31 +337,40 @@ export default function AdminProductListPage() {
                           취소
                         </button>
                       </div>
-                    ) : product.stock === 0 ? (
-                      <span className="text-label-sm inline-flex items-center gap-1 rounded bg-red-50 px-2 py-0.5 font-bold uppercase text-red-600">
-                        <Icon name="circle" className="text-[6px]" filled />
-                        품절
-                      </span>
                     ) : (
-                      product.stock
+                      <div className="flex items-center gap-2">
+                        {product.stock === 0 ? (
+                          <span className="text-label-sm inline-flex items-center gap-1 rounded bg-red-50 px-2 py-0.5 font-bold uppercase text-red-600">
+                            <Icon name="circle" className="text-[6px]" filled />
+                            품절
+                          </span>
+                        ) : (
+                          <span>{product.stock}</span>
+                        )}
+                        {/* 재고만 바로 바꾸고 싶을 때 - 수정 페이지까지 안 들어가도 되게 */}
+                        <button
+                          onClick={() =>
+                            startEditStock(product.id, product.stock)
+                          }
+                          className="text-label-sm rounded border border-gray-200 px-1.5 py-0.5 font-bold text-gray-500 hover:border-black hover:text-black"
+                        >
+                          변경
+                        </button>
+                      </div>
                     )}
                   </td>
                   <td className="px-3 py-3 text-right">
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        startEditStock(product.id, product.stock);
-                      }}
-                      title="재고수정"
+                      onClick={() =>
+                        router.push(`/admin/products/${product.id}/edit`)
+                      }
+                      title="상품 수정"
                       className="mr-1 inline-flex h-8 w-8 items-center justify-center rounded text-gray-500 hover:bg-gray-100 hover:text-black"
                     >
                       <Icon name="edit" className="text-lg" />
                     </button>
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // 행 클릭(수정페이지 이동)이랑 겹치지 않게
-                        handleDelete(product.id, product.title);
-                      }}
+                      onClick={() => handleDelete(product.id, product.title)}
                       disabled={deletingId === product.id}
                       title="삭제"
                       className="inline-flex h-8 w-8 items-center justify-center rounded text-gray-500 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"

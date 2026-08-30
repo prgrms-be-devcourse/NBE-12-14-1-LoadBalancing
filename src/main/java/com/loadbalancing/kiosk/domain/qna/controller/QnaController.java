@@ -29,11 +29,13 @@ public class QnaController {
                 .body(ApiResponse.success(201, response));
     }
 
+    // email 없이 호출하면 전체 목록(관리자 화면용), email과 함께 호출하면 그 이메일 것만(고객이 자기 문의 확인용)
     @GetMapping
     public ResponseEntity<ApiResponse<Page<QnaInfo>>> list(
+            @RequestParam(required = false) String email,
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<QnaInfo> response = qnaService.getList(pageable);
+        Page<QnaInfo> response = qnaService.getList(email, pageable);
         return ResponseEntity.ok(ApiResponse.success(200, response));
     }
 

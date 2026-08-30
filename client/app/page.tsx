@@ -46,6 +46,15 @@ export default function Home() {
             <span className="text-headline-md font-bold">주문 확인</span>
           </Link>
         </div>
+
+        {/* 메인 2버튼 디자인은 그대로 두고, 아래 보조 링크로만 문의하기 노출 */}
+        <Link
+          href="/qna"
+          className="flex items-center gap-1 text-body-md font-medium text-gray-400 hover:text-black"
+        >
+          <Icon name="help" className="text-lg" />
+          문의하기
+        </Link>
       </main>
     </div>
   );

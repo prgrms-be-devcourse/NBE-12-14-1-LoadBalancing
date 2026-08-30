@@ -35,9 +35,14 @@ public class QnaService {
         return QnaInfo.from(qna);
     }
 
+    // email이 없으면 전체 목록(관리자용), 있으면 그 이메일 것만(고객이 자기 문의/답변 확인용).
+    // ProductService 가격검색과 같은 패턴 - 프론트에서 관리자 화면은 email 없이, 고객 화면은 email과 함께 호출함
     @Transactional(readOnly = true)
-    public Page<QnaInfo> getList(Pageable pageable) {
-        return qnaRepository.findAll(pageable).map(QnaInfo::from);
+    public Page<QnaInfo> getList(String email, Pageable pageable) {
+        Page<Qna> qnas = (email == null || email.isBlank())
+                ? qnaRepository.findAll(pageable)
+                : qnaRepository.findAllByEmail(email, pageable);
+        return qnas.map(QnaInfo::from);
     }
 
     @Transactional

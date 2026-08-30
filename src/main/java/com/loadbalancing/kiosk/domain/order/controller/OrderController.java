@@ -4,6 +4,7 @@ import com.loadbalancing.kiosk.domain.order.dto.OrderRequest;
 import com.loadbalancing.kiosk.domain.order.dto.OrderResponse;
 import com.loadbalancing.kiosk.domain.order.service.OrderService;
 import com.loadbalancing.kiosk.global.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +23,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<OrderResponse.OrderInfo>> createOrder(@RequestBody OrderRequest.OrderCreate request) {
+    public ResponseEntity<ApiResponse<OrderResponse.OrderInfo>> createOrder(@Valid @RequestBody OrderRequest.OrderCreate request) {
 
         OrderResponse.OrderInfo response = orderService.createOrder(request);
 

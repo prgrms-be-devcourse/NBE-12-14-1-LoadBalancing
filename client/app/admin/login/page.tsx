@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminApi } from "@/api/adminApi";
 import Icon from "@/components/Icon";
@@ -13,6 +13,14 @@ export default function AdminLoginPage() {
   const [error, setError] = useState<{ code: number; message: string } | null>(
     null
   );
+
+  // 이미 로그인된(토큰 있는) 상태로 /admin/login에 다시 들어오면 로그인 폼 다시 보여주지 말고
+  // 바로 대시보드로 - "로그인 했는데도 login 들어가면 또 로그인해야 함" 피드백 반영
+  useEffect(() => {
+    if (localStorage.getItem("admin_token")) {
+      router.replace("/admin/dashboard");
+    }
+  }, [router]);
 
   const handleSubmit = async () => {
     if (submitting) return;
