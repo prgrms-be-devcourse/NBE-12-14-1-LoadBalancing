@@ -23,9 +23,47 @@ export default function OrderPage() {
   const [addressLine2, setAddressLine2] = useState("");
   const [postalCode, setPostalCode] = useState("");
 
+  // 서버 호출 실패 등 "필드 하나로 딱 떨어지지 않는" 에러용 (검증 실패는 아래 fieldErrors로 따로 뺌)
   const [error, setError] = useState<{ code: number; message: string } | null>(
     null
   );
+
+  type FieldErrors = {
+    email?: string;
+    addressLine1?: string;
+    addressLine2?: string;
+    postalCode?: string;
+  };
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  // 백엔드 검증 규칙(OrderRequest.OrderCreate)이랑 최대한 맞춰서, 서버까지 안 갔다 오고
+  // 바로 알려줌. 그래도 최종 검증은 서버가 다시 하니까(프론트만 믿을 수 없어서) 이건 UX용 보조 검증.
+  // 필드별로 따로 반환해서, 각 입력창 바로 아래에 그 칸만의 에러를 보여줄 수 있게 함
+  const validate = (): FieldErrors => {
+    const errors: FieldErrors = {};
+
+    if (!email.trim()) {
+      errors.email = "이메일을 입력해주세요.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      errors.email = "올바른 이메일 형식이 아닙니다.";
+    }
+
+    if (!addressLine1.trim()) {
+      errors.addressLine1 = "주소를 입력해주세요.";
+    }
+
+    if (!addressLine2.trim()) {
+      errors.addressLine2 = "상세주소를 입력해주세요.";
+    }
+
+    if (!postalCode.trim()) {
+      errors.postalCode = "우편번호를 입력해주세요.";
+    } else if (!/^\d{5}$/.test(postalCode.trim())) {
+      errors.postalCode = "우편번호는 숫자 5자리여야 합니다.";
+    }
+
+    return errors;
+  };
 
   // 서버가 실제로 저장한(같은 이메일로 컷오프 안에 병합됐으면 그것까지 합쳐진) 전체 주문 정보.
   // 예전엔 프론트가 보낸 값을 그대로 다시 보여줬었는데, 이제 서버 응답을 그대로 씀
@@ -34,6 +72,11 @@ export default function OrderPage() {
   const handleSubmit = async () => {
     if (phase === "paying") return;
     setError(null);
+
+    const errors = validate();
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     setPhase("paying");
 
     // 실제 결제 연동이 없어서, 결제 처리하는 척 1.5초 정도 대기시킴 (연출용)
@@ -263,35 +306,103 @@ export default function OrderPage() {
             <h2 className="text-label-lg mb-3 font-bold text-black">
               배송 정보
             </h2>
-            <div className="flex flex-col gap-3">
-              <input
-                type="email"
-                placeholder="이메일"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
-              />
-              <input
-                type="text"
-                placeholder="주소"
-                value={addressLine1}
-                onChange={(e) => setAddressLine1(e.target.value)}
-                className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
-              />
-              <input
-                type="text"
-                placeholder="상세주소"
-                value={addressLine2}
-                onChange={(e) => setAddressLine2(e.target.value)}
-                className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
-              />
-              <input
-                type="text"
-                placeholder="우편번호"
-                value={postalCode}
-                onChange={(e) => setPostalCode(e.target.value)}
-                className="text-body-md rounded-lg border border-gray-200 px-4 py-3 text-black"
-              />
+            <div className="flex flex-col gap-2">
+              <div>
+                <input
+                  type="email"
+                  placeholder="이메일"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (fieldErrors.email)
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        email: undefined,
+                      }));
+                  }}
+                  className={`text-body-md w-full rounded-lg border px-4 py-3 text-black ${
+                    fieldErrors.email ? "border-red-500" : "border-gray-200"
+                  }`}
+                />
+                {/* 에러 메시지 자리를 항상 확보해둬서, 떴다 안 떴다 할 때 아래 요소들이 밀리지 않게 함 */}
+                <p className="mt-1 min-h-[18px] text-xs text-red-600">
+                  {fieldErrors.email}
+                </p>
+              </div>
+
+              <div>
+                <input
+                  type="text"
+                  placeholder="주소"
+                  value={addressLine1}
+                  onChange={(e) => {
+                    setAddressLine1(e.target.value);
+                    if (fieldErrors.addressLine1)
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        addressLine1: undefined,
+                      }));
+                  }}
+                  className={`text-body-md w-full rounded-lg border px-4 py-3 text-black ${
+                    fieldErrors.addressLine1
+                      ? "border-red-500"
+                      : "border-gray-200"
+                  }`}
+                />
+                <p className="mt-1 min-h-[18px] text-xs text-red-600">
+                  {fieldErrors.addressLine1}
+                </p>
+              </div>
+
+              <div>
+                <input
+                  type="text"
+                  placeholder="상세주소"
+                  value={addressLine2}
+                  onChange={(e) => {
+                    setAddressLine2(e.target.value);
+                    if (fieldErrors.addressLine2)
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        addressLine2: undefined,
+                      }));
+                  }}
+                  className={`text-body-md w-full rounded-lg border px-4 py-3 text-black ${
+                    fieldErrors.addressLine2
+                      ? "border-red-500"
+                      : "border-gray-200"
+                  }`}
+                />
+                <p className="mt-1 min-h-[18px] text-xs text-red-600">
+                  {fieldErrors.addressLine2}
+                </p>
+              </div>
+
+              <div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={5}
+                  placeholder="우편번호 (숫자 5자리)"
+                  value={postalCode}
+                  onChange={(e) => {
+                    setPostalCode(e.target.value.replace(/[^0-9]/g, ""));
+                    if (fieldErrors.postalCode)
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        postalCode: undefined,
+                      }));
+                  }}
+                  className={`text-body-md w-full rounded-lg border px-4 py-3 text-black ${
+                    fieldErrors.postalCode
+                      ? "border-red-500"
+                      : "border-gray-200"
+                  }`}
+                />
+                <p className="mt-1 min-h-[18px] text-xs text-red-600">
+                  {fieldErrors.postalCode}
+                </p>
+              </div>
             </div>
           </div>
 

@@ -1,16 +1,21 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import Icon from "@/components/Icon";
 
 export default function CartBar() {
   const router = useRouter();
+  const pathname = usePathname();
   const { items, totalCount, totalPrice, updateQuantity, removeItem } =
     useCart();
 
   // 비어있으면 바 자체를 안 보여줌
   if (totalCount === 0) return null;
+
+  // /order 페이지는 이 하단 바랑 똑같은 정보(상품 목록, 총액, 주문 버튼)를 화면 안에서 이미 보여주고
+  // 있어서, 이 바가 화면 아래를 덮어 가리는 문제가 있었음 - 그 페이지에서는 숨김
+  if (pathname === "/order") return null;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-black bg-white">

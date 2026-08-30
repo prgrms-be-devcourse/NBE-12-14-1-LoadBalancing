@@ -20,3 +20,22 @@ apiClient.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// 토큰이 있어도 만료/무효면 서버가 401을 줌 - 그동안은 각 페이지가 그냥 "[401] 로그인이 필요합니다"를
+// 화면에 에러 배너로 띄우기만 하고 끝이라, 로그인 페이지로 안 넘어가고 계속 그 상태로 남아있는 게
+// 불편하다는 피드백이 있었음. 여기서 한 번에 잡아서 토큰 지우고 로그인 페이지로 보내버림
+// (고객용 API는 전부 /auth/**라 원래 401이 날 일이 없어서, 관리자 API에만 해당됨)
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      typeof window !== "undefined" &&
+      error.response?.status === 401 &&
+      window.location.pathname !== "/admin/login"
+    ) {
+      localStorage.removeItem("admin_token");
+      window.location.href = "/admin/login";
+    }
+    return Promise.reject(error);
+  }
+);

@@ -67,9 +67,12 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfiguratonSource(){
         CorsConfiguration config = new CorsConfiguration();
 
+        // 프론트 개발 서버 포트가 바뀔 수 있어서(3000 -> 3002로 바뀐 적 있음) 자주 쓰는 포트 다 열어둠
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "http://localhost:3000"
+                "http://localhost:3000",
+                "http://localhost:3001",
+                "http://localhost:3002"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT","DELETE", "PATCH", "OPTIONS"));
