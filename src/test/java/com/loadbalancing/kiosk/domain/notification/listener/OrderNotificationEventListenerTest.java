@@ -1,10 +1,10 @@
 package com.loadbalancing.kiosk.domain.notification.listener;
 
 import com.loadbalancing.kiosk.domain.notification.dto.NotificationResponse;
-import com.loadbalancing.kiosk.domain.notification.dto.OrderCompletedEvent;
 import com.loadbalancing.kiosk.domain.notification.infra.entity.Notification;
 import com.loadbalancing.kiosk.domain.notification.service.NotificationService;
 import com.loadbalancing.kiosk.domain.order.dto.OrderResponse;
+import com.loadbalancing.kiosk.global.event.OrderCompletedEvent;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

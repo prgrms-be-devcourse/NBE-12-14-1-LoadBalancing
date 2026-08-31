@@ -1,7 +1,6 @@
-package com.loadbalancing.kiosk.domain.notification.discord;
+package com.loadbalancing.kiosk.global.discord;
 
-import com.loadbalancing.kiosk.domain.notification.dto.DiscordWebhookRequest;
-import com.loadbalancing.kiosk.domain.notification.dto.OrderCompletedEvent;
+import com.loadbalancing.kiosk.global.event.OrderCompletedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -10,7 +9,8 @@ import org.springframework.web.client.RestClient;
 
 import java.time.format.DateTimeFormatter;
 
-// Discord Webhook API를 호출하여 주문 완료 메시지를 전송하는 클라이언트
+// Discord Webhook API를 호출하는 클라이언트. R2(이미지 업로드)처럼 특정 도메인 소유가 아니라
+// 외부 서비스와 통신하는 공용 인프라라 global로 뺌 (global/R3 패턴과 동일한 이유)
 @Component
 @Slf4j
 public class DiscordWebhookClient {

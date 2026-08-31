@@ -1,6 +1,5 @@
 package com.loadbalancing.kiosk.domain.order.service;
 
-import com.loadbalancing.kiosk.domain.notification.dto.OrderCompletedEvent;
 import com.loadbalancing.kiosk.domain.order.dto.OrderRequest;
 import com.loadbalancing.kiosk.domain.order.dto.OrderResponse;
 import com.loadbalancing.kiosk.domain.order.infra.entity.Order;
@@ -10,6 +9,7 @@ import com.loadbalancing.kiosk.domain.order.infra.repository.OrderItemRepository
 import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
 import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
 import com.loadbalancing.kiosk.domain.product.infra.repository.ProductRepository;
+import com.loadbalancing.kiosk.global.event.OrderCompletedEvent;
 import com.loadbalancing.kiosk.global.exception.custom.OrderItemNotFoundException;
 import com.loadbalancing.kiosk.global.exception.custom.OrderNotFoundException;
 import com.loadbalancing.kiosk.global.exception.custom.ProductNotFoundException;

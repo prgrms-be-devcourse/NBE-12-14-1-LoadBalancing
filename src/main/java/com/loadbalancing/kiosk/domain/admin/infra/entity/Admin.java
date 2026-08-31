@@ -1,4 +1,4 @@
-package com.loadbalancing.kiosk.domain.admin.entity;
+package com.loadbalancing.kiosk.domain.admin.infra.entity;
 
 import com.loadbalancing.kiosk.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;

@@ -1,9 +1,6 @@
 package com.loadbalancing.kiosk.domain.admin.service;
 
-import com.loadbalancing.kiosk.domain.admin.dto.AdminDashboardResponse;
-import com.loadbalancing.kiosk.domain.admin.dto.order.OrderDashboardMetrics;
-import com.loadbalancing.kiosk.domain.admin.dto.order.OrderStatusCountResponse;
-import com.loadbalancing.kiosk.domain.admin.dto.order.PeriodOrderMetric;
+import com.loadbalancing.kiosk.domain.admin.dto.AdminResponse;
 import com.loadbalancing.kiosk.domain.order.infra.entity.OrderStatus;
 import com.loadbalancing.kiosk.domain.order.infra.repository.OrderItemRepository;
 import com.loadbalancing.kiosk.domain.order.infra.repository.OrderRepository;
@@ -30,7 +27,7 @@ public class AdminDashboardService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public AdminDashboardResponse getDashboard() {
+    public AdminResponse.DashboardInfo getDashboard() {
 
         List<Product> products = productRepository.findAll();
 
@@ -55,7 +52,7 @@ public class AdminDashboardService {
                         .map(ProductResponse.ProductInfo::from)
                         .toList();
 
-        OrderDashboardMetrics orderMetrics =
+        AdminResponse.OrderMetrics orderMetrics =
                 getOrderDashboardMetrics();
 
         ProductResponse.ProductSalesAnalysisInfo bestSellingProduct =
@@ -67,7 +64,7 @@ public class AdminDashboardService {
         ProductResponse.ProductSalesAnalysisInfo worstSellingProduct =
                 getWorstSellingProduct();
 
-        return AdminDashboardResponse.builder()
+        return AdminResponse.DashboardInfo.builder()
                 // 상품/재고
                 .totalProductCount(totalProductCount)
                 .outOfStockProducts(outOfStockProducts)
@@ -150,7 +147,7 @@ public class AdminDashboardService {
                 .orElse(null);
     }
 
-    private OrderDashboardMetrics getOrderDashboardMetrics() {
+    private AdminResponse.OrderMetrics getOrderDashboardMetrics() {
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -163,25 +160,25 @@ public class AdminDashboardService {
         LocalDateTime monthlyStart = calculateMonthlyStart(now);
         LocalDateTime monthlyEnd = monthlyStart.plusMonths(1);
 
-        PeriodOrderMetric daily =
+        AdminResponse.PeriodMetric daily =
                 getPeriodOrderMetric(dailyStart, dailyEnd);
 
-        PeriodOrderMetric weekly =
+        AdminResponse.PeriodMetric weekly =
                 getPeriodOrderMetric(weeklyStart, weeklyEnd);
 
-        PeriodOrderMetric monthly =
+        AdminResponse.PeriodMetric monthly =
                 getPeriodOrderMetric(monthlyStart, monthlyEnd);
 
-        List<OrderStatusCountResponse> orderStatusCounts =
+        List<AdminResponse.OrderStatusCount> orderStatusCounts =
                 orderRepository.countGroupByOrderStatus()
                         .stream()
-                        .map(result -> OrderStatusCountResponse.of(
+                        .map(result -> AdminResponse.OrderStatusCount.of(
                                 result.getStatus(),
                                 result.getCount()
                         ))
                         .toList();
 
-        return OrderDashboardMetrics.builder()
+        return AdminResponse.OrderMetrics.builder()
                 .daily(daily)
                 .weekly(weekly)
                 .monthly(monthly)
@@ -189,7 +186,7 @@ public class AdminDashboardService {
                 .build();
     }
 
-    private PeriodOrderMetric getPeriodOrderMetric(
+    private AdminResponse.PeriodMetric getPeriodOrderMetric(
             LocalDateTime startAt,
             LocalDateTime endAt
     ) {
@@ -211,7 +208,7 @@ public class AdminDashboardService {
                 ? 0
                 : totalSales / orderCount;
 
-        return PeriodOrderMetric.builder()
+        return AdminResponse.PeriodMetric.builder()
                 .totalSales(totalSales)
                 .orderCount(orderCount)
                 .averageOrderAmount(averageOrderAmount)

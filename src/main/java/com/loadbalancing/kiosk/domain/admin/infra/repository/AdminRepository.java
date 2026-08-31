@@ -1,6 +1,6 @@
-package com.loadbalancing.kiosk.domain.admin.repository;
+package com.loadbalancing.kiosk.domain.admin.infra.repository;
 
-import com.loadbalancing.kiosk.domain.admin.entity.Admin;
+import com.loadbalancing.kiosk.domain.admin.infra.entity.Admin;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
