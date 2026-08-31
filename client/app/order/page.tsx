@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { orderApi } from "@/api/orderApi";
 import { OrderInfo, getOrderTotal } from "@/types/order";
@@ -69,6 +70,10 @@ export default function OrderPage() {
   // 예전엔 프론트가 보낸 값을 그대로 다시 보여줬었는데, 이제 서버 응답을 그대로 씀
   const [orderResult, setOrderResult] = useState<OrderInfo | null>(null);
 
+  // 주문 완료 화면에서 상품 사진을 보여주기 위한 것 - 서버 응답(OrderItemInfo)엔 썸네일이 안 내려와서,
+  // clearCart로 지워지기 전에 장바구니에 있던 productId -> thumbnail을 미리 저장해둠
+  const [thumbnails, setThumbnails] = useState<Record<number, string>>({});
+
   const handleSubmit = async () => {
     if (phase === "paying") return;
     setError(null);
@@ -95,6 +100,9 @@ export default function OrderPage() {
       });
 
       setOrderResult(result);
+      setThumbnails(
+        Object.fromEntries(items.map((item) => [item.productId, item.thumbnail]))
+      );
       clearCart();
       setPhase("done");
     } catch (e) {
@@ -114,11 +122,21 @@ export default function OrderPage() {
   // 결제 처리 중 (연출용 스피너)
   if (phase === "paying") {
     return (
-      <div className="mx-auto max-w-2xl px-8 py-10">
-        <OrderStepper currentStep={3} />
-        <div className="flex flex-col items-center justify-center gap-4 py-24">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-black" />
-          <p className="text-body-md text-gray-500">결제 처리 중입니다...</p>
+      <div className="mx-auto w-full max-w-7xl">
+        <header className="mb-8 border-b-2 border-black">
+          <Link href="/" className="flex h-20 items-center justify-center">
+            <span className="text-headline-md font-extrabold uppercase tracking-tighter text-black">
+              Kiosk
+            </span>
+          </Link>
+        </header>
+
+        <div className="px-8 pb-10">
+          <OrderStepper currentStep={3} />
+          <div className="flex flex-col items-center justify-center gap-4 py-24">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-black" />
+            <p className="text-body-md text-gray-500">결제 처리 중입니다...</p>
+          </div>
         </div>
       </div>
     );
@@ -127,7 +145,16 @@ export default function OrderPage() {
   // 주문 완료 화면
   if (phase === "done" && orderResult) {
     return (
-      <div className="mx-auto flex max-w-2xl flex-col items-center px-8 py-10 text-center">
+      <div className="mx-auto w-full max-w-7xl">
+        <header className="mb-8 border-b-2 border-black">
+          <Link href="/" className="flex h-20 items-center justify-center">
+            <span className="text-headline-md font-extrabold uppercase tracking-tighter text-black">
+              Kiosk
+            </span>
+          </Link>
+        </header>
+
+        <div className="flex w-full flex-col items-center px-8 pb-10 text-center">
         <OrderStepper currentStep={4} />
 
         <div className="flex w-full flex-col items-center gap-4 py-6">
@@ -161,12 +188,31 @@ export default function OrderPage() {
               // 같은 이메일로 오늘 두 번 주문하면 같은 productId가 별도 줄로 합쳐져 들어올 수 있어서
               // (orders/admin-orders 페이지랑 동일한 이유) index를 같이 섞어 key를 고유하게 만듦
               key={`${item.productId}-${index}`}
-              className="text-body-md flex justify-between text-black"
+              className="flex items-center gap-3"
             >
-              <span>
+              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-gray-100">
+                {thumbnails[item.productId] ? (
+                  <img
+                    src={thumbnails[item.productId]}
+                    alt={item.title}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <Icon
+                      name="image_not_supported"
+                      className="text-lg text-gray-300"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <span className="text-body-md flex-1 truncate font-medium text-black">
                 {item.title} x {item.quantity}
               </span>
-              <span>{(item.price * item.quantity).toLocaleString()}원</span>
+              <span className="text-body-md text-black">
+                {(item.price * item.quantity).toLocaleString()}원
+              </span>
             </div>
           ))}
           <div className="text-body-md mt-2 flex justify-between border-t border-gray-200 pt-2 font-bold text-black">
@@ -201,6 +247,7 @@ export default function OrderPage() {
         >
           메뉴로 돌아가기
         </button>
+        </div>
       </div>
     );
   }
@@ -223,8 +270,16 @@ export default function OrderPage() {
 
   // 주문확인 (기본 화면) - zz/_1 카트 화면 참고, 왼쪽엔 상품 목록 / 오른쪽엔 입력폼+총액+결제 2단 구성
   return (
-    <div className="mx-auto max-w-5xl px-8 py-10 pb-12">
-      <BackToHomeButton />
+    <div className="mx-auto w-full max-w-7xl">
+      <header className="mb-8 border-b-2 border-black">
+        <Link href="/" className="flex h-20 items-center justify-center">
+          <span className="text-headline-md font-extrabold uppercase tracking-tighter text-black">
+            Kiosk
+          </span>
+        </Link>
+      </header>
+
+      <div className="px-8 pb-12">
       <OrderStepper currentStep={2} />
       <h1 className="text-headline-md mb-8 font-bold text-black">주문하기</h1>
 
@@ -279,7 +334,8 @@ export default function OrderPage() {
                     onClick={() =>
                       updateQuantity(item.productId, item.quantity + 1)
                     }
-                    className="touch-target flex w-10 items-center justify-center text-black"
+                    disabled={item.quantity >= item.stock}
+                    className="touch-target flex w-10 items-center justify-center text-black disabled:opacity-30"
                   >
                     <Icon name="add" className="text-lg" />
                   </button>
@@ -426,6 +482,7 @@ export default function OrderPage() {
             결제하기
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

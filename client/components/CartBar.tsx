@@ -17,6 +17,10 @@ export default function CartBar() {
   // 있어서, 이 바가 화면 아래를 덮어 가리는 문제가 있었음 - 그 페이지에서는 숨김
   if (pathname === "/order") return null;
 
+  // 고객이 장바구니를 담아둔 채로 관리자 페이지로 넘어가면(같은 브라우저/localStorage 공유라
+  // 장바구니 상태가 그대로 유지됨) 관리자 화면에 이 바가 계속 떠서 방해가 됨 - 관리자 영역 전체에서 숨김
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-black bg-white">
       {/* 담은 상품들 - 클릭 없이 항상 보임, 많으면 가로 스크롤 */}
@@ -63,7 +67,8 @@ export default function CartBar() {
                   onClick={() =>
                     updateQuantity(item.productId, item.quantity + 1)
                   }
-                  className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-100 text-black"
+                  disabled={item.quantity >= item.stock}
+                  className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-100 text-black disabled:opacity-30"
                 >
                   <Icon name="add" className="text-xs" />
                 </button>

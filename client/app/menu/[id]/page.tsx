@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { productApi } from "@/api/productApi";
 import { ProductInfo } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import OrderStepper from "@/components/OrderStepper";
-import BackToHomeButton from "@/components/BackToHomeButton";
 import Icon from "@/components/Icon";
 
 export default function ProductDetailPage() {
@@ -58,8 +58,17 @@ export default function ProductDetailPage() {
   const fadeClass = added ? "opacity-0" : "opacity-100";
 
   return (
-    <div className="mx-auto max-w-5xl px-8 py-10">
-      <BackToHomeButton />
+    <div className="mx-auto w-full max-w-7xl">
+      {/* 메뉴 페이지랑 동일하게 헤더는 패딩 없이 맨 위에 붙이고, 패딩은 본문에만 줌 */}
+      <header className="mb-8 border-b-2 border-black">
+        <Link href="/" className="flex h-20 items-center justify-center">
+          <span className="text-headline-md font-extrabold uppercase tracking-tighter text-black">
+            Kiosk
+          </span>
+        </Link>
+      </header>
+
+      <div className="px-8 pb-10">
       <OrderStepper currentStep={1} />
 
       <div className={`flex gap-12 transition-opacity duration-500 ${fadeClass}`}>
@@ -145,8 +154,11 @@ export default function ProductDetailPage() {
                   {quantity}
                 </span>
                 <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="touch-target flex items-center justify-center text-black"
+                  onClick={() =>
+                    setQuantity((q) => Math.min(product.stock, q + 1))
+                  }
+                  disabled={quantity >= product.stock}
+                  className="touch-target flex items-center justify-center text-black disabled:opacity-30"
                 >
                   <Icon name="add" />
                 </button>
@@ -160,6 +172,7 @@ export default function ProductDetailPage() {
                       title: product.title,
                       price: product.price,
                       thumbnail: product.thumbnail,
+                      stock: product.stock,
                     },
                     quantity
                   );
@@ -175,6 +188,7 @@ export default function ProductDetailPage() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
