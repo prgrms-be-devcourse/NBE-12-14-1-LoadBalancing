@@ -67,12 +67,17 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfiguratonSource(){
         CorsConfiguration config = new CorsConfiguration();
 
-        // 프론트 개발 서버 포트가 바뀔 수 있어서(3000 -> 3002로 바뀐 적 있음) 자주 쓰는 포트 다 열어둠
+        // 프론트 개발 서버 포트가 바뀔 수 있어서(3000 -> 3002로 바뀐 적 있음) 자주 쓰는 포트 다 열어둠.
+        // vercel.app 두 개는 해시 없는 고정 별칭(alias) - 배포할 때마다 바뀌는
+        // client-xxxxx-kiosk4.vercel.app 같은 개별 배포 URL이 아니라, 항상 최신 프로덕션 배포를
+        // 가리키는 고정 도메인이라 여기 등록해도 다음 배포 때 안 깨짐
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:3000",
                 "http://localhost:3001",
-                "http://localhost:3002"
+                "http://localhost:3002",
+                "https://client-kiosk4.vercel.app",
+                "https://client-sigma-five-59.vercel.app"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT","DELETE", "PATCH", "OPTIONS"));
