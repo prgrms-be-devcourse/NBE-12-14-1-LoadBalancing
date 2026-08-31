@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    # dev는 로컬 도커 포트(3308)에 박아뒀지만, 운영 서버는 DB가 어디 떠있을지(같은 인스턴스인지,
+    # 완전히 다른 호스트인지) 몰라서 호스트/포트까지 전부 환경변수로 뺌 - 배포 환경에서 MYSQL_HOST를
+    # 꼭 지정해줘야 함 (안 주면 localhost:3306으로 시도)
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      # dev처럼 update로 놔두면 운영 DB가 배포할 때마다 계속 alter됨 - 운영은 절대 update 쓰면 안 되고,
+      # 엔티티랑 실제 스키마가 안 맞으면(마이그레이션 도구 없이) 그냥 조용히 넘어가지 않고
+      # 시작 시점에 바로 에러 내게 validate로 고정
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.MySQLDialect
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
+
+cloudflare:
+  r2:
+    account-id: ${R2_ACCOUNT_ID}
+    access-key: ${R2_ACCESS_KEY}
+    secret-key: ${R2_SECRET_KEY}
+    bucket: ${R2_BUCKET_NAME}
+    url: ${R2_PUBLIC_URL}
+
+notification:
+  discord:
+    enabled: ${DISCORD_NOTIFICATION_ENABLED:false}
+    webhook-url: ${DISCORD_WEBHOOK_URL:}
