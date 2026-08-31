@@ -1,4 +1,4 @@
-package com.loadbalancing.kiosk.domain.notification.dto;
+package com.loadbalancing.kiosk.global.discord;
 
 public record DiscordWebhookRequest(
         String content

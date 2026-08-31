@@ -1,7 +1,6 @@
 package com.loadbalancing.kiosk.domain.product.controller;
 
 
-import com.loadbalancing.kiosk.domain.product.dto.ProductRequest;
 import com.loadbalancing.kiosk.domain.product.dto.ProductResponse;
 import com.loadbalancing.kiosk.domain.product.dto.ProductSearchRequest;
 import com.loadbalancing.kiosk.domain.product.service.ProductService;
@@ -13,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -45,18 +43,6 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.success(
                 200,
                 product
-        ));
-    }
-
-    @PostMapping("/product")
-    @Transactional
-    public ResponseEntity<ApiResponse<?>> create(
-            @Valid @RequestBody ProductRequest.ProductCreate productRequest){
-        ProductResponse.ProductInfo products = productService.createProduct(productRequest);
-
-        return ResponseEntity.status(201).body(ApiResponse.success(
-                201,
-                products
         ));
     }
 }

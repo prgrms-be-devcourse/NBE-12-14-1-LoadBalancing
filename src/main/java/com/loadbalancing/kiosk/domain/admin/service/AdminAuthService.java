@@ -2,8 +2,8 @@ package com.loadbalancing.kiosk.domain.admin.service;
 
 import com.loadbalancing.kiosk.domain.admin.dto.AdminRequest;
 import com.loadbalancing.kiosk.domain.admin.dto.AdminResponse;
-import com.loadbalancing.kiosk.domain.admin.entity.Admin;
-import com.loadbalancing.kiosk.domain.admin.repository.AdminRepository;
+import com.loadbalancing.kiosk.domain.admin.infra.entity.Admin;
+import com.loadbalancing.kiosk.domain.admin.infra.repository.AdminRepository;
 import com.loadbalancing.kiosk.global.exception.custom.InvalidLoginException;
 import com.loadbalancing.kiosk.global.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;

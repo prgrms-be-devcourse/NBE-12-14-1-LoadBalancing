@@ -1,7 +1,7 @@
 package com.loadbalancing.kiosk.global.init;
 
-import com.loadbalancing.kiosk.domain.admin.entity.Admin;
-import com.loadbalancing.kiosk.domain.admin.repository.AdminRepository;
+import com.loadbalancing.kiosk.domain.admin.infra.entity.Admin;
+import com.loadbalancing.kiosk.domain.admin.infra.repository.AdminRepository;
 import com.loadbalancing.kiosk.domain.product.infra.entity.Product;
 import com.loadbalancing.kiosk.domain.product.infra.entity.ProductImg;
 import com.loadbalancing.kiosk.domain.product.infra.repository.ProductImgRepository;

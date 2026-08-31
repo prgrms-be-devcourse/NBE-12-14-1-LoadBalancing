@@ -1,7 +1,7 @@
 package com.loadbalancing.kiosk.domain.notification.listener;
 
-import com.loadbalancing.kiosk.domain.notification.discord.DiscordWebhookClient;
-import com.loadbalancing.kiosk.domain.notification.dto.OrderCompletedEvent;
+import com.loadbalancing.kiosk.global.discord.DiscordWebhookClient;
+import com.loadbalancing.kiosk.global.event.OrderCompletedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
