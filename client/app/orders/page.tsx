@@ -112,7 +112,7 @@ export default function CustomerOrderLookupPage() {
   // 1단계: 이메일 입력 (로그인 창처럼)
   if (phase === "email") {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-8">
+      <div className="mx-auto flex w-full min-h-screen max-w-7xl flex-col items-center justify-center gap-6 px-8">
         <BackToHomeButton />
         <Icon name="receipt_long" className="text-5xl text-black" />
         <h1 className="text-headline-md font-bold text-black">
@@ -150,7 +150,7 @@ export default function CustomerOrderLookupPage() {
 
   // 2단계: 주문 목록 (admin/orders랑 같은 템플릿, 상태변경/삭제는 뺌 - 고객은 조회만)
   return (
-    <div className="mx-auto max-w-2xl px-8 py-10">
+    <div className="mx-auto w-full max-w-7xl px-8 py-10">
       <BackToHomeButton />
       <h1 className="text-headline-md mb-8 font-bold text-black">
         주문 조회

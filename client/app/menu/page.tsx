@@ -124,18 +124,17 @@ export default function MenuPage() {
   }, [loadMore, error]);
 
   return (
-    <div className="mx-auto min-h-screen max-w-7xl bg-white px-8 py-10">
-      {/* zz/_3 참고 - 상단 로고 바 (누르면 처음으로). 페이지 전체가 max-w-7xl(1280px)로 잡혀있어서
-          더 이상 -mx-8로 삐져나오게 할 필요 없이 본문이랑 같은 폭으로 정렬함 */}
-      <Link
-        href="/"
-        className="mb-8 flex h-20 items-center justify-center border-b-2 border-black"
-      >
-        <span className="text-headline-md font-extrabold uppercase tracking-tighter text-black">
-          Kiosk
-        </span>
-      </Link>
+    <div className="mx-auto w-full min-h-screen max-w-7xl bg-white">
+      {/* 인덱스 페이지처럼 헤더는 페이지 맨 위에 붙이고(패딩 없이), 패딩은 본문에만 줌 */}
+      <header className="mb-8 border-b-2 border-black">
+        <Link href="/" className="flex h-20 items-center justify-center">
+          <span className="text-headline-md font-extrabold uppercase tracking-tighter text-black">
+            Kiosk
+          </span>
+        </Link>
+      </header>
 
+      <div className="px-8 pb-10">
       <OrderStepper currentStep={1} />
       <h1 className="text-headline-md mb-8 font-bold text-black">메뉴</h1>
 
@@ -261,6 +260,7 @@ export default function MenuPage() {
 
       {/* 이 div가 화면에 보이면(스크롤이 여기까지 오면) 다음 페이지 자동 로드됨 */}
       <div ref={sentinelRef} className="h-1" />
+      </div>
     </div>
   );
 }

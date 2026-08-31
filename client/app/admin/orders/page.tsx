@@ -168,7 +168,7 @@ export default function AdminOrderListPage() {
   };
 
   return (
-    <div className="mx-auto w-[896px] px-8 py-10">
+    <div className="mx-auto w-full max-w-7xl px-8 py-10">
 
       <h1 className="text-headline-md mb-8 font-bold text-black">
         주문 관리

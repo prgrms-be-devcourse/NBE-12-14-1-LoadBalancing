@@ -15,7 +15,8 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex h-screen w-screen flex-col bg-white text-black">
+    // 프로젝트 전체 페이지 폭(max-w-7xl)에 맞춤 - 예전엔 화면 전체(w-screen)라 다른 페이지랑 크기 느낌이 달랐음
+    <div className="mx-auto flex w-full min-h-screen max-w-7xl flex-col bg-white text-black">
       <header className="flex h-24 shrink-0 items-center justify-center border-b-2 border-black">
         <span className="text-headline-md font-extrabold uppercase tracking-tighter">
           Kiosk

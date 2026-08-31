@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
   }, [fetchDashboard]);
 
   return (
-    <div className="mx-auto w-[896px] px-8 py-10">
+    <div className="mx-auto w-full max-w-7xl px-8 py-10">
 
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-headline-md font-bold text-black">대시보드</h1>

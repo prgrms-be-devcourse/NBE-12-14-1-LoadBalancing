@@ -14,6 +14,7 @@ export interface CartItem {
   price: number;
   thumbnail: string;
   quantity: number;
+  stock: number; // 담을 때 재고를 같이 저장해둬서, 그 이상은 못 담게(수량 조절도) 막는 데 씀
 }
 
 interface CartContextValue {
@@ -57,13 +58,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => {
       const existing = prev.find((i) => i.productId === item.productId);
       if (existing) {
+        // 재고는 매번 최신값(item.stock)으로 갱신 - 담아둔 사이에 재고가 바뀌었을 수 있어서
+        const cappedQuantity = Math.min(
+          existing.quantity + quantity,
+          item.stock
+        );
         return prev.map((i) =>
           i.productId === item.productId
-            ? { ...i, quantity: i.quantity + quantity }
+            ? { ...i, stock: item.stock, quantity: cappedQuantity }
             : i
         );
       }
-      return [...prev, { ...item, quantity }];
+      return [...prev, { ...item, quantity: Math.min(quantity, item.stock) }];
     });
   };
 
@@ -77,7 +83,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     setItems((prev) =>
-      prev.map((i) => (i.productId === productId ? { ...i, quantity } : i))
+      prev.map((i) =>
+        i.productId === productId
+          ? {
+              ...i,
+              // 예전에 담긴 카트 데이터엔 stock이 없을 수 있어서(이 필드 추가 전) 방어적으로 처리
+              quantity:
+                typeof i.stock === "number"
+                  ? Math.min(quantity, i.stock)
+                  : quantity,
+            }
+          : i
+      )
     );
   };
 

@@ -28,10 +28,10 @@ export default function AdminNav() {
 
   return (
     // 이제 각 페이지 안이 아니라 app/admin/layout.tsx에서 한 번만 렌더링되는 공용 상단바라,
-    // 페이지의 w-[896px] 컨테이너 안에 끼어있다고 가정한 -mx-8 bleed 트릭 대신
-    // 바 자체를 전체 폭으로 깔고 안쪽 내용만 페이지 폭(896px)에 맞춰 가운데 정렬함
+    // 페이지 컨테이너 안에 끼어있다고 가정한 -mx-8 bleed 트릭 대신
+    // 바 자체를 전체 폭으로 깔고 안쪽 내용만 프로젝트 전체 페이지 폭(1200px)에 맞춰 가운데 정렬함
     <div className="mb-8 border-b-2 border-black">
-      <div className="mx-auto flex w-[896px] items-center justify-between px-8 py-4">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-8 py-4">
         <div className="flex items-center gap-10">
         <span className="text-headline-md font-extrabold uppercase tracking-tighter text-black">
           Kiosk
