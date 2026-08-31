@@ -1,9 +1,9 @@
-name: Deploy to Railway (Dev-Test)
+name: Deploy to Railway (Main)
 
 on:
   push:
     branches:
-      - dev-test
+      - main
 
 jobs:
   deploy:
